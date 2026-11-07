@@ -7,28 +7,26 @@ Results come from the same validated files as the slide charts (eval/make_charts
 from __future__ import annotations
 
 import html
-import re
+import math
 import sys
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 import streamlit as st  # noqa: E402
+import streamlit.components.v1  # noqa: E402,F401
 
 from app import data  # noqa: E402
-from app.evidence import REL_WORDS, claim_edges, evidence, ok, render_answer, source_label  # noqa: E402
+from app import run_view as RV  # noqa: E402
+from app.run_view import LABEL, ROLE  # noqa: E402
 
 TEAM = {"Knowledge graph and patient layer": "", "GNN encoder and retriever": "",  # fill in teammates' names
         "Agent and verifier": "", "Product, demo and pitch": "Amy Qin"}
 STEPS = {"P01": "Risk", "P02": "Hypertension", "P03": "Mechanism", "P04": "Driver genes", "P05": "Confidence"}
-
-# Color carries meaning, the same way on the site, graph and slides:
-#   observed in this patient = eosin pink, curated knowledge = hematoxylin violet, drug = amber
-ROLE = {"observed": ("#fbe3ea", "#a3304f", "#d6457a"), "known": ("#e9e6f7", "#3b2f8f", "#4f3fbf"),
-        "drug": ("#f6edd2", "#6b5100", "#b88a00")}
-LABEL = {"observed": "Observed in this patient", "known": "Known biology", "drug": "Drug and its target"}
 VIEW = st.query_params.get("view", "full")
+PACE = 1.0  # replay speed: 1.0 is about 15 seconds per run
 
 st.set_page_config(page_title="Patient-in-the-Graph", page_icon="🧬", layout="wide", initial_sidebar_state="collapsed")
 st.markdown("""
@@ -117,6 +115,88 @@ div.stButton > button:focus-visible { outline: 2px solid var(--eosin); outline-o
 [data-testid="stExpander"] { border:none; border-top:1px solid var(--rule); border-radius:0; background:transparent; }
 [data-baseweb="select"] > div { border-radius:6px; border-color: var(--rule); background:#fff; }
 [data-testid="stChatMessage"] { background:#fff; border:1px solid var(--rule); border-radius:8px; }
+:root { --hl:#ece7fb; }
+.intake { display:grid; grid-template-columns: 1.1fr 1fr 1.6fr; gap:2rem; padding:1.1rem 0 1.3rem; margin:.4rem 0 1.2rem;
+          border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); }
+.intake .k { color:var(--muted); font-size:.84rem; margin-bottom:.45rem; }
+.intake .pid { font-family:"Newsreader",serif; font-size:1.6rem; line-height:1.1; }
+.intake .sum { font-size:.95rem; color:var(--body); margin-top:.3rem; line-height:1.45; }
+.ic { display:inline-block; font-size:.92rem; padding:.18rem .55rem; border-radius:5px; margin:0 .35rem .4rem 0; }
+.ic.obs { background:#fbe3ea; color:#a3304f; } .ic small { margin-left:.35rem; opacity:.75; font-size:.78rem; }
+.strip { display:grid; grid-template-columns: repeat(6, 1fr); gap:.5rem; margin:.4rem 0 1.4rem; }
+.stg { border-top:3px solid var(--rule); padding-top:.5rem; transition: border-color .3s; }
+.stg .nm { font-size:.86rem; font-weight:600; color:var(--muted); } .stg .mt { font-size:.82rem; color:var(--muted); min-height:1.1em; }
+.stg .dot { display:none; }
+.stg.active { border-color: var(--eosin); } .stg.active .nm { color: var(--ink); }
+.stg.active .mt { color:var(--eosin); animation: pulse 1s ease-in-out infinite; }
+.stg.done { border-color: var(--hema); } .stg.done .nm { color: var(--ink); } .stg.done .mt { color: var(--hema); }
+@keyframes pulse { 50% { opacity:.35 } }
+.pred { display:grid; grid-template-columns: auto 1fr; column-gap:1.6rem; row-gap:.2rem; align-items:end;
+        padding:1rem 1.2rem; background:#fff; border:1px solid var(--rule); border-radius:8px; margin-bottom:1.2rem; }
+.pred .pl { grid-column:1; font-size:.84rem; color:var(--muted); } .pred .pv { grid-column:1; grid-row:2;
+        font-family:"Newsreader",serif; font-size:3rem; line-height:1; color:var(--ink); }
+.pred .pt { grid-column:2; grid-row:1 / 3; align-self:center; }
+.pred .trk { position:relative; height:8px; border-radius:4px; background:linear-gradient(90deg,#e9e6f7,#fbe3ea); }
+.pred .trk i { position:absolute; top:-6px; width:4px; height:20px; margin-left:-2px; border-radius:2px; background:var(--ink);
+        transition:left .08s linear; }
+.pred .ends { display:flex; justify-content:space-between; font-size:.8rem; color:var(--muted); margin-top:.45rem; }
+.pred .pn { grid-column:1 / 3; font-size:.95rem; color:var(--body); margin-top:.7rem; line-height:1.5; }
+.pred .pn span { font-size:.84rem; color:var(--muted); }
+.pc { display:inline-block; background:#fbe3ea; color:#a3304f; border-radius:4px; padding:0 .45rem; margin:0 .2rem; font-size:.88rem; }
+.funnel { margin:.3rem 0 1rem; }
+.funnel .fr { display:grid; grid-template-columns: 7.5rem 1fr; column-gap:1rem; align-items:center; margin:.35rem 0;
+              animation: rise .45s ease-out both; }
+.funnel b { font-family:"Newsreader",serif; font-weight:400; font-size:1.5rem; text-align:right; color:var(--ink); }
+.funnel span { font-size:.88rem; color:var(--muted); }
+.funnel .fb { grid-column:2; height:6px; background:#efecf4; border-radius:3px; }
+.funnel .fb i { display:block; height:6px; border-radius:3px; background:var(--hema); animation: grow .7s ease-out both; }
+.funnel .fr:last-child .fb i { background:var(--eosin); }
+@keyframes grow { from { width:0 } } @keyframes rise { from { opacity:0; transform:translateY(6px) } }
+.mchain { display:flex; flex-wrap:wrap; align-items:center; gap:.5rem; margin:.4rem 0 1.2rem; }
+.mchain .ms { background:#e9e6f7; color:#3b2f8f; border-radius:6px; padding:.35rem .65rem; font-family:"Newsreader",serif;
+              font-size:1.1rem; animation: rise .4s ease-out both; animation-delay:var(--d); }
+.mchain .ms small { display:block; font-family:"Public Sans",sans-serif; font-size:.74rem; color:var(--muted); }
+.mchain .ar { color:var(--hema); }
+.answer p, .answer li { margin:0 0 .7rem; } .answer h4 { font-family:"Public Sans",sans-serif; font-size:1rem; margin:.8rem 0 .3rem; }
+.answer ul { padding-left:1.2rem; margin:0 0 .7rem; }
+.sn.cite { border-radius:3px; transition: background .12s, box-shadow .12s; cursor:default; }
+.sn.cite:hover { background:var(--hl); box-shadow:0 0 0 3px var(--hl); }
+.hyptag { font:600 .72rem "Public Sans",sans-serif; color:var(--muted); border:1px dashed var(--muted); border-radius:4px;
+          padding:0 .35rem; margin-right:.35rem; vertical-align:middle; }
+.draft .dr.new { animation: rise .35s ease-out both; }
+.draft .caret { display:inline-block; width:2px; height:1.1em; background:var(--hema); vertical-align:-2px; animation: pulse .8s infinite; }
+.draft .dr.strike { color:#a3304f; background:#fbe3ea; border-radius:3px; text-decoration: line-through;
+          text-decoration-color: var(--eosin); text-decoration-thickness:2px; animation: flag 1.2s ease-out both; }
+@keyframes flag { 0% { background:transparent; color:var(--body); text-decoration-color:transparent }
+                  40% { background:#f7c6d6 } 100% { background:#fbe3ea } }
+.draft .dr.hyp { animation: rise .4s ease-out both; }
+.sub-h { font-family:"Newsreader",serif; font-size:1.4rem; margin:1.8rem 0 .5rem; display:flex; justify-content:space-between;
+         align-items:baseline; gap:1rem; }
+.sub-h span { font-family:"Public Sans",sans-serif; font-size:.85rem; color:var(--muted); }
+.egraph .g-e .vis { stroke:#d9d5e3; stroke-width:1.6px; transition: stroke .15s, stroke-width .15s; }
+.egraph .g-e.cited .vis { stroke:var(--c); stroke-width:2.6px; }
+.egraph .g-e, .egraph .g-n { transition: opacity .15s; }
+.egraph .g-n:not(.hot) { opacity:.8; }
+.egraph .g-e .hit, .egraph .g-n { cursor:pointer; }
+.egraph.intro .g-n { animation: rise .4s ease-out both; animation-delay: var(--d); }
+.egraph.intro .g-e { animation: fade .8s ease-out .6s both; }
+@keyframes fade { from { opacity:0 } }
+.guide-h { display:flex; flex-direction:column; margin:.2rem 0 .8rem; }
+.guide-h b { font-family:"Newsreader",serif; font-weight:400; font-size:1.5rem; }
+.guide-h span { font-size:.84rem; color:var(--muted); }
+.guide { display:flex; flex-direction:column-reverse; gap:.6rem; margin-bottom:.8rem; max-height:56vh; overflow-y:auto;
+         padding-right:.3rem; scrollbar-width:thin; }
+div[data-testid="stColumn"]:has(.guide-h) { position:sticky; top:1rem; align-self:flex-start; }
+#runtop { scroll-margin-top:1rem; }
+.gm { flex-shrink:0; font-size:.94rem; line-height:1.5; padding:.65rem .8rem; border-radius:10px; animation: rise .35s ease-out both; }
+.gm.bot { background:#fff; border:1px solid var(--rule); border-top-left-radius:3px; color:var(--body); }
+.gm.user { background:var(--hema); color:#fff; align-self:flex-end; max-width:85%; border-top-right-radius:3px; }
+.gm .gs { display:block; font-size:.76rem; font-weight:600; color:var(--hema); margin-bottom:.15rem; }
+.gm.typing { display:flex; gap:4px; width:3.2rem; } .gm.typing i { width:6px; height:6px; border-radius:50%; background:#c9c4d6;
+             animation: pulse 1s infinite; } .gm.typing i:nth-child(2) { animation-delay:.2s } .gm.typing i:nth-child(3) { animation-delay:.4s }
+@media (prefers-reduced-motion: reduce) { .gm, .funnel .fr, .funnel .fb i, .mchain .ms, .draft .dr, .egraph .g-n, .egraph .g-e,
+  .stg .mt, .caret { animation:none !important; } }
+@media (max-width: 860px) { .intake { grid-template-columns:1fr; gap:1rem; } .strip { grid-template-columns: repeat(3,1fr); } }
 @media (max-width: 860px) { .hero, .factgroups { grid-template-columns: 1fr; } .method { grid-template-columns: 1fr 1fr; } .sec { display:block; } .chain { flex-wrap:wrap; } }
 </style>
 """, unsafe_allow_html=True)
@@ -124,85 +204,6 @@ div.stButton > button:focus-visible { outline: 2px solid var(--eosin); outline-o
 
 def esc(s):
     return html.escape(str(s))
-
-
-# ------------------------------------------------------------------ evidence roles + graph drawing
-def edge_role(key, e):
-    if key.startswith("pt:"):
-        return "observed"
-    if e["rel"] in ("drug_protein", "indication", "drug_effect"):
-        return "drug"
-    return "known"
-
-
-def node_role(n, observed_nodes):
-    if n["type"] == "patient" or n["curie"] in observed_nodes:
-        return "observed"
-    return "drug" if n["type"] == "drug" else "known"
-
-
-def graph_svg(nodes, edges, keys, cited, limit=18):
-    """Layered evidence graph from the tools' real results: patient | measured | known biology | drugs."""
-    observed = {e["dst"] for k, e in edges.items() if k.startswith("pt:")}
-    keep = list(dict.fromkeys(n for k in keys for n in (edges[k]["src"], edges[k]["dst"])))
-    hot = {n for k in cited for n in (edges[k]["src"], edges[k]["dst"])}
-    if len(keep) > limit:
-        keep = ([n for n in keep if n in hot] + [n for n in keep if n not in hot])[:limit]
-    keepset = set(keep)
-    keys = [k for k in keys if edges[k]["src"] in keepset and edges[k]["dst"] in keepset]
-
-    def col(c):
-        n = nodes[c]
-        if n["type"] == "patient":
-            return 0
-        if c in observed:
-            return 1
-        return 3 if n["type"] == "drug" else 2
-
-    cols = {i: [c for c in keep if col(c) == i] for i in range(4)}
-    W, X = 900, [100, 315, 560, 805]
-    rows = max(len(v) for v in cols.values()) or 1
-    H = 48 + rows * 60
-    pos = {}
-    for i, cs in cols.items():
-        top = (H - len(cs) * 60) / 2 + 36
-        for j, c in enumerate(cs):
-            pos[c] = (X[i], top + j * 60)
-    out = [f'<svg viewBox="0 0 {W} {H}" width="100%" role="img" aria-label="Evidence graph: the facts the tools returned, '
-           f'with the ones cited in the answer highlighted" style="font-family:Public Sans,sans-serif">']
-    for k in sorted(keys, key=lambda k: k in cited):
-        e = edges[k]
-        (x1, y1), (x2, y2) = pos[e["src"]], pos[e["dst"]]
-        role = edge_role(k, e)
-        hit = k in cited
-        color = ROLE[role][2] if hit else "#d9d5e3"
-        dash = ' stroke-dasharray="5 4"' if role == "observed" else ""
-        mx = (x1 + x2) / 2
-        out.append(f'<path d="M{x1},{y1} C{mx},{y1} {mx},{y2} {x2},{y2}" fill="none" stroke="{color}" '
-                   f'stroke-width="{3 if hit else 1.6}"{dash}><title>{esc(REL_WORDS.get(e["rel"], e["rel"]))} '
-                   f'[{esc(k)}]</title></path>')
-        if role == "drug" and hit:  # inhibition bar at the target end
-            tx = x2 + (16 if x1 > x2 else -16)
-            out.append(f'<line x1="{tx}" y1="{y2 - 8}" x2="{tx}" y2="{y2 + 8}" stroke="{color}" stroke-width="3"/>')
-    for c, (x, y) in pos.items():
-        n = nodes[c]
-        fill, ink, _ = ROLE[node_role(n, observed)]
-        label = n["name"] if len(n["name"]) <= 22 else n["name"][:21] + "…"
-        w = min(230, max(54, 10 * len(label) + 26))
-        op = 1 if (c in hot or not cited) else .7
-        out.append(f'<g opacity="{op}"><rect x="{x - w / 2}" y="{y - 18}" width="{w}" height="36" rx="7" fill="{fill}"/>'
-                   f'<text x="{x}" y="{y + 6}" text-anchor="middle" font-size="17" font-weight="500" fill="{ink}">'
-                   f'{esc(label)}</text><title>{esc(n["curie"])}</title></g>')
-    for i, t in enumerate(["Patient", "Measured or on record", "Known biology", "Drugs"]):
-        if cols[i]:
-            out.append(f'<text x="{X[i]}" y="18" text-anchor="middle" font-size="15" fill="#5d596b">{t}</text>')
-    out.append("</svg>")
-    return "".join(out)
-
-
-def split_conclusion(body):
-    i = body.find(". ")
-    return (body[: i + 1], body[i + 2:]) if 0 < i < 400 else (body, "")
 
 
 # ------------------------------------------------------------------ results (shared with the slide charts)
@@ -305,155 +306,261 @@ diseases and symptoms (PrimeKG), plus curated DisMech mechanisms</div><div><b>{n
 each added to the graph with their tumor's proteins</div></div></div>
 <div class="fg"><h4>Measured so far</h4><div class="facts">{e1card}{e3card}</div></div></div>""", unsafe_allow_html=True)
 
-# ------------------------------------------------------------------ the case
-st.markdown("<div id='case'></div><div class='sec'><h2>The case</h2><p>One patient, five questions. Each answer shows what "
-            "was measured, what the GNN retrieved, and what the verifier removed.</p></div>", unsafe_allow_html=True)
+# ------------------------------------------------------------------ the case: patient in, run replayed, answer out
+if VIEW == "demo":  # the live pitch: patient and run start right under the nav
+    st.markdown("<div id='case'></div><style>.block-container{padding-top:1.2rem} .nav{padding-bottom:.6rem}</style>"
+                "<div style='height:.8rem'></div>", unsafe_allow_html=True)
+else:
+    st.markdown("<div id='case'></div><div class='sec'><h2>The case</h2><p>Pick a patient and a question, then press Run. "
+                "Watch the GNN pick the evidence, the agent draft an answer and the verifier cut what it can't back up."
+                "</p></div>", unsafe_allow_html=True)
 pids = data.patients()
 pid_col, _ = st.columns([1, 3])
 pid = pid_col.selectbox("Patient", pids, label_visibility="collapsed")
 if st.session_state.get("pid") != pid:
     st.session_state.update(pid=pid, qid=st.query_params.get("q"), live_trace=None)
+played = st.session_state.setdefault("played", set())
+
+pt = data.patient(pid)
+info = pt["info"]
+if "error" in info:
+    st.markdown(f"<p style='color:#5d596b'>No patient profile available: {esc(info['error'])}</p>", unsafe_allow_html=True)
+else:
+    def pchips(xs, arrow):
+        return "".join(f"<span class='ic obs'>{esc(x.get('symbol') or x['name'])} {arrow}<small>{x['z']:+.1f}</small>"
+                       "</span>" for x in xs)
+    phen = "".join(f"<span class='ic obs'>{esc(x['name'])}</span>" for x in info.get("phenotypes", [])) or "none"
+    st.markdown(f"""<div class='intake'><div><div class='k'>Patient</div><div class='pid'>{esc(pid)}</div>
+<div class='sum'>{esc(info.get('clinical_summary', ''))}</div></div>
+<div><div class='k'>On record</div>{phen}</div>
+<div><div class='k'>Tumor proteins vs matched normal kidney (z-score)</div>{pchips(info.get('proteins_up', []), '↑')}
+{pchips(info.get('proteins_down', []), '↓')}</div></div>""", unsafe_allow_html=True)
 
 qs = data.demo_questions()
 cols = st.columns(len(qs) or 1)
 for i, (col, qq) in enumerate(zip(cols, qs), 1):
     if col.button(f"{i}. {STEPS.get(qq['qid'], qq['question'][:24])}", key=f"q_{qq['qid']}", help=qq["question"],
                   use_container_width=True, type="primary" if st.session_state.get("qid") == qq["qid"] else "secondary"):
-        st.session_state.update(qid=qq["qid"], live_trace=None)
+        st.session_state.update(qid=qq["qid"], live_trace=None, play=True)
         st.rerun()
 
-left, right = st.columns([1, 2.6], gap="large")
-with left:
-    pt = data.patient(pid)
-    info, pred = pt["info"], pt["pred"]
-    if "error" in info:
-        st.markdown(f"<p style='color:#5d596b'>No patient profile available: {esc(info['error'])}</p>", unsafe_allow_html=True)
-    else:
-        def fmt(xs):
-            return ", ".join(f"{esc(x.get('symbol') or x['name'])} ({x['z']:+.1f})" for x in xs) or "none"
+qid = st.session_state.get("qid")
+t, src = data.trace(pid, qid) if qid else (st.session_state.get("live_trace"), "live")
+run_key = f"{pid}|{qid or 'live'}|{(t or {}).get('run_id', '')}"
+play = st.session_state.pop("play", False)
+V = RV.build(t) if t else None
 
-        rows = [("Patient", f"<span class='serif' style='font-size:1.45rem'>{esc(pid)}</span>"),
-                ("Summary", esc(info.get("clinical_summary", "")))]
-        if "error" not in pred:
-            rows.append(("Model score, stage III–IV vs I–II", f"<div class='score'>{pred['risk']:.2f}</div>"
-                         "<div style='font-size:.86rem;color:#5d596b'>Uncalibrated research model, scored out of fold. "
-                         "Not a probability, and not for clinical decisions.</div>"))
-        rows += [("Findings on record", esc(", ".join(x["name"] for x in info.get("phenotypes", [])) or "none")),
-                 ("Protein higher than normal kidney", fmt(info.get("proteins_up", []))),
-                 ("Protein lower than normal kidney", fmt(info.get("proteins_down", [])))]
-        st.markdown("<div class='profile'>" + "".join(f"<div class='k'>{k}</div><div class='v'>{v}</div>" for k, v in rows)
-                    + "<div class='k'>Values are z-scores against matched normal kidney tissue.</div></div>",
-                    unsafe_allow_html=True)
+score_note = ""
+if real("e2"):
+    from eval.make_charts import e2_stats
+    _g = e2_stats(R["e2"]["data"])["mean"]
+    if "gnn" in _g and "prot_pca_lr" in _g:
+        score_note = (f"Across five folds the GNN's AUROC is {_g['gnn']:.2f}, versus {_g['prot_pca_lr']:.2f} for proteins "
+                      "alone, so at this cohort size the graph adds explanations more than accuracy.")
 
-    live = data.LIVE
-    st.markdown(f"<h3 class='serif' style='font-size:1.4rem;margin:2.2rem 0 .3rem'>"
-                f"{'Ask the agent' if live else 'Find a verified answer'}</h3><p style='font-size:.9rem;color:#5d596b'>"
-                + ("Runs the agent live on your question." if live else
-                   "Matches your question to the closest verified run of the agent. Live questions are off for the demo.")
-                + "</p>", unsafe_allow_html=True)
-    hist = st.session_state.setdefault("chat", {}).setdefault(pid, [])
-    for i, msg in enumerate(hist):
-        with st.chat_message(msg["role"]):
-            st.markdown(msg["text"])
-            if msg.get("qid") and st.button("Open this answer", key=f"open_{pid}_{i}"):
-                st.session_state.update(qid=msg["qid"], live_trace=None)
-                st.rerun()
-    with st.form(f"chat_{pid}", clear_on_submit=True):
-        q = st.text_input("Question", placeholder="Which drugs could act on this tumor?", label_visibility="collapsed")
-        sent = st.form_submit_button("Ask" if live else "Find")
-    if sent and q.strip():
-        hist.append({"role": "user", "text": q})
-        res = data.chat(pid, q)
-        if res["trace"] and res["mode"] == "live":
-            hist.append({"role": "assistant", "text": "Answer ready on the right."})
-            st.session_state.update(qid=None, live_trace=res["trace"])
-        elif res["trace"]:
-            hist.append({"role": "assistant", "qid": res["qid"], "text": f"Closest verified run: *{res['trace']['question']}*"})
-        else:
-            hist.append({"role": "assistant", "text": "No verified run matches that yet. Pick one of the five steps above."})
-        st.rerun()
-
+left, right = st.columns([2.15, 1], gap="large")
 with right:
-    qid = st.session_state.get("qid")
-    if qid:
-        t, src = data.trace(pid, qid)
+    st.markdown("<div class='guide-h'><b>Guide</b><span>Walks you through the run. It only uses this run's evidence."
+                "</span></div>", unsafe_allow_html=True)
+    guide_ph = st.empty()
+
+
+def bubble(text, who="bot", step=None):
+    tag = f"<span class='gs'>{esc(step)}</span>" if step else ""
+    return f"<div class='gm {who}'>{tag}{esc(text)}</div>"
+
+
+def guide(msgs):
+    # column-reverse keeps the newest message in view while the panel scrolls
+    guide_ph.markdown("<div class='guide'>" + "".join(reversed(msgs)) + "</div>", unsafe_allow_html=True)
+
+
+def nap(s):
+    time.sleep(s * PACE)
+
+
+def replay(v):
+    """Plays the cached trace back stage by stage. Marked as played first, so pressing Skip lands on the result."""
+    played.add(run_key)
+    narr = dict(RV.narration(v))
+    names = dict(RV.STAGES)
+    calls = v["calls"]
+    with left:
+        st.components.v1.html("<script>const a=parent.document.getElementById('runtop');"
+                              "if(a)a.scrollIntoView({behavior:'smooth',block:'start'});</script>", height=0)
+        if st.button("Skip to the result", key="skip"):
+            st.rerun()
+        strip_ph = st.empty()
+        focus = st.empty()  # every stage plays in this one spot, so eyes stay put
+    msgs = []
+    for i, (key, _) in enumerate(RV.STAGES):
+        strip_ph.markdown(RV.strip_html(v, i, i), unsafe_allow_html=True)
+        msgs.append(bubble(narr[key], step=f"{i + 1} · {names[key]}"))
+        guide(msgs + ["<div class='gm bot typing'><i></i><i></i><i></i></div>"] if key != "verify" else msgs)
+        if key == "patient":
+            nap(1.6)
+        elif key == "score" and (p := calls.get("predict_patient")):
+            for f in range(1, 13):
+                focus.markdown(RV.prediction_html(p, p["risk"] * f / 12), unsafe_allow_html=True)
+                nap(.06)
+            nap(1.6)
+        elif key == "retrieve" and (s := calls.get("retrieve_subgraph")):
+            cand = s.get("meta", {}).get("n_candidates")
+            cand = cand if isinstance(cand, int) else None
+            for k in range(1, 4 if cand else 3):
+                rows = [RV.PRIMEKG_EDGES, cand, len(s.get("nodes", []))] if cand else [RV.PRIMEKG_EDGES, len(s["nodes"])]
+                focus.markdown(funnel(rows[:k]), unsafe_allow_html=True)
+                nap(.7)
+            focus.markdown(funnel(rows) + RV.graph_svg(v, intro=True), unsafe_allow_html=True)
+            nap(2.0)
+        elif key == "lookup" and (g := calls.get("get_mechanism")):
+            focus.markdown("<div class='sub-h'>Curated mechanism, DisMech</div>" + RV.chain_html(g), unsafe_allow_html=True)
+            nap(2.0)
+        elif key == "draft":
+            n = RV.draft_sentences(v)
+            for k in range(1, n + 1):
+                focus.markdown("<div class='sub-h'>Agent draft</div>" + RV.draft_partial(v, k), unsafe_allow_html=True)
+                nap(min(.55, 4.0 / max(n, 1)))
+            nap(.6)
+        elif key == "verify":
+            focus.markdown("<div class='sub-h'>Verifier<span>Struck: no evidence the tools returned</span></div>"
+                           + RV.draft_html(v, "verify"), unsafe_allow_html=True)
+            nap(3.2)
+        else:
+            nap(1.0)
+    strip_ph.markdown(RV.strip_html(v, -1, len(RV.STAGES)), unsafe_allow_html=True)
+    nap(.5)
+
+
+def funnel(rows):
+    top = math.log10(rows[0])
+    labels = ["connections in the graph", "candidates near this patient", "facts the GNN kept for this question"]
+    if len(rows) == 2 or (len(rows) == 3 and rows[1] is None):
+        labels = [labels[0], labels[2]]
+    out = []
+    for n, lab in zip(rows, labels):
+        w = max(3, 100 * math.log10(max(n, 1)) / top)
+        out.append(f"<div class='fr'><b>{n:,}</b><span>{lab}</span><div class='fb'><i style='width:{w:.0f}%'></i></div></div>")
+    return "<div class='funnel'>" + "".join(out) + "</div>"
+
+
+def ask(text, v):
+    hist = st.session_state.setdefault("chat", {}).setdefault(pid, [])
+    hist.append({"role": "user", "text": text})
+    it = RV.intent_of(text)
+    if it and v:
+        hist.append({"role": "guide", "text": RV.explain(it, v, score_note)})
+        return
+    res = data.chat(pid, text)
+    if res["trace"] and res["mode"] == "live":
+        hist.append({"role": "guide", "text": "I ran the agent live on your question. Watch it work on the left."})
+        st.session_state.update(qid=None, live_trace=res["trace"], play=True)
+    elif res["trace"] and res["qid"] == qid:
+        hist.append({"role": "guide", "text": "That's the question on screen. Hover the answer to trace each claim."})
+    elif res["trace"]:
+        hist.append({"role": "guide", "qid": res["qid"], "text": f"The closest verified run is “{res['trace']['question']}”"})
     else:
-        t, src = st.session_state.get("live_trace"), "live"
+        hist.append({"role": "guide", "text": "I only answer from verified runs. Ask about the score, the drugs, the "
+                     "evidence or what the verifier removed, or pick one of the questions above."})
+
+
+with left:
     if not t:
         st.markdown("<p class='q' style='color:#5d596b'>" + ("There's no verified run for this step and patient yet."
-                    if qid else "Start with step 1: what drives this patient's model score, and what would you target?")
-                    + "</p>", unsafe_allow_html=True)
-    else:
-        nodes, edges, steps = evidence(t)
-        claims = t.get("claims", [])
-        sup = [c for c in claims if c.get("status") == "supported"]
-        hyp = [c for c in claims if c.get("status") == "hypothesis"]
-        rem = [c for c in claims if c.get("status") == "removed"]
-        demo = "<span class='demo'>Demo data: placeholder IDs and citations</span>" if src == "mock" else ""
-        st.markdown(f"{demo}<div class='q'>{esc(t['question'])}</div>", unsafe_allow_html=True)
-        body, order = render_answer(t.get("answer", ""), nodes, edges)
-        body = re.sub(r'<span class="chip">(\d+)</span>', r'<a class="chip" href="#src-\1">\1</a>', body)
-        concl, rest = split_conclusion(body)
-        st.markdown(f"<div class='concl'>{concl}</div><div class='answer'>{rest}</div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='tally'><div><b>{len(sup)}</b>claims backed by evidence</div>"
-                    f"<div><b>{len(hyp)}</b>kept as hypotheses</div><div><b>{len(rem)}</b>removed by the verifier</div></div>",
+                    if qid else "Pick a question above to run the agent on this patient.") + "</p>",
                     unsafe_allow_html=True)
+    else:
+        demo = "<span class='demo'>Demo data: placeholder IDs and citations</span>" if src == "mock" else ""
+        st.markdown(f"<div id='runtop'></div>{demo}<div class='q'>{esc(t['question'])}</div>", unsafe_allow_html=True)
+
+if V and play:
+    replay(V)
+    st.rerun()
+
+if V and run_key in played:
+    v = V
+    with left:
+        graph = RV.graph_svg(v)
+        st.markdown(RV.strip_html(v, -1, len(RV.STAGES)), unsafe_allow_html=True)
+        if p := v["calls"].get("predict_patient"):
+            st.markdown(RV.prediction_html(p), unsafe_allow_html=True)
+        st.markdown("<div class='sub-h'>Verified answer<span>Hover a sentence to see its evidence</span></div>"
+                    + RV.hover_css(v) + RV.answer_html(v), unsafe_allow_html=True)
+        sup, hyp, rem = (v["claims"][k] for k in ("supported", "hypothesis", "removed"))
+        st.markdown(f"<div class='tally'><div><b>{len(sup)}</b>claims backed by evidence</div>"
+                    f"<div><b>{len(hyp)}</b>kept as hypotheses</div><div><b>{len(rem)}</b>removed by the verifier</div>"
+                    "</div>", unsafe_allow_html=True)
 
         def catch(c, as_hyp=False):
-            why = c.get("reason") or ("Plausible but untested, so it is kept and labeled." if as_hyp else
-                                     "Nothing the tools returned supports it: no edge ID or PMID.")
-            txt = esc(c["text"]) if as_hyp else f"<span class='what'>{esc(c['text'])}</span>"
+            why = (c.get("reason") or "Plausible but untested, so it is kept and labeled.") if as_hyp else RV.why_removed(c)
+            txt = esc(RV.strip_ids(c["text"])) if as_hyp else f"<span class='what'>{esc(RV.strip_ids(c['text']))}</span>"
             return (f"<div class='catch{' hyp' if as_hyp else ''}'><span class='tag'>"
                     f"{'Kept as hypothesis' if as_hyp else 'Removed'}</span>{txt}<div class='why'>{esc(why)}</div></div>")
 
-        if rem:  # the verifier, visible by default
+        if rem:
             st.markdown(catch(rem[0]), unsafe_allow_html=True)
         more = rem[1:] + hyp
         if more:
             with st.expander(f"Everything else the verifier flagged ({len(more)})"):
                 st.markdown("".join(catch(c) for c in rem[1:]) + "".join(catch(c, True) for c in hyp),
                             unsafe_allow_html=True)
+        with st.expander("See the agent's draft before verification"):
+            st.markdown(RV.draft_html(v, "verify"), unsafe_allow_html=True)
 
-        if order:  # every citation number resolves to a line here
-            items = []
-            for i, ref in enumerate(order, 1):
-                if ref.startswith("pt:"):
-                    kind = "observed in this patient"
-                elif ref.startswith("PMID"):
-                    kind = "PubMed"
-                elif ref in edges:
-                    kind = LABEL[edge_role(ref, edges[ref])].lower()
-                else:
-                    kind = "citation"
-                label = source_label(ref, nodes, edges)
-                label = label if ref.startswith("PMID") else label.rsplit(" · ", 1)[0]
-                items.append(f"<li id='src-{i}'>{label} "
-                             f"<span class='kind'>({kind}, {esc(ref)})</span></li>")
-            st.markdown("<ol class='sources'>" + "".join(items) + "</ol>", unsafe_allow_html=True)
-
-        sub = next((tc["result"] for tc in t.get("tool_calls", []) if ok(tc, "retrieve_subgraph")), None)
-        cited = list(dict.fromkeys(k for c in sup for k in claim_edges(c, edges, steps)))
-        keys = list(dict.fromkeys([k for k in edges if k.startswith("pt:")] +
-                                  ([e["edge_id"] for e in sub["edges"] if e["edge_id"] in edges] if sub else []) + cited))
-        st.markdown("<h3 class='serif' style='font-size:1.4rem;margin:1.8rem 0 .1rem'>What the GNN retrieved</h3>",
-                    unsafe_allow_html=True)
-        n_cand = (sub or {}).get("meta", {}).get("n_candidates")
-        if sub and isinstance(n_cand, int):
-            st.markdown(f"<p class='gcap'>For this question the GNN picked {len(sub['nodes'])} facts out of {n_cand:,} "
-                        "candidates. Colored lines are the ones the answer cites; grey ones were retrieved but not used.</p>",
-                        unsafe_allow_html=True)
-        else:
-            st.markdown("<p class='gcap'>Colored lines are cited in the answer; grey ones were retrieved but not used.</p>",
-                        unsafe_allow_html=True)
-        pick_opts = ["All cited evidence"] + [c["text"] for c in sup]
-        pick = st.selectbox("Highlight", pick_opts, key=f"pick_{t.get('qid')}", label_visibility="collapsed")
-        focus = cited if pick == pick_opts[0] else claim_edges(sup[pick_opts.index(pick) - 1], edges, steps)
-        if keys:
-            st.markdown(graph_svg(nodes, edges, keys, set(focus)), unsafe_allow_html=True)
+        sub = v["calls"].get("retrieve_subgraph")
+        st.markdown("<div class='sub-h'>What the GNN retrieved<span>Hover a line to find the sentence that cites it"
+                    "</span></div>", unsafe_allow_html=True)
+        if sub:
+            cand = sub.get("meta", {}).get("n_candidates")
+            rows = [RV.PRIMEKG_EDGES] + ([cand] if isinstance(cand, int) else []) + [len(sub.get("nodes", []))]
+            st.markdown(funnel(rows), unsafe_allow_html=True)
+        st.markdown(graph, unsafe_allow_html=True)
         legend = "".join(f"<span><i style='border-color:{ROLE[r][2]};{'border-top-style:dashed' if r == 'observed' else ''}'>"
                          f"</i>{LABEL[r]}</span>" for r in ROLE)
-        st.markdown(f"<div class='legend' style='margin-top:.3rem'>{legend}<span>A bar at the end of a drug line means it "
-                    "inhibits its target.</span></div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='legend' style='margin-top:.3rem'>{legend}<span>Colored lines are cited in the answer, "
+                    "grey ones were retrieved but not used. A bar at the end of a drug line means it inhibits its target."
+                    "</span></div>", unsafe_allow_html=True)
+        st.markdown("<div class='sub-h'>Sources</div>" + RV.sources_html(v), unsafe_allow_html=True)
+        st.button("Replay the run", key="replay", on_click=lambda: st.session_state.update(play=True))
+elif V:
+    with left:
+        st.markdown(RV.strip_html(V, -1, 0), unsafe_allow_html=True)
+        st.markdown("<p class='gcap'>Press Run to watch the agent work through this question. It replays a verified, "
+                    "cached run and takes about 15 seconds.</p>", unsafe_allow_html=True)
+        st.button("Run", type="primary", key="run", on_click=lambda: st.session_state.update(play=True))
+
+# the guide: narration of the run, then follow-up questions answered from this run only
+with right:
+    msgs = []
+    if V and run_key in played:
+        msgs = [bubble(txt, step=f"{i + 1} · {dict(RV.STAGES)[k]}") for i, (k, txt) in enumerate(RV.narration(V))]
+        msgs.append(bubble(RV.outro()))
+    else:
+        msgs.append(bubble("Hi. Pick a question and press Run, and I'll walk you through each step: what we measured "
+                           "in this patient, what the GNN pulled from the graph, and what the verifier cut."))
+    hist = st.session_state.setdefault("chat", {}).get(pid, [])
+    msgs += [bubble(m["text"], "user" if m["role"] == "user" else "bot") for m in hist]
+    guide(msgs)
+    for i, m in enumerate(hist):
+        if m.get("qid") and i == len(hist) - 1:
+            if st.button("Open that run", key=f"open_{pid}_{i}"):
+                st.session_state.update(qid=m["qid"], live_trace=None, play=True)
+                st.rerun()
+    if V and run_key in played:
+        sugg = [("What does the score mean?", "score"), ("Why was a claim removed?", "removed"),
+                ("Which drugs, and why?", "drugs"), ("Where does the evidence come from?", "evidence")]
+        sc = st.columns(2)
+        for j, (label, _) in enumerate(sugg):
+            if sc[j % 2].button(label, key=f"sg_{j}", use_container_width=True):
+                ask(label, V)
+                st.rerun()
+    with st.form(f"chat_{pid}", clear_on_submit=True):
+        q = st.text_input("Ask", placeholder="Ask about this patient", label_visibility="collapsed")
+        sent = st.form_submit_button("Ask the agent" if data.LIVE else "Ask")
+    if sent and q.strip():
+        ask(q.strip(), V if V and run_key in played else None)
+        st.rerun()
+
 
 # ------------------------------------------------------------------ method + results
 if VIEW != "demo":

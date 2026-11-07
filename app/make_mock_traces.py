@@ -89,8 +89,23 @@ SCRIPTS = {
 }
 
 
+def drafts(text, claims):
+    """The agent's draft carries every claim, including the ones the verifier then removes; the answer drops removed
+    claims and labels hypotheses, the way agent/verifier.py does."""
+    sents = text.split(". ")
+    head, tail = ". ".join(sents[:-1]) + ".", sents[-1]
+    extra = [c for c in claims if c["status"] in ("removed", "hypothesis")]
+    for c in extra:
+        c["quote"] = c["text"]
+    draft = " ".join([head] + [c["text"] for c in extra] + [tail])
+    answer = " ".join([head] + [f"Hypothesis (unverified): {c['text']}" for c in extra if c["status"] == "hypothesis"]
+                      + [tail])
+    return draft, answer
+
+
 def trace(qid, question):
-    answer, claims = SCRIPTS[qid]
+    text, claims = SCRIPTS[qid]
+    draft, answer = drafts(text, claims)
     calls = [("get_patient", {"patient_id": PID}, 42), ("predict_patient", {"patient_id": PID}, 180),
              ("retrieve_subgraph", {"question": question, "seeds": [patient_curie(PID)], "budget": 50}, 1240),
              ("get_mechanism", {"disease_curie": CCRCC_ID}, 85)]
@@ -101,7 +116,7 @@ def trace(qid, question):
     n = lambda s: sum(c["status"] == s for c in claims)  # noqa: E731
     return {"contract_version": CONTRACT_VERSION, "run_id": "mock_curated", "qid": qid, "mode": "agent",
             "patient_id": PID, "question": question, "model": "mock", "variant": "full", "tool_calls": tcs,
-            "evidence": {"edge_ids": edges, "pmids": pmids}, "draft": answer, "claims": claims, "answer": answer,
+            "evidence": {"edge_ids": edges, "pmids": pmids}, "draft": draft, "claims": claims, "answer": answer,
             "verifier": {"n_claims": len(claims), "n_supported": n("supported"), "n_hypothesis": n("hypothesis"),
                          "n_removed": n("removed")},
             "notes": ["MOCK DATA: curated demo trace"]}

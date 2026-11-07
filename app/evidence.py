@@ -8,8 +8,11 @@ from common.contracts import patient_curie
 
 REL_WORDS = {"disease_protein": "linked to", "drug_protein": "targets", "protein_protein": "interacts with",
              "pathway_protein": "in pathway", "dm_contributes_to": "contributes to", "protein_up": "up in tumor",
-             "protein_down": "down in tumor", "has_phenotype": "has", "causes": "causes", "indication": "treats"}
-ID_RE = re.compile(r"\[((?:E\d+|pt:[^\]\s,;]+|PMID:\s?\d+)(?:\s*[,;]\s*(?:E\d+|pt:[^\]\s,;]+|PMID:\s?\d+))*)\]")
+             "protein_down": "down in tumor", "has_phenotype": "has", "causes": "causes", "indication": "treats",
+             "model_contrib": "drives the model score", "model_rank": "ranked for this patient", "treats": "treats"}
+_TOK = r"(?:E\d+|pt:[^\]\s,;]+|PMID:\s?\d+|(?:pred|contrib|rank):[^\]\s,;]+)"
+ID_RE = re.compile(rf"\[({_TOK}(?:\s*[,;]\s*{_TOK})*)\]")
+MODEL_PREFIXES = ("pred:", "contrib:", "rank:")
 MOCK_PMID = re.compile(r"PMID:0+\d$")
 
 
@@ -45,7 +48,28 @@ def evidence(trace):
                 node(n["curie"], n.get("name"), n.get("type"))
             for e in r["edges"]:
                 edges[e["edge_id"]] = {"src": e["src_curie"], "dst": e["dst_curie"], "rel": e["rel"], "pmids": []}
+        elif ok(tc, "predict_patient"):
+            pc = patient_curie(r["patient_id"])
+            node(pc, f"Patient {r['patient_id']}", "patient")
+            for x in r.get("top_contributing", []):
+                if x.get("evidence_id"):
+                    node(x["curie"], x.get("name"), x.get("type"))
+                    edges[x["evidence_id"]] = {"src": pc, "dst": x["curie"], "rel": "model_contrib", "pmids": []}
+        elif ok(tc, "rank_for_patient"):
+            pc = patient_curie(r["patient_id"])
+            for x in r.get("items", []):
+                if x.get("evidence_id"):
+                    node(x["curie"], x.get("name"), r.get("node_type"))
+                    edges[x["evidence_id"]] = {"src": pc, "dst": x["curie"], "rel": "model_rank", "pmids": []}
         elif ok(tc, "get_mechanism"):
+            dis = r.get("disease")
+            if dis:
+                node(dis, r.get("name"), "disease")
+            for d in r.get("drug_evidence", []):
+                if d.get("edge_id") and dis:
+                    node(d["curie"], d.get("name"), "drug")
+                    edges[d["edge_id"]] = {"src": d["curie"], "dst": dis, "rel": d.get("relation") or "indication",
+                                           "pmids": list(d.get("pmids", []))}
             for ch in r.get("chains", []):
                 prev = None
                 for s in ch.get("steps", []):
@@ -113,7 +137,8 @@ def source_label(ref, nodes, edges):
     if not e:
         return ref
     s, d = nodes[e["src"]]["name"], nodes[e["dst"]]["name"]
-    origin = "patient measurement" if ref.startswith("pt:") else "knowledge graph"
+    origin = ("patient measurement" if ref.startswith("pt:") else
+              "model output" if ref.startswith(MODEL_PREFIXES) else "knowledge graph")
     return f"{s} → {REL_WORDS.get(e['rel'], e['rel'])} → {d} · {origin}"
 
 
