@@ -47,3 +47,42 @@ def test_never_raises():
     assert 'error' in retrieve_subgraph('q', ['NOT:A_CURIE'], variant='e4')
     assert 'error' in retrieve_subgraph('q', [CCRCC_ID], retriever='nope', variant='e4')
     assert 'error' in retrieve_subgraph('q', [CCRCC_ID], variant='no_such_variant')
+
+
+@needs_data
+def test_anchor_edges_add_no_nodes_and_touch_seeds():
+    """anchor=k ties the tree back to the seeds with up to k extra edges; the node set (and so E1 recall) is unchanged."""
+    from models.retriever import get_retriever
+    R = get_retriever('e4')
+    q, seeds = 'What mechanisms explain clear cell renal cell carcinoma, which presents with hematuria?', [CCRCC_ID, 'HP:0000790']
+    base = R.subgraph(q, seeds, budget=30)
+    anc = R.subgraph(q, seeds, budget=30, anchor=10)
+    assert [n['curie'] for n in anc['nodes']] == [n['curie'] for n in base['nodes']]
+    assert set(base['edge_ids']) <= set(anc['edge_ids']) and len(anc['edge_ids']) - len(base['edge_ids']) <= 10
+    seed_set = {n['curie'] for n in anc['nodes'] if n['is_seed']}
+    extra = [e for e in anc['edges'] if e['edge_id'] not in set(base['edge_ids'])]
+    assert all(e['src_curie'] in seed_set or e['dst_curie'] in seed_set for e in extra)
+    assert anc['meta']['anchor_edges'] == len(extra)
+
+
+@needs_data
+def test_agent_calls_get_hub_penalty_e1_default_does_not():
+    from models.retriever import AGENT_HUB_PENALTY, gnn_weights, retrieve_subgraph
+    q, seeds = 'ccRCC mechanisms', [CCRCC_ID, 'HP:0000790']
+    default = retrieve_subgraph(q, seeds, budget=20, variant='e4')
+    agent = retrieve_subgraph(q, seeds, budget=20, variant='e4', target_types=('gene', 'drug', 'phenotype', 'pathway'))
+    assert default['meta']['hub'] == gnn_weights().get('hub', 0.0)
+    assert agent['meta']['hub'] == AGENT_HUB_PENALTY and agent['meta']['per_type']
+    assert retrieve_subgraph(q, seeds, budget=20, variant='e4', target_types=('gene', 'drug'), hub=0.0)['meta']['hub'] == 0.0
+
+
+@needs_data
+def test_adaptive_budget_none_self_sizes_under_ceiling():
+    """CONTRACTS.md section 6 handshake: ADAPTIVE_BUDGET = True, budget=None -> the retriever sizes the subgraph."""
+    import models.retriever as rmod
+    assert rmod.ADAPTIVE_BUDGET is True
+    res = rmod.retrieve_subgraph('ccRCC mechanisms', [CCRCC_ID, 'HP:0000790'], budget=None, variant='e4',
+                                 target_types=('gene', 'drug', 'phenotype', 'pathway'))
+    assert 'error' not in res, res
+    n = sum(not x['is_seed'] for x in res['nodes'])
+    assert 0 < n <= rmod.ADAPTIVE_MAX_NODES and res['meta']['adaptive_budget'] and res['meta']['n_nonseed'] == n
