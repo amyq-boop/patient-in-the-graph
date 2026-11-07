@@ -122,6 +122,10 @@ def _parse_json(s):
 
 
 def extract_claims(draft, llm):
+    """VERIFIER_SPLITTER=rules: split by sentence/bullet in code (instant, deterministic, no LLM in the verifier at
+    all). Default llm: atomic claims from the model (slower: ~95 s and ~15k tokens for a long answer)."""
+    if os.environ.get("VERIFIER_SPLITTER", "llm").lower() == "rules":
+        return deterministic_claims(draft), "deterministic"
     try:
         out = llm.chat([{"role": "system", "content": CLAIMS_SYSTEM},
                         {"role": "user", "content": "ANSWER:\n" + draft}], json_mode=True, purpose="claims")

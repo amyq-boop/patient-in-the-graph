@@ -69,4 +69,6 @@ RETRY_BUDGET_MAX = int(os.environ.get("AGENT_RETRY_BUDGET_MAX", "100"))
 # "fixed" (default): pass the budget. "auto": let the retriever size the subgraph itself, if it supports that
 # (models/retriever.py sets ADAPTIVE_BUDGET = True when budget=None means self-sizing); otherwise falls back.
 BUDGET_MODE = os.environ.get("BIOHACK_BUDGET", "fixed").lower()
+# Rewrite the answer after retrieval retries only if they found the protein -> phenotype link (1 = always rewrite).
+REVISE_ALWAYS = os.environ.get("AGENT_REVISE_ALWAYS", "0") == "1"
 TOOL_RESULT_CHARS = int(os.environ.get("AGENT_TOOL_RESULT_CHARS", "6000"))  # what the LLM sees per tool result

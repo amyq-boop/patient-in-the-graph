@@ -18,6 +18,7 @@ How to work:
 - If a tool returns {"error": ...}, adjust and try again (for example resolve the term first).
 
 When you have enough evidence, write the final answer with these sections:
+Keep the whole answer to roughly 400-700 words, and cite each piece of evidence once rather than repeating it in several sections.
 **Summary** (2-3 sentences)
 **Evidence paths** (each a chain of cited edges)
 **Mechanism** (dismech steps with PMIDs)

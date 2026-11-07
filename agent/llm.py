@@ -128,6 +128,14 @@ class NimLLM:
         raise RuntimeError(f"NIM call failed after retries: {last}")
 
 
+def _pt_id(x):
+    """A patient item as the LLM sees it: a dict with edge_id, or a compact line '[pt:...] SYMBOL ...'."""
+    if isinstance(x, dict):
+        return x["edge_id"]
+    m = re.match(r"\[(pt:[^\]]+)\]", x)
+    return m.group(1) if m else x
+
+
 class FakeLLM:
     """Scripted stand-in for tests: follows the tool plan in the system prompt, then drafts
     an answer citing real IDs from tool results plus one fabricated ID (to exercise the verifier)."""
@@ -149,7 +157,7 @@ class FakeLLM:
         results = [json.loads(m["content"]) for m in messages if m["role"] == "tool"]
         edges = [e for r in results for e in r.get("edge_ids", [])]
         edges += [e for r in results for e in re.findall(r"^\[(E\d+)\]", r.get("triples_text", ""), re.M)]  # ranked view
-        pt = [x["edge_id"] for r in results for k in ("proteins_up",) for x in r.get(k, [])]
+        pt = [_pt_id(x) for r in results for k in ("proteins_up",) for x in r.get(k, [])]
         pmids = [p for r in results for c in r.get("chains", []) for s in c["steps"] for p in s["pmids"]]
         pmids += [p for r in results for p in re.findall(r"PMID:\d+", r.get("citable_lines", ""))]  # get_mechanism view
         return {"content": self._draft(edges, pt, pmids), "tool_calls": []}
@@ -162,7 +170,8 @@ class FakeLLM:
             pat = next((r for r in results if "proteins_up" in r), None)
             seeds = [f"PATIENT:{pid}"]
             if pat:
-                seeds += [p["curie"] for p in pat["phenotypes"]] + [p["curie"] for p in pat["proteins_up"][:3]]
+                seeds += [_pt_id(p).rsplit(":", 2)[-2] + ":" + _pt_id(p).rsplit(":", 1)[-1]
+                          for p in pat["phenotypes"] + pat["proteins_up"][:3]]
             return [("get_patient", {"patient_id": pid}), ("predict_patient", {"patient_id": pid}),
                     ("rank_for_patient", {"patient_id": pid, "node_type": "drug", "k": 5}),
                     ("retrieve_subgraph", {"question": q, "seeds": seeds, "budget": 50}),

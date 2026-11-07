@@ -34,6 +34,8 @@ def _llm_view(name, res):
         return json.dumps({"error": res["error"]})
     if name == "retrieve_subgraph":
         return json.dumps(_subgraph_view(res))
+    if name == "get_patient":  # compact lines, mutations first: 100 protein dicts used to push them past the cut
+        return json.dumps(_patient_view(res))
     elif name == "get_mechanism":  # one line per citable edge: models copy IDs reliably from aligned lines, not JSON
         view = {"disease": res.get("disease"), "name": res.get("name"), "citable_lines": _mechanism_lines(res),
                 "genes": res.get("genes", [])}
@@ -41,6 +43,22 @@ def _llm_view(name, res):
         view = {k: v for k, v in res.items() if not k.startswith("_")}
     s = json.dumps(view)
     return s if len(s) <= C.TOOL_RESULT_CHARS else s[: C.TOOL_RESULT_CHARS] + " ...[truncated]"
+
+
+def _patient_view(res, n_up=25, n_down=15):
+    up, down = res.get("proteins_up", []), res.get("proteins_down", [])
+    line = lambda x, extra="": f"[{x['edge_id']}] {x.get('symbol') or x.get('name') or x['curie']}{extra}"  # noqa: E731
+    return {
+        "patient_id": res.get("patient_id"), "curie": res.get("curie"),
+        "clinical_summary": res.get("clinical_summary", ""), "note": res.get("note", ""),
+        "somatic_mutations": [line(m, f" {m.get('protein_change', '')} (somatic)") for m in res.get("mutations", [])],
+        "baseline_medications": [line(m) for m in res.get("medications", [])],
+        "phenotypes": [line(p) for p in res.get("phenotypes", [])],
+        "proteins_up": [line(p, f" z={p.get('z')}") for p in up[:n_up]],
+        "proteins_down": [line(p, f" z={p.get('z')}") for p in down[:n_down]],
+        "more_proteins": (f"{max(len(up) - n_up, 0)} more up and {max(len(down) - n_down, 0)} more down-regulated "
+                          "proteins are measured (all citable; ask retrieve_subgraph about specific ones)"),
+    }
 
 
 def _ranked_lines(res, skip=()):
@@ -229,6 +247,8 @@ def _retrieval_guarantee(question, tool_calls, msgs, draft, llm, patient):
     new = [x for x in new if x.strip()]
     if not any(new):
         return draft
+    if not C.REVISE_ALWAYS and not protein_phenotype_connected(tool_calls, patient):
+        return draft  # retries found no protein -> phenotype link: a rewrite (~90 s) would only restate the gap
     msgs += [{"role": "assistant", "content": draft},
              {"role": "user", "content": "NEW EVIDENCE:\n" + "\n".join(new) + "\n\n" + prompts.RETRY_NOTE}]
     return llm.chat(msgs, purpose="agent")["content"] or draft
