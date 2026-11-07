@@ -106,6 +106,7 @@ The PyG exports are `graph_full.pt`, `graph_slim.pt` and `graph_slim_e1.pt`. Eac
 ## 6. GNN outputs still to build (GNN)
 
 - **`data/processed/gnn_a/predictions.parquet`** has columns `patient_id` · `model` (`clinical_lr`, `prot_pca_lr`, `concat_lr`, `gnn`, `gnn_no_dismech`) · `fold` · `risk` (0–1). Every prediction is **out of fold**, and `predict_patient` reads from this file. E2 also comes from it.
+- **`data/processed/gnn_a/contributions.parquet`** *(optional)* has columns `patient_id` · `curie` · `score` · `rank`, the top neighbours behind each patient's `gnn` risk. `predict_patient` fills `top_contributing` from this file and returns an empty list until it exists.
 - **GNN-B lives in `models/retriever.py`:**
   ```python
   retrieve_subgraph(question: str, seeds: list[str], budget: int = 50,
