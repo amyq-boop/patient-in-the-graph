@@ -116,7 +116,10 @@ def tiny_processed(tmp_path, monkeypatch):
                   "src_type": ["mechanism", "mechanism", "mechanism", "gene"],
                   "rel": ["dm_affects", "dm_causes", "dm_causes_rev", "dm_contributes_to"],
                   "dst_type": ["disease", "mechanism", "mechanism", "disease"],
-                  "origin": ["dismech"] * 4, "dm_row": [0, 1, 1, 2]}).to_parquet(proc / "edges.parquet")
+                  "origin": ["dismech"] * 4, "dm_row": [0, 1, 1, 2],
+                  # every edge here is ccRCC's own dismech edge, so the e4 variants hide all of them
+                  "hub": [False] * 4, "e1_holdout": [False] * 4,
+                  "e4_dismech": [True] * 4, "e4_full": [True] * 4}).to_parquet(proc / "edges.parquet")
     pd.DataFrame({"dm_row": [0, 1, 2], "publications": ["PMID:111|PMID:222", "PMID:333", ""],
                   "supporting_text": ["VHL is lost early.", "VHL loss stabilizes HIF-2a.", ""]}).to_parquet(
         proc / "evidence.parquet")
@@ -167,6 +170,23 @@ def test_real_tools_on_contract_files(tiny_processed, monkeypatch):
     assert steps[1]["pmids"] == ["PMID:333"] and steps[1]["edge_id"] == "E1"
     assert m["genes"] == ["NCBIGene:7428"]
     assert "error" in T.dispatch("retrieve_subgraph", {"question": "q", "seeds": ["HP:0000822"]})
+
+
+def test_get_mechanism_respects_graph_variant(tiny_processed, monkeypatch):
+    """E4 hides ccRCC's dismech edges from retrieval; get_mechanism must not hand them back (answer-key leak)."""
+    monkeypatch.setattr(C, "MOCK_MODE", "0")
+    for variant in ("e4", "e4_dismech", "no_dismech"):
+        monkeypatch.setattr(C, "VARIANT", variant)
+        m = T.dispatch("get_mechanism", {"disease_curie": "MONDO:0005005"})
+        assert "error" in m and not m.get("chains"), variant
+    monkeypatch.setattr(C, "MECHANISMS", tiny_processed / "mechanisms.jsonl")
+    (tiny_processed / "mechanisms.jsonl").write_text(json.dumps(
+        {"disease": "MONDO:0005005", "name": "x", "chains": [{"chain_id": "c", "steps": []}], "genes": [], "drugs": []}))
+    T._mech_file.cache_clear()
+    monkeypatch.setattr(C, "VARIANT", "e4")
+    assert "error" in T.dispatch("get_mechanism", {"disease_curie": "MONDO:0005005"})  # precomputed file ignored off full
+    monkeypatch.setattr(C, "VARIANT", "full")
+    assert T.dispatch("get_mechanism", {"disease_curie": "MONDO:0005005"})["chains"]
 
 
 def test_auto_mode_falls_back_to_mocks(tiny_processed, monkeypatch):

@@ -23,7 +23,7 @@ import requests
 from agent import config as C
 from agent import mock_tools
 from agent.schemas import TOOLS  # noqa: F401  (re-exported)
-from common.contracts import P, edge_id, patient_curie, patient_edge_id, patient_neighbours, triple_line
+from common.contracts import GRAPH_VARIANTS, P, edge_id, patient_curie, patient_edge_id, patient_neighbours, triple_line, variant_mask
 
 NAMERES = "https://name-resolution-sri.renci.org/lookup"
 NODENORM = "https://nodenormalization-sri.renci.org/get_normalized_nodes"
@@ -268,10 +268,13 @@ def retrieve_subgraph(question, seeds, budget=C.DEFAULT_BUDGET, retriever="gnn_p
 
 # ---------------------------------------------------------------- get_mechanism from edges + evidence
 
-@lru_cache(maxsize=1)
-def _dm_tables():
-    e = pd.read_parquet(_need(P.edges), columns=["edge_row", "src", "dst", "src_type", "rel", "dst_type", "origin", "dm_row"])
-    e = e[e.origin == "dismech"]
+@lru_cache(maxsize=4)
+def _dm_tables(variant="full"):
+    """DisMech edges visible in `variant` (+ evidence). Under e1/e4 the hidden edges must not reach the agent,
+    or get_mechanism would hand it the answer key that retrieve_subgraph is hiding."""
+    flags = sorted({f for fl in GRAPH_VARIANTS.values() for f in fl})
+    e = pd.read_parquet(_need(P.edges), columns=["edge_row", "src", "dst", "src_type", "rel", "dst_type", "origin", "dm_row", *flags])
+    e = e[variant_mask(e, variant) & (e.origin == "dismech")].drop(columns=flags)
     ev = pd.read_parquet(_need(P.evidence)).set_index("dm_row")
     return e, ev
 
@@ -287,12 +290,12 @@ def _evidence_for(dm_row, ev):
     return pmids, quotes[:2]
 
 
-def _mechanism_from_graph(disease_curie):
+def _mechanism_from_graph(disease_curie, variant="full"):
     df, cur2g, _ = _nodes()
     g = cur2g.get(disease_curie)
     if g is None:
         return {"error": f"{disease_curie!r} not in nodes.parquet"}
-    e, ev = _dm_tables()
+    e, ev = _dm_tables(variant)
     fwd = e[~e.rel.str.endswith("_rev")]
     touch = fwd[(fwd.src == g) | (fwd.dst == g)]
     mech = (set(touch.loc[touch.src_type == "mechanism", "src"]) | set(touch.loc[touch.dst_type == "mechanism", "dst"]))
@@ -349,11 +352,12 @@ def _mech_file():
 
 
 def get_mechanism(disease_curie):
-    pre = _mech_file()
+    variant = C.VARIANT
+    pre = _mech_file() if variant == "full" else {}  # mechanisms.jsonl ignores masks: only safe on the full graph
     if pre:
         m = pre.get(disease_curie) or pre.get(_canon(disease_curie) or "")
         return m or {"error": f"no dismech mechanism for {disease_curie!r}"}
-    return _mechanism_from_graph(disease_curie)
+    return _mechanism_from_graph(disease_curie, variant)
 
 
 FUNCS = {
