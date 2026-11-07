@@ -41,6 +41,15 @@ VARIANT = os.environ.get("BIOHACK_VARIANT", "full")
 if VARIANT not in GRAPH_VARIANTS:
     raise ValueError(f"BIOHACK_VARIANT={VARIANT!r}; expected one of {list(GRAPH_VARIANTS)}")
 GNN_A_TAG = "no_dismech" if VARIANT == "no_dismech" else "main"
+
+# Node types the retriever gives prizes to for agent answers. The retriever's own default (genes + GO terms) is
+# tuned for E1 and returned no drug or phenotype edges for patient questions, so the agent widens it.
+# BIOHACK_TARGET_TYPES=e1 restores the E1 default; or give a comma list of node types.
+_TT = os.environ.get("BIOHACK_TARGET_TYPES", "agent")
+TARGET_TYPES = (None if _TT == "e1" else
+                ("gene", "biological_process", "molecular_function", "cellular_component",
+                 "drug", "phenotype", "pathway", "mechanism") if _TT == "agent" else
+                tuple(t.strip() for t in _TT.split(",") if t.strip()))
 MAX_TOOL_CALLS = int(os.environ.get("AGENT_MAX_TOOL_CALLS", "12"))
 MAX_RETRIEVAL_RETRIES = 3
 TOOL_RESULT_CHARS = int(os.environ.get("AGENT_TOOL_RESULT_CHARS", "6000"))  # what the LLM sees per tool result

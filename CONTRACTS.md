@@ -111,8 +111,10 @@ The PyG exports are `graph_full.pt`, `graph_slim.pt` and `graph_slim_e1.pt`. Eac
   ```python
   retrieve_subgraph(question: str, seeds: list[str], budget: int = 50,
                     retriever: str = "gnn_pcst",   # "bfs" | "text_pcst" | "gnn_pcst"
-                    variant: str = "full") -> dict  # SubgraphResult, section 7
+                    variant: str = "full",
+                    target_types=None) -> dict      # SubgraphResult, section 7
   ```
+  `target_types` (added Nov 7) picks which node types get prizes. `None` keeps the default (genes + GO terms, the E1 setting); the agent passes a wider set via `BIOHACK_TARGET_TYPES` in `agent/config.py`.
   `seeds` are CURIEs; patient seeds are expanded through `patient_neighbours`. All three retrievers share the signature, so E1 just loops over them with `variant="e1"`.
 
 ## 7. Agent tool interface — `agent/tools.py` (Agent), mirrored by `agent/mock_tools.py`

@@ -256,7 +256,7 @@ def retrieve_subgraph(question, seeds, budget=C.DEFAULT_BUDGET, retriever="gnn_p
     except ImportError as e:
         raise Missing(f"models/retriever.py not importable ({e})")
     res = _to_dict(_rs(question=question, seeds=list(seeds), budget=int(budget), retriever=retriever,
-                       variant=variant or C.VARIANT))
+                       variant=variant or C.VARIANT, target_types=C.TARGET_TYPES))
     res.setdefault("edge_ids", [e["edge_id"] for e in res.get("edges", [])])
     if not res.get("triples_text"):
         lines = []

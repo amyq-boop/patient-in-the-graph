@@ -174,16 +174,26 @@ class Retriever:
     def rank_norm(v):
         return 1.0 - (rankdata(-v, method='average') - 1) / max(len(v) - 1, 1)
 
-    def combine(self, cand, signals, weights, target_types=MECHANISM_TYPES):
-        """Rank-normalised weighted sum; only `target_types` nodes get prizes (ranked among themselves)."""
+    def combine(self, cand, signals, weights, target_types=MECHANISM_TYPES, per_type=False):
+        """Rank-normalised weighted sum; only `target_types` nodes get prizes (ranked among themselves).
+        per_type=True ranks each node type separately, so the best drug or phenotype competes with the best gene
+        instead of being buried under thousands of genes/GO terms. Off by default: E1 numbers use the shared ranking."""
         prize = np.zeros(len(cand))
         sel = np.isin(self.NT[cand], list(target_types)) if target_types else np.ones(len(cand), bool)
-        if sel.any():
+        groups = [sel & (self.NT[cand] == t) for t in target_types] if (per_type and target_types) else [sel]
+        depth = max([int(g.sum()) for g in groups] + [1])
+        for g in groups:
+            if not g.any():
+                continue
+            s = np.zeros(int(g.sum()))
             for name, w in weights.items():
                 if w and name in signals:
-                    prize[sel] += w * self.rank_norm(signals[name][cand[sel]])
+                    s += w * self.rank_norm(signals[name][cand[g]])
             if weights.get('hub'):                                           # hub / generic-term penalty
-                prize[sel] -= weights['hub'] * self.rank_norm(self.deg[cand[sel]])
+                s -= weights['hub'] * self.rank_norm(self.deg[cand[g]])
+            if per_type:  # i-th best of every type gets the same prize, so the top-K terminals split across types
+                s = 1.0 - (rankdata(-s, method='ordinal') - 1) / depth
+            prize[g] = s
         return prize
 
     def pcst(self, seeds, cand, prize, budget=DEFAULT_BUDGET, cap=3000, K=150, dm_discount=0.5, iters=14):
@@ -273,14 +283,15 @@ class Retriever:
         return np.array(sorted(set(out)), dtype=np.int64), missing, notes
 
     def subgraph(self, question, seed_curies, budget=DEFAULT_BUDGET, retriever='gnn_pcst', target_types=MECHANISM_TYPES,
-                 weights=None, cap=3000, K=150, dm_discount=0.5):
+                 weights=None, cap=3000, K=150, dm_discount=0.5, per_type=False):
         if retriever not in RETRIEVERS:
             return error(f'unknown retriever {retriever!r}; expected one of {list(RETRIEVERS)}')
         seeds, missing, notes = self.resolve_seeds(list(seed_curies))
         if len(seeds) == 0:
             return error('no seed resolved to a graph node', missing_seeds=missing, notes=notes)
         meta = {'retriever': retriever, 'variant': self.variant, 'budget': int(budget), 'gnn_a_tag': self.tag,
-                'target_types': list(target_types or []), 'missing_seeds': missing, 'seed_notes': notes}
+                'target_types': list(target_types or []), 'per_type': bool(per_type), 'missing_seeds': missing,
+                'seed_notes': notes}
         if retriever == 'bfs':
             order = self.bfs_order(seeds, target_types)
             sel = order[:budget]
@@ -293,7 +304,7 @@ class Retriever:
             if w.get('ppr'): sig['ppr'] = self.ppr_signal(seeds)
             if w.get('gnn'): sig['gnn'] = self.gnn_signal(seeds, lift=w.get('lift', True), direct_go=w.get('direct_go', True))
             cand = self.two_hop(seeds)
-            pz = self.combine(cand, sig, {k: w.get(k, 0) for k in ('text', 'ppr', 'gnn', 'hub')}, target_types)
+            pz = self.combine(cand, sig, {k: w.get(k, 0) for k in ('text', 'ppr', 'gnn', 'hub')}, target_types, per_type)
             sel, pids = self.pcst(seeds, cand, pz, budget=budget, cap=cap, K=K, dm_discount=dm_discount)
             prize = dict(zip(cand.tolist(), pz.tolist()))
             meta.update(n_candidates=int(len(cand)), alpha=float(w.get('text', 0)), beta=float(w.get('gnn', 0)),
@@ -335,11 +346,16 @@ def _require_inputs(variant: str) -> None:
 
 
 def retrieve_subgraph(question: str, seeds: list[str], budget: int = DEFAULT_BUDGET,
-                      retriever: str = 'gnn_pcst', variant: str = 'full') -> dict:
+                      retriever: str = 'gnn_pcst', variant: str = 'full', target_types=None) -> dict:
     """CONTRACTS.md section 6/7. Missing input files raise the agent's `Missing` (handled by agent.tools.dispatch);
-    every other failure comes back as {"error": ...}."""
+    every other failure comes back as {"error": ...}.
+    target_types: node types that get prizes; None = MECHANISM_TYPES (genes + GO, the E1 setting). The agent passes
+    a wider set (drugs, phenotypes, pathways, mechanisms) for its answers; E1 calls Retriever.subgraph directly."""
     _require_inputs(variant)
     try:
-        return get_retriever(variant).subgraph(question, list(seeds), budget=int(budget), retriever=retriever)
+        custom = bool(target_types) and tuple(target_types) != MECHANISM_TYPES
+        return get_retriever(variant).subgraph(question, list(seeds), budget=int(budget), retriever=retriever,
+                                               target_types=tuple(target_types) if target_types else MECHANISM_TYPES,
+                                               per_type=custom)  # custom type sets rank each type separately
     except Exception as ex:  # noqa: BLE001 - tools must not raise
         return error(f'retrieve_subgraph failed: {type(ex).__name__}: {ex}')

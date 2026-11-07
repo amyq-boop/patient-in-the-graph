@@ -33,7 +33,7 @@ ABSTAIN = re.compile(
     r"(?:determined?|established?|inferred?|infer|assess(?:ed)?|distinguish(?:ed)?|tell|conclude[d]?)\b"
     r"|\binsufficient (?:evidence|data|information)\b"
     r"|\b(?:no|not enough) (?:supporting |direct )?(?:evidence|edges?|paths?|data)\b"
-    r"|\bdoes not (?:contain|establish|include|show|prove|demonstrate|imply)\b"
+    r"|\b(?:does|do) not (?:contain|establish|include|show|prove|demonstrate|imply|connect|link)\b"
     r"|\brequires? (?:constitutional|germline|additional|further|dedicated)\b")
 EXPERIMENT = re.compile(r"(?i)^\W*(?:experiment|to test this|validation experiment)\b")
 META = re.compile(r"(?i)\b(?:model estimate|not a (?:clinical|diagnos)\w*|hypothesis-generation tool)\b")
