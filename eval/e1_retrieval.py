@@ -17,9 +17,11 @@ Outputs (eval/results/):
   e1_summary.json  per-method means, Wilcoxon of gnn_pcst vs each method, tuned configs
   e1.png
 Configs are cross-fitted: tuned on one half of the test diseases (ranking recall@50), scored on the other half.
-models/results/gnn_b_best_weights_typed.json = gnn_pcst config tuned on all 196 (API/demo only, not used for E1 numbers).
+models/results/gnn_b_best_weights_typed.json = gnn_pcst config tuned on all 196 (API/demo only, not used for E1 numbers;
+  written only for --variant e1, other variants write it into their own results folder).
 """
 import argparse, itertools, json, os, time
+from pathlib import Path
 import numpy as np
 import pandas as pd
 from scipy.stats import wilcoxon
@@ -162,8 +164,10 @@ for m in order_m:
         pv = float('nan')
     tests[m] = dict(mean_diff=round(float(diff.mean()), 4), better=int((diff > 0).sum()), worse=int((diff < 0).sum()), tie=int((diff == 0).sum()), wilcoxon_p=pv)
 best = max(GRIDS['gnn_pcst'][1], key=lambda cfg: np.mean([rank_recall(c, prize(c, cfg, 'typed'), args.budget) for c in C]))
-(ROOT / 'models' / 'results').mkdir(parents=True, exist_ok=True)
-(ROOT / 'models' / 'results' / 'gnn_b_best_weights_typed.json').write_text(json.dumps(
+# only the contract variant may replace the weights the retriever API/demo loads; other variants keep theirs in OUT
+WDIR = ROOT / 'models' / 'results' if args.variant == 'e1' else Path(OUT)
+WDIR.mkdir(parents=True, exist_ok=True)
+(WDIR / 'gnn_b_best_weights_typed.json').write_text(json.dumps(
     {'weights': {'text': best.get('text', 0), 'ppr': best.get('ppr', 0), 'gnn': best.get('gnn', 0), 'hub': best.get('hub', 0)},
      'lift': bool(best.get('lift')), 'direct_go': bool(best.get('direct')), 'target_types': list(MECHANISM_TYPES),
      'note': 'tuned on all E1 test diseases (ranking recall@50); for the API/demo only. E1 numbers use cross-fitted configs.'}, indent=1))

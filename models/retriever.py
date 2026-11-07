@@ -72,7 +72,9 @@ class Retriever:
         self.cur2g, self.gidx_by_type = self.g.cur2g, self.g.gidx_by_type
         # retrieval graph = the contract's graph variant; one representative directed edge per undirected pair
         # (dismech preferred so it carries PMIDs)
-        E = pd.read_parquet(P.edges, columns=['edge_row', 'src', 'dst', 'rel', 'origin', 'dm_row', 'hub', 'e1_holdout', 'e4_dismech', 'e4_full'])
+        base = ['edge_row', 'src', 'dst', 'rel', 'origin', 'dm_row', 'hub', 'e1_holdout', 'e4_dismech', 'e4_full']
+        # also load whatever mask flags the variant needs (e.g. bifo_dropped), or bifo variants raise KeyError
+        E = pd.read_parquet(P.edges, columns=list(dict.fromkeys(base + list(GRAPH_VARIANTS[variant]))))
         E = E[variant_mask(E, variant).values]
         pr = pd.DataFrame({'a': np.minimum(E.src.values, E.dst.values), 'b': np.maximum(E.src.values, E.dst.values),
                            'src': E.src.values, 'dst': E.dst.values, 'rel': E.rel.astype(str).values,
