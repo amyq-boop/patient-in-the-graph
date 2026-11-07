@@ -93,6 +93,8 @@ The PyG exports are `graph_full.pt`, `graph_slim.pt` and `graph_slim_e1.pt`. Eac
 | `labels.parquet` | `patient_id` · `y_stage` (0 = stage I–II, 1 = stage III–IV) · `y_grade` · `y_recur` (nullable) · `os_days` (nullable) · `os_event` (nullable) |
 | `folds.parquet` | `patient_id` · `fold` (0–4), stratified on `PRIMARY_LABEL = "y_stage"`. **Frozen once published.** |
 
+**Also in `patients/` (final, Nov 7):** `patient_mutations.parquet` (somatic tumor mutations: `curie` = gene, `name` = symbol, `source_text` = protein change) and `patient_drugs.parquet` (baseline medications mapped to DrugBank), same columns: `patient_id, curie, name, source_field, source_text, weight`. GNN-A doesn't use them. `get_patient` returns them as `mutations` and `medications`, citable as `pt:<pid>:somatic_mutation:<curie>` and `pt:<pid>:takes_medication:<curie>`.
+
 **Feeding GNN-A:** a patient's neighbours are the `curie`s from `patient_phenotypes` and `patient_proteins`. Their weights are 1.0 for phenotypes and `z` for proteins, so down-regulated proteins get negative weights, as `GnnA` expects. `contracts.patient_neighbours(pid)` builds both lists.
 
 **Patient edges don't go in `edges.parquet`.** When an answer cites one, the citable ID is `pt:<patient_id>:<has_phenotype|protein_up|protein_down>:<curie>` (from `contracts.patient_edge_id()`).

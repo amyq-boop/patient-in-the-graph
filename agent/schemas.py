@@ -18,7 +18,8 @@ TOOLS = [
         "Call this before using a term as a seed.",
         {"texts": {"type": "array", "items": _S, "description": "Terms to resolve"}}, ["texts"]),
     _fn("get_patient",
-        "A patient's clinical summary, phenotypes, and top up- and down-regulated tumor proteins (z-scores). "
+        "A patient's clinical summary, phenotypes, top up- and down-regulated tumor proteins (z-scores), "
+        "somatic tumor mutations (gene + protein change) and baseline medications. "
         "Each item has a citable edge_id (pt:...). Never includes stage, grade or outcome.",
         {"patient_id": {"type": "string", "description": "CPTAC case ID, e.g. C3L-00004"}}, ["patient_id"]),
     _fn("predict_patient",

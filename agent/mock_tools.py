@@ -74,6 +74,10 @@ def get_patient(patient_id: str) -> dict:
         "proteins_up": [_pt("protein_up", "NCBIGene:7422", symbol="VEGFA", z=3.4),
                         _pt("protein_up", "NCBIGene:2023", symbol="ENO1", z=2.9)],
         "proteins_down": [_pt("protein_down", "NCBIGene:7428", symbol="VHL", z=-2.7)],
+        "mutations": [_pt("somatic_mutation", "NCBIGene:7428", symbol="VHL", type="somatic", protein_change="p.R167Q")],
+        "medications": [{"curie": "DRUGBANK:DB00722", "name": "Lisinopril", "source_text": "lisinopril",
+                         "edge_id": patient_edge_id(PID, "takes_medication", "DRUGBANK:DB00722")}],
+        "note": "mutations are somatic (tumor) calls, not germline status; medications are baseline, not ccRCC treatment",
     }
 
 

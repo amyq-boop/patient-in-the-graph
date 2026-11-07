@@ -44,6 +44,8 @@ class P:
     patients = patients_dir / "patients.parquet"
     patient_phenotypes = patients_dir / "patient_phenotypes.parquet"
     patient_proteins = patients_dir / "patient_proteins.parquet"
+    patient_mutations = patients_dir / "patient_mutations.parquet"   # somatic (tumor) mutations, CPTAC
+    patient_drugs = patients_dir / "patient_drugs.parquet"           # baseline medications -> DrugBank
     labels = patients_dir / "labels.parquet"
     folds = patients_dir / "folds.parquet"
 

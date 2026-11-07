@@ -18,7 +18,7 @@ from agent.schemas import TOOLS
 from agent.tools import timed_dispatch
 from agent.verifier import verify
 
-PATIENT_LISTS = ("phenotypes", "proteins_up", "proteins_down")
+PATIENT_LISTS = ("phenotypes", "proteins_up", "proteins_down", "mutations", "medications")
 
 
 def _ok(tc, name=None):

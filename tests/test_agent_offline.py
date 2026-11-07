@@ -190,7 +190,12 @@ def tiny_processed(tmp_path, monkeypatch):
     monkeypatch.setattr(C, "MECHANISMS", proc / "mechanisms.jsonl")
     monkeypatch.setattr(C, "CONTRIBUTIONS", proc / "gnn_a" / "contributions.parquet")
     monkeypatch.setattr(T, "_nameres", lambda *a, **k: (_ for _ in ()).throw(OSError("offline")))
-    caches = (T._nodes, T._patient_tables, T._predictions, T._dm_tables, T._mech_file, T._gnn_a)
+    pd.DataFrame({"patient_id": ["C3L-1", "C3L-1"], "curie": ["NCBIGene:7428", "NCBIGene:7428"], "name": ["VHL", "VHL"],
+                  "source_field": ["somatic_mutation"] * 2, "source_text": ["p.R167Q", "p.L85P"], "weight": [1.0, 1.0]}).to_parquet(
+        proc / "patients" / "patient_mutations.parquet")
+    monkeypatch.setattr(K.P, "patient_mutations", proc / "patients" / "patient_mutations.parquet")
+    monkeypatch.setattr(K.P, "patient_drugs", proc / "patients" / "patient_drugs.parquet")  # missing on purpose
+    caches = (T._nodes, T._patient_tables, T._predictions, T._dm_tables, T._mech_file, T._gnn_a, T._patient_extras)
     for f in caches:
         f.cache_clear()
     yield proc
@@ -251,6 +256,17 @@ def test_rank_for_patient_uses_tumor_proteins_by_default(tiny_processed, monkeyp
     monkeypatch.setattr(C, "RANK_BASIS", "all")
     T.dispatch("rank_for_patient", {"patient_id": "C3L-1", "node_type": "gene"})
     assert seen["neigh"] == ["HP:0000822", "NCBIGene:7428"]
+
+
+def test_get_patient_mutations_and_medications(tiny_processed, monkeypatch):
+    monkeypatch.setattr(C, "MOCK_MODE", "0")
+    p = T.dispatch("get_patient", {"patient_id": "C3L-1"})
+    assert p["mutations"] == [{"curie": "NCBIGene:7428", "symbol": "VHL", "type": "somatic", "protein_change": "p.R167Q, p.L85P",
+                               "edge_id": "pt:C3L-1:somatic_mutation:NCBIGene:7428"}]
+    assert p["medications"] == []  # the medications file is optional
+    monkeypatch.setattr(C, "MOCK_MODE", "1")  # the mock patient carries a VHL mutation too
+    tr = run("Which of this patient's genes are mutated?", patient_id=PID, llm=FakeLLM(), run_id="t_mut")
+    assert f"pt:{PID}:somatic_mutation:NCBIGene:7428" in tr["evidence"]["edge_ids"]  # citable (mock patient)
 
 
 def test_auto_mode_falls_back_to_mocks(tiny_processed, monkeypatch):
