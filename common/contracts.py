@@ -141,7 +141,7 @@ def patient_neighbours(patient_id: str, phenotypes=None, proteins=None) -> tuple
 # ---------------------------------------------------------------- models / LLM
 TEXT_EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"   # what feat_text.pt uses today; GNN-B must match
 NIM_BASE_URL = "https://integrate.api.nvidia.com/v1"
-LLM_MODEL = "<tool-calling model id from build.nvidia.com>"     # Agent owner: set once
+LLM_MODEL = "nvidia/nemotron-3-ultra-550b-a55b"   # Agent owner: probed Nov 7 with python -m agent.models --probe
 GNN_A_TAGS = ("main", "no_dismech")
 
 

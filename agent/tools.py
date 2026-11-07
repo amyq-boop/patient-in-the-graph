@@ -100,9 +100,9 @@ def _cached(kind, key, fetch):
     d.mkdir(parents=True, exist_ok=True)
     f = d / (hashlib.sha256(json.dumps(key, sort_keys=True).encode()).hexdigest()[:24] + ".json")
     if f.exists():
-        return json.loads(f.read_text())
+        return json.loads(f.read_text(encoding="utf-8"))
     val = fetch()
-    f.write_text(json.dumps(val))
+    f.write_text(json.dumps(val), encoding="utf-8")
     return val
 
 
@@ -341,7 +341,7 @@ def _mechanism_from_graph(disease_curie):
 def _mech_file():
     out = {}
     if C.MECHANISMS.exists():
-        for line in C.MECHANISMS.read_text().splitlines():
+        for line in C.MECHANISMS.read_text(encoding="utf-8").splitlines():
             if line.strip():
                 m = json.loads(line)
                 out[m["disease"]] = m

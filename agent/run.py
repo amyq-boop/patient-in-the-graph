@@ -25,7 +25,7 @@ from agent.trace_check import check
 
 def save(trace, path):
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(trace, indent=1, default=str))
+    path.write_text(json.dumps(trace, indent=1, default=str), encoding="utf-8")
     probs = check(trace)
     if probs:
         print(f"  ! trace check: {probs}", file=sys.stderr)
@@ -33,11 +33,16 @@ def save(trace, path):
 
 
 def load_questions(path):
-    with open(path) as f:
+    with open(path, encoding="utf-8") as f:
         return [json.loads(l) for l in f if l.strip()]
 
 
 def main(argv=None):
+    for stream in (sys.stdout, sys.stderr):  # Windows consoles / Git Bash default to cp1252
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
     ap = argparse.ArgumentParser()
     ap.add_argument("-q", "--question")
     ap.add_argument("-p", "--patient")
