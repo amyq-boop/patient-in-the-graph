@@ -7,7 +7,7 @@ Shapes follow `CONTRACTS.md` §7–§8 (the repo version). Mocks are `agent/mock
 
 ```bash
 pip install pandas pyarrow requests openai pytest
-# .env in the repo root: NVIDIA_API_KEY=nvapi-...   optional: NIM_MODEL=meta/llama-3.3-70b-instruct
+# .env in the repo root: NVIDIA_API_KEY=nvapi-...   optional: NIM_MODEL=... (default from common/contracts.py LLM_MODEL)
 
 # offline, no key needed (mock tools + scripted fake LLM)
 BIOHACK_MOCK=1 BIOHACK_FAKE_LLM=1 python -m agent.run -q "Why is this patient high-risk, and what would you target?" -p C3L-MOCK1
@@ -34,7 +34,7 @@ BIOHACK_VARIANT=e4 python -m agent.run -q "Explain why this patient is high-risk
 | `BIOHACK_MOCK` | `auto` (default), `1`, `0` | `auto` uses real files where they exist and mocks otherwise; mock output is tagged in the trace `notes` |
 | `BIOHACK_FAKE_LLM` | `1` | scripted LLM for tests |
 | `BIOHACK_VARIANT` | `full` (default), `e4`, `e4_dismech`, `no_dismech`, ... | graph variant for every `retrieve_subgraph` call (the LLM can't change it) |
-| `NIM_MODEL` | any tool-calling model on build.nvidia.com | default `meta/llama-3.3-70b-instruct` |
+| `NIM_MODEL` | any tool-calling model on build.nvidia.com | default `nvidia/nemotron-3-ultra-550b-a55b` (`contracts.LLM_MODEL`); re-check with `python -m agent.models --probe` |
 | `VERIFIER_STRICT` | `0` (default), `1` | `1` also requires the cited edge to mention something in the claim |
 | `LLM_CACHE` | `1` (default), `0` | NIM responses cached in `cache/llm/` |
 
@@ -52,4 +52,4 @@ Extra trace keys beyond §7: `variant`, `notes` (mock use, tool errors), `elapse
 - **GNN-B:** `models/retriever.py` must expose `retrieve_subgraph(question, seeds, budget, retriever, variant)` returning the §7 SubgraphResult (dict, dataclass or pydantic all work). If `triples_text` is missing, `tools.py` builds it with `contracts.triple_line()`.
 - **GNN-A:** `rank_for_patient` calls `GnnA(tag).rank_for_patient_rel(*patient_neighbours(pid))`, with tag `no_dismech` when `BIOHACK_VARIANT=no_dismech` and `main` otherwise. `predict_patient` reads `gnn_a/predictions.parquet`; `top_contributing` stays empty until someone writes `gnn_a/contributions.parquet` (`patient_id, curie, score, rank`).
 - **get_mechanism** is built in `tools.py` from `edges.parquet` + `evidence.parquet`: the disease's dismech mechanism nodes (plus anything reachable through mechanism→mechanism edges), ordered into chains along those edges, with PMIDs regex-parsed from the evidence row and quotes from any text/support column. If WS1 later writes `data/processed/mechanisms.jsonl` in the §7 shape, that file wins. **Check the ccRCC output by eye once the real files exist.**
-- `LLM_MODEL` in `common/contracts.py` is still a placeholder; the agent uses `NIM_MODEL` (default `meta/llama-3.3-70b-instruct`).
+- `LLM_MODEL` in `common/contracts.py` is `nvidia/nemotron-3-ultra-550b-a55b`, which passed the tool-call probe in about 1 s on Nov 7. `NIM_MODEL` in `.env` overrides it.

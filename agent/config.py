@@ -2,14 +2,14 @@
 overridden by environment variables or a .env file in the repo root."""
 import os
 
-from common.contracts import CCRCC_ID, CONTRACT_VERSION, DEFAULT_BUDGET, GRAPH_VARIANTS, NIM_BASE_URL, P, PRIMARY_LABEL, ROOT  # noqa: F401
+from common.contracts import CCRCC_ID, CONTRACT_VERSION, DEFAULT_BUDGET, GRAPH_VARIANTS, LLM_MODEL, NIM_BASE_URL, P, PRIMARY_LABEL, ROOT  # noqa: F401
 
 
 def _load_dotenv():
     p = ROOT / ".env"
     if not p.exists():
         return
-    for line in p.read_text().splitlines():
+    for line in p.read_text(encoding="utf-8-sig").splitlines():
         line = line.strip()
         if not line or line.startswith("#") or "=" not in line:
             continue
@@ -29,7 +29,7 @@ CONTRIBUTIONS = P.processed / "gnn_a" / "contributions.parquet"  # optional; col
 
 # --- LLM (NVIDIA NIM, OpenAI-compatible) ---
 NIM_BASE_URL = os.environ.get("NIM_BASE_URL", NIM_BASE_URL)
-NIM_MODEL = os.environ.get("NIM_MODEL", "meta/llama-3.3-70b-instruct")
+NIM_MODEL = os.environ.get("NIM_MODEL", LLM_MODEL)
 NIM_API_KEY = os.environ.get("NVIDIA_API_KEY", "")
 TEMPERATURE = float(os.environ.get("NIM_TEMPERATURE", "0"))
 

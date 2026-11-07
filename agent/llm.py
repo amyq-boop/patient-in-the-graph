@@ -47,7 +47,8 @@ class NimLLM:
         if not C.NIM_API_KEY:
             raise RuntimeError("NVIDIA_API_KEY is not set (put it in .env)")
         self.model = model or C.NIM_MODEL
-        self.client = OpenAI(base_url=C.NIM_BASE_URL, api_key=C.NIM_API_KEY)
+        self.client = OpenAI(base_url=C.NIM_BASE_URL, api_key=C.NIM_API_KEY,
+                             timeout=float(os.environ.get("NIM_TIMEOUT", "120")), max_retries=0)
         self.cache = cache and os.environ.get("LLM_CACHE", "1") != "0"
         self.cache_dir = C.CACHE / "llm"
 
@@ -61,7 +62,7 @@ class NimLLM:
         key = hashlib.sha256(json.dumps(req, sort_keys=True, default=str).encode()).hexdigest()[:32]
         f = self.cache_dir / f"{key}.json"
         if self.cache and f.exists():
-            return json.loads(f.read_text())
+            return json.loads(f.read_text(encoding="utf-8"))
 
         last = None
         for attempt in range(5):
@@ -87,10 +88,16 @@ class NimLLM:
                 out = {"content": None if calls and not msg.tool_calls else msg.content, "tool_calls": calls}
                 if self.cache:
                     self.cache_dir.mkdir(parents=True, exist_ok=True)
-                    f.write_text(json.dumps(out))
+                    f.write_text(json.dumps(out), encoding="utf-8")
                 return out
             except Exception as e:
                 last = e
+                code = getattr(e, "status_code", None)
+                if code is not None and 400 <= code < 500 and code not in (408, 409, 429):
+                    hint = {401: "check NVIDIA_API_KEY in .env", 403: "this key can't use this model",
+                            404: "model id not found", 410: "this model has been retired from the catalog"}.get(code, "")
+                    raise RuntimeError(f"NIM error {code} for model {self.model!r}: {hint}. "
+                                       f"Run `python -m agent.models --probe` to pick a working NIM_MODEL. ({e})") from e
                 time.sleep(min(2 ** attempt, 20))
         raise RuntimeError(f"NIM call failed after retries: {last}")
 
