@@ -10,12 +10,13 @@ Retrievers (same signature; E1 loops over them with variant="e1"):
   bfs        nodes nearest the seeds, by degree (1-hop first, then 2-hop); spanning-forest edges for citation
   text_pcst  PCST with prizes = question<->node text similarity (G-Retriever-style, no GNN)
   gnn_pcst   PCST with prizes = ppr * PageRank-from-seeds + beta * GNN-A relation-aware score + alpha * text
+             - hub * degree rank (penalty for hub genes / generic GO terms)
              (weights tuned in eval/e1_retrieval.py -> models/results/gnn_b_best_weights_typed.json)
 Prizes go only to `target_types` nodes (default genes + GO terms, i.e. "mechanism" nodes); other nodes can still be
 PCST connectors. Candidates = 2-hop neighbourhood of the seeds, capped at `cap` by prize. PCST (pcst_fast, GW pruning)
 on the induced subgraph, edge cost binary-searched so the tree has <= budget non-seed nodes; dismech edges cost less.
-GNN signal: genes = mean sigmoid(DistMult(seed -> gene)) over disease/phenotype/gene seeds; GO = two-step via the
-top-200 genes; "lift" subtracts each node's background score (hub / promiscuity correction).
+GNN signal: genes = mean sigmoid(DistMult(seed -> gene)) over disease/phenotype/gene seeds; GO = average of two-step
+(via the top-200 genes) and direct disease->GO (dm_affects / dm_has_participant relations); "lift" subtracts each node's background score (hub / promiscuity correction).
 
 NOTE pcst_fast: the PyPI wheel returns wrong trees under NumPy 2.x. Install from source:
     pip install --no-binary pcst_fast pcst_fast==1.0.10     (scripts/setup_brev.sh does this)
@@ -41,14 +42,18 @@ GO_T = ('biological_process', 'molecular_function', 'cellular_component')
 MECHANISM_TYPES = ('gene',) + GO_T
 GENE2GO_REL = {'biological_process': 'bioprocess_protein', 'molecular_function': 'molfunc_protein', 'cellular_component': 'cellcomp_protein'}
 SEED2GENE_REL = {'disease': 'disease_protein', 'phenotype': 'phenotype_protein', 'gene': 'protein_protein'}
+# direct disease -> GO relations learned by GNN-A from dismech (test MRR 0.79 / 0.58 / 0.71)
+DIS2GO_KEY = {'biological_process': 'disease__dm_affects__biological_process',
+              'molecular_function': 'disease__dm_affects__molecular_function',
+              'cellular_component': 'disease__dm_has_participant__cellular_component'}
 WEIGHTS_FILE = ROOT / 'models' / 'results' / 'gnn_b_best_weights_typed.json'
-FALLBACK_WEIGHTS = {'text': 0.0, 'ppr': 1.0, 'gnn': 0.25, 'lift': True}   # E1-tuned values (Nov 7) if the file is missing
+FALLBACK_WEIGHTS = {'text': 0.0, 'ppr': 1.0, 'gnn': 0.25, 'hub': 0.0, 'lift': True, 'direct_go': True}  # if the file is missing
 
 
 def gnn_weights() -> dict:
     if WEIGHTS_FILE.exists():
         w = json.loads(WEIGHTS_FILE.read_text())
-        return {**w['weights'], 'lift': w.get('lift', True)}
+        return {**w['weights'], 'lift': w.get('lift', True), 'direct_go': w.get('direct_go', False)}
     return dict(FALLBACK_WEIGHTS)
 
 
@@ -96,6 +101,10 @@ class Retriever:
             if key in self.rel:
                 idx = torch.from_numpy(rng.choice(len(self.gidx_by_type[S]), min(n_bg, len(self.gidx_by_type[S])), replace=False)).to(self.dev)
                 self.bg[('gene', S)] = torch.sigmoid((self.h[S][idx] * self.rel[key]) @ self.h['gene'].T).mean(0)
+        di = torch.from_numpy(rng.choice(len(self.gidx_by_type['disease']), min(n_bg, len(self.gidx_by_type['disease'])), replace=False)).to(self.dev)
+        for T, key in DIS2GO_KEY.items():
+            if key in self.rel:
+                self.bg[('go_direct', T)] = torch.sigmoid((self.h['disease'][di] * self.rel[key]) @ self.h[T].T).mean(0)
         gi = torch.from_numpy(rng.choice(len(self.gidx_by_type['gene']), 2000, replace=False)).to(self.dev)
         for T, r in GENE2GO_REL.items():
             key = f'gene__{r}__{T}'
@@ -122,7 +131,7 @@ class Retriever:
         return p
 
     @torch.no_grad()
-    def gnn_signal(self, seeds, lift=True, top_genes=200):
+    def gnn_signal(self, seeds, lift=True, top_genes=200, direct_go=True):
         out = np.zeros(self.N, np.float32)
         comps = []
         for S, r in SEED2GENE_REL.items():
@@ -145,6 +154,13 @@ class Retriever:
                 sc = (w[:, None] * torch.sigmoid((self.h['gene'][top.indices] * self.rel[key]) @ self.h[T].T)).sum(0)
                 if lift:
                     sc = sc - self.bg[('go', T)]
+                dkey = DIS2GO_KEY.get(T)
+                dli = [self.LIDX[x] for x in seeds if self.NT[x] == 'disease']
+                if direct_go and dli and dkey in self.rel:                  # direct disease -> GO, averaged in
+                    dsc = torch.sigmoid((self.h['disease'][torch.tensor(dli, device=self.dev)] * self.rel[dkey]) @ self.h[T].T).mean(0)
+                    if lift:
+                        dsc = dsc - self.bg[('go_direct', T)]
+                    sc = 0.5 * (sc + dsc)
                 out[self.gidx_by_type[T]] = sc.cpu().numpy()
         return out
 
@@ -166,6 +182,8 @@ class Retriever:
             for name, w in weights.items():
                 if w and name in signals:
                     prize[sel] += w * self.rank_norm(signals[name][cand[sel]])
+            if weights.get('hub'):                                           # hub / generic-term penalty
+                prize[sel] -= weights['hub'] * self.rank_norm(self.deg[cand[sel]])
         return prize
 
     def pcst(self, seeds, cand, prize, budget=DEFAULT_BUDGET, cap=3000, K=150, dm_discount=0.5, iters=14):
@@ -273,13 +291,14 @@ class Retriever:
             w = {'text': 1.0, 'ppr': 0.0, 'gnn': 0.0, 'lift': False} if retriever == 'text_pcst' else (weights or gnn_weights())
             sig = {'text': self.text_signal(question)}
             if w.get('ppr'): sig['ppr'] = self.ppr_signal(seeds)
-            if w.get('gnn'): sig['gnn'] = self.gnn_signal(seeds, lift=w.get('lift', True))
+            if w.get('gnn'): sig['gnn'] = self.gnn_signal(seeds, lift=w.get('lift', True), direct_go=w.get('direct_go', True))
             cand = self.two_hop(seeds)
-            pz = self.combine(cand, sig, {k: w.get(k, 0) for k in ('text', 'ppr', 'gnn')}, target_types)
+            pz = self.combine(cand, sig, {k: w.get(k, 0) for k in ('text', 'ppr', 'gnn', 'hub')}, target_types)
             sel, pids = self.pcst(seeds, cand, pz, budget=budget, cap=cap, K=K, dm_discount=dm_discount)
             prize = dict(zip(cand.tolist(), pz.tolist()))
             meta.update(n_candidates=int(len(cand)), alpha=float(w.get('text', 0)), beta=float(w.get('gnn', 0)),
-                        ppr=float(w.get('ppr', 0)), lift=bool(w.get('lift', False)))
+                        ppr=float(w.get('ppr', 0)), hub=float(w.get('hub', 0)), lift=bool(w.get('lift', False)),
+                        direct_go=bool(w.get('direct_go', False)))
         allv = np.concatenate([seeds, np.asarray(sel, dtype=np.int64)])
         nodes = [{'curie': self.curies[x], 'name': self.names[x], 'type': self.NT[x], 'prize': round(float(prize.get(int(x), 0.0)), 4),
                   'is_seed': i < len(seeds)} for i, x in enumerate(allv)]
