@@ -164,6 +164,8 @@ def _retrieval_guarantee(question, tool_calls, msgs, draft, llm, patient):
 def run(question, patient_id=None, qid="adhoc", mode="agent", llm=None, run_id=None):
     llm = llm or get_llm()
     run_id = run_id or datetime.now().strftime("%Y-%m-%dT%H-%M") + f"_{mode}"
+    if isinstance(getattr(llm, "truncated", None), list):
+        llm.truncated.clear()
     t0 = time.perf_counter()
     tool_calls = []
     user = question + (f"\n\nPatient: {patient_id}" if patient_id else "")
@@ -213,6 +215,8 @@ def run(question, patient_id=None, qid="adhoc", mode="agent", llm=None, run_id=N
         "answer": answer,
         "verifier": stats,
         "verifier_splitter": splitter,
-        "notes": _notes(tool_calls),
+        "notes": _notes(tool_calls) + [f"LLM output cut off at max_tokens: {p} (raise NIM_MAX_TOKENS"
+                                       f"{'_CLAIMS' if p == 'claims' else ''})"
+                                       for p in sorted(set(getattr(llm, "truncated", None) or []))],
         "elapsed_s": round(time.perf_counter() - t0, 2),
     }

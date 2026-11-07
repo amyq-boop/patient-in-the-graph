@@ -48,13 +48,16 @@ class NimLLM:
             raise RuntimeError("NVIDIA_API_KEY is not set (put it in .env)")
         self.model = model or C.NIM_MODEL
         self.client = OpenAI(base_url=C.NIM_BASE_URL, api_key=C.NIM_API_KEY,
-                             timeout=float(os.environ.get("NIM_TIMEOUT", "120")), max_retries=0)
+                             timeout=float(os.environ.get("NIM_TIMEOUT", "300")), max_retries=0)  # longer outputs need longer calls
         self.cache = cache and os.environ.get("LLM_CACHE", "1") != "0"
         self.cache_dir = C.CACHE / "llm"
+        self.truncated = []  # purposes whose output hit max_tokens during the current run
 
     def chat(self, messages, tools=None, json_mode=False, purpose="agent"):
-        # the claims split of a long answer needs more room than an agent turn (2048 truncated it to nothing)
-        max_tokens = int(os.environ.get("NIM_MAX_TOKENS_CLAIMS", "8192")) if purpose == "claims" else 2048
+        # Reasoning models spend hidden tokens against max_tokens, so leave room: at 2048 the final answer
+        # was cut off mid-section, and at 8192 the claims JSON was cut off mid-object (Nov 7, nemotron-3-ultra).
+        max_tokens = int(os.environ.get("NIM_MAX_TOKENS_CLAIMS", "16384") if purpose == "claims"
+                         else os.environ.get("NIM_MAX_TOKENS", "8192"))
         req = {"model": self.model, "messages": messages, "temperature": C.TEMPERATURE, "max_tokens": max_tokens}
         if tools:
             req["tools"] = tools
@@ -64,7 +67,10 @@ class NimLLM:
         key = hashlib.sha256(json.dumps(req, sort_keys=True, default=str).encode()).hexdigest()[:32]
         f = self.cache_dir / f"{key}.json"
         if self.cache and f.exists():
-            return json.loads(f.read_text(encoding="utf-8"))
+            out = json.loads(f.read_text(encoding="utf-8"))
+            if out.get("finish_reason") == "length":
+                self.truncated.append(purpose)
+            return out
 
         last = None
         for attempt in range(5):
@@ -90,7 +96,11 @@ class NimLLM:
                 if json_mode and not calls and not (msg.content or "").strip() and "response_format" in req:
                     req.pop("response_format")  # some models return empty content in JSON mode: retry as plain text
                     raise RuntimeError("empty content in JSON mode")
-                out = {"content": None if calls and not msg.tool_calls else msg.content, "tool_calls": calls}
+                finish = getattr(resp.choices[0], "finish_reason", None)
+                if finish == "length":
+                    self.truncated.append(purpose)  # surfaced in the trace notes by graph_agent
+                out = {"content": None if calls and not msg.tool_calls else msg.content, "tool_calls": calls,
+                       "finish_reason": finish}
                 if self.cache and (calls or (msg.content or "").strip()):  # never cache an empty answer
                     self.cache_dir.mkdir(parents=True, exist_ok=True)
                     f.write_text(json.dumps(out), encoding="utf-8")
