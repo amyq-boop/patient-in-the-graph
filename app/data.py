@@ -66,9 +66,23 @@ def patients() -> list[str]:
     return real or pids or ["C3L-MOCK1"]
 
 
+def _from_traces(pid: str, tool: str) -> dict | None:
+    """Reuse a tool result saved in a cached trace when the live backend can't answer (e.g. no data on this machine)."""
+    for f in _trace_files():
+        if f.name.startswith(f"{pid}__"):
+            for tc in json.loads(f.read_text()).get("tool_calls", []):
+                r = tc.get("result")
+                if tc.get("name") == tool and isinstance(r, dict) and "error" not in r:
+                    return r
+    return None
+
+
 def patient(pid: str) -> dict:
-    return {"info": _dispatch("get_patient", {"patient_id": pid}),
-            "pred": _dispatch("predict_patient", {"patient_id": pid})}
+    out = {}
+    for key, tool in (("info", "get_patient"), ("pred", "predict_patient")):
+        res = _dispatch(tool, {"patient_id": pid})
+        out[key] = res if "error" not in res else (_from_traces(pid, tool) or res)
+    return out
 
 
 def trace(pid: str, qid: str) -> tuple[dict | None, str]:
