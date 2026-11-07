@@ -72,6 +72,11 @@ GRAPH_VARIANTS: dict[str, tuple[str, ...]] = {
     "e4": ("hub", "e4_full"),
     "e4_dismech": ("hub", "e4_dismech"),
     "no_dismech": ("hub",),
+    "bifo": ("hub", "bifo_dropped"),
+    "bifo_strict": ("hub", "bifo_dropped", "bifo_observational"),
+    "bifo_flow": ("hub", "bifo_dropped", "bifo_observational", "bifo_against_flow"),
+    "e1_bifo": ("hub", "e1_holdout", "bifo_dropped"),
+    "e1_bifo_strict": ("hub", "e1_holdout", "bifo_dropped", "bifo_observational"),
 }
 RETRIEVERS = ("bfs", "text_pcst", "gnn_pcst")
 DEFAULT_BUDGET = 50
