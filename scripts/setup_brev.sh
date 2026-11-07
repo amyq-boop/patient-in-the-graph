@@ -8,7 +8,9 @@ fi
 export PATH="$HOME/.local/bin:$PATH"
 [ -x ~/venv/bin/python ] || uv venv ~/venv --python 3.11
 uv pip install --python ~/venv/bin/python -q torch --index-url https://download.pytorch.org/whl/cu126
-uv pip install --python ~/venv/bin/python -q torch_geometric pandas pyarrow requests scipy scikit-learn
+uv pip install --python ~/venv/bin/python -q torch_geometric pandas pyarrow requests scipy scikit-learn sentence-transformers matplotlib pytest
+# pcst_fast: the PyPI wheel silently returns wrong trees with NumPy 2.x -> build from source
+uv pip install --python ~/venv/bin/python -q --reinstall --no-binary pcst_fast "pcst_fast==1.0.10"
 cd ~/biohack/data/raw
 [ -s kg.csv ] || wget -q -O kg.csv https://dataverse.harvard.edu/api/access/datafile/6180620
 for f in dismech_nodes.tsv dismech_edges.tsv; do
