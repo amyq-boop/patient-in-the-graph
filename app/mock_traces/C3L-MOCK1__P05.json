@@ -1,11 +1,12 @@
 {
  "contract_version": "1",
- "run_id": "mock",
- "qid": "P01",
+ "run_id": "mock_curated",
+ "qid": "P05",
  "mode": "agent",
  "patient_id": "C3L-MOCK1",
- "question": "Why is this patient high-risk, and what would you target?",
+ "question": "How confident are you in this patient's risk score, and which evidence drives it?",
  "model": "mock",
+ "variant": "full",
  "tool_calls": [
   {
    "name": "get_patient",
@@ -54,11 +55,45 @@
      }
     ]
    },
-   "ms": 0
+   "ms": 42
+  },
+  {
+   "name": "predict_patient",
+   "args": {
+    "patient_id": "C3L-MOCK1"
+   },
+   "result": {
+    "patient_id": "C3L-MOCK1",
+    "label": "y_stage",
+    "risk": 0.78,
+    "model": "gnn",
+    "fold": 2,
+    "top_contributing": [
+     {
+      "curie": "NCBIGene:7422",
+      "name": "VEGFA",
+      "type": "gene",
+      "score": 0.41
+     },
+     {
+      "curie": "HP:0000822",
+      "name": "Hypertension",
+      "type": "phenotype",
+      "score": 0.22
+     }
+    ]
+   },
+   "ms": 180
   },
   {
    "name": "retrieve_subgraph",
-   "args": {},
+   "args": {
+    "question": "How confident are you in this patient's risk score, and which evidence drives it?",
+    "seeds": [
+     "PATIENT:C3L-MOCK1"
+    ],
+    "budget": 50
+   },
    "result": {
     "nodes": [
      {
@@ -189,7 +224,7 @@
      "mock": true
     }
    },
-   "ms": 0
+   "ms": 1240
   },
   {
    "name": "get_mechanism",
@@ -249,7 +284,7 @@
      "DRUGBANK:MOCK_BELZ"
     ]
    },
-   "ms": 0
+   "ms": 85
   }
  ],
  "evidence": {
@@ -274,11 +309,11 @@
    "PMID:00000003"
   ]
  },
- "draft": "...",
+ "draft": "The model ranks this tumor as likely higher-stage (score 0.78). The biggest contributors are VEGFA, which is strongly up [pt:C3L-MOCK1:protein_up:NCBIGene:7422], and the hypertension on record [pt:C3L-MOCK1:has_phenotype:HP:0000822]. The score comes from about 100 patients and has no validated confidence interval, so treat it as a ranking signal, not a probability to quote.",
  "claims": [
   {
    "claim_id": "c1",
-   "text": "The patient's tumour overexpresses VEGFA.",
+   "text": "VEGFA is strongly overexpressed in this tumor.",
    "support": {
     "edge_ids": [
      "pt:C3L-MOCK1:protein_up:NCBIGene:7422"
@@ -289,29 +324,27 @@
   },
   {
    "claim_id": "c2",
-   "text": "VHL loss stabilizes HIF-2alpha.",
-   "support": {
-    "edge_ids": [],
-    "pmids": [
-     "PMID:00000002"
-    ]
-   },
-   "status": "supported"
-  },
-  {
-   "claim_id": "c3",
-   "text": "Sunitinib targets KDR, downstream of VEGFA.",
+   "text": "This patient has hypertension on record.",
    "support": {
     "edge_ids": [
-     "E900006"
+     "pt:C3L-MOCK1:has_phenotype:HP:0000822"
     ],
     "pmids": []
    },
    "status": "supported"
   },
   {
+   "claim_id": "c3",
+   "text": "The risk score is 95% accurate.",
+   "support": {
+    "edge_ids": [],
+    "pmids": []
+   },
+   "status": "removed"
+  },
+  {
    "claim_id": "c4",
-   "text": "ENO1 upregulation may reflect a glycolytic shift.",
+   "text": "VEGFA and hypertension are what drive this score.",
    "support": {
     "edge_ids": [],
     "pmids": []
@@ -319,11 +352,14 @@
    "status": "hypothesis"
   }
  ],
- "answer": "...",
+ "answer": "The model ranks this tumor as likely higher-stage (score 0.78). The biggest contributors are VEGFA, which is strongly up [pt:C3L-MOCK1:protein_up:NCBIGene:7422], and the hypertension on record [pt:C3L-MOCK1:has_phenotype:HP:0000822]. The score comes from about 100 patients and has no validated confidence interval, so treat it as a ranking signal, not a probability to quote.",
  "verifier": {
   "n_claims": 4,
-  "n_supported": 3,
+  "n_supported": 2,
   "n_hypothesis": 1,
-  "n_removed": 0
- }
+  "n_removed": 1
+ },
+ "notes": [
+  "MOCK DATA: curated demo trace"
+ ]
 }
