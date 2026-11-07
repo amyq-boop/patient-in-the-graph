@@ -24,18 +24,23 @@ import numpy as np
 import pandas as pd
 from scipy.stats import wilcoxon
 
-from common.contracts import DEFAULT_BUDGET, P, ROOT
+from common.contracts import DEFAULT_BUDGET, GRAPH_VARIANTS, P, ROOT
 from models.retriever import MECHANISM_TYPES, Retriever
 
 ap = argparse.ArgumentParser()
 ap.add_argument('--budget', type=int, default=DEFAULT_BUDGET)
 ap.add_argument('--limit', type=int, default=0)
 ap.add_argument('--out', default=str(P.results))
+ap.add_argument('--variant', default='e1', help='graph variant; must hide e1_holdout (e.g. e1, e1_bifo, e1_bifo_strict)')
 args = ap.parse_args()
+if 'e1_holdout' not in GRAPH_VARIANTS[args.variant]:
+    raise SystemExit(f'variant {args.variant!r} does not hide e1_holdout edges: E1 would leak')
+if args.variant != 'e1' and args.out == str(P.results):
+    args.out = str(P.results / f'e1_{args.variant}')  # never overwrite the contract e1.csv
 T0 = time.time()
 OUT = args.out
 os.makedirs(OUT, exist_ok=True)
-R = Retriever('e1')
+R = Retriever(args.variant)
 spl = json.loads(P.e1_split.read_text())
 test = spl['test'][:args.limit] if args.limit else spl['test']
 
@@ -162,7 +167,7 @@ best = max(GRIDS['gnn_pcst'][1], key=lambda cfg: np.mean([rank_recall(c, prize(c
     {'weights': {'text': best.get('text', 0), 'ppr': best.get('ppr', 0), 'gnn': best.get('gnn', 0), 'hub': best.get('hub', 0)},
      'lift': bool(best.get('lift')), 'direct_go': bool(best.get('direct')), 'target_types': list(MECHANISM_TYPES),
      'note': 'tuned on all E1 test diseases (ranking recall@50); for the API/demo only. E1 numbers use cross-fitted configs.'}, indent=1))
-res = dict(variant='e1', gnn_a_tag=R.tag, n_test_diseases=len(C), budget=args.budget,
+res = dict(variant=args.variant, gnn_a_tag=R.tag, n_test_diseases=len(C), budget=args.budget,
            ceiling_targets_within_2hop=round(float(np.mean([c['all_t'].sum() / c['n_t'] for c in C])), 3),
            median_candidates_2hop=int(np.median([len(c['cand']) for c in C])), median_seeds=int(np.median([len(c['seeds']) for c in C])),
            summary=summ, gnn_pcst_vs=tests, chosen={f'{m}|fold{f}': v for (m, f), v in chosen.items()}, api_config=best,
@@ -176,7 +181,7 @@ try:
     ee = g.groupby(['method', 'kind']).recall50.sem().unstack().loc[show]
     ax = mm.plot.barh(xerr=ee, figsize=(9, 5.5), capsize=2, color=['#4C72B0', '#DD8452'])
     ax.invert_yaxis(); ax.set_xlabel(f'Recall of hidden mechanism nodes inside the {args.budget}-node subgraph')
-    ax.set_title(f'E1: retrieval on {len(C)} held-out dismech diseases (variant e1)'); ax.legend(['genes', 'GO terms'])
+    ax.set_title(f'E1: retrieval on {len(C)} held-out dismech diseases (variant {args.variant})'); ax.legend(['genes', 'GO terms'])
     plt.tight_layout(); plt.savefig(f'{OUT}/e1.png', dpi=150)
 except Exception as ex:
     print('plot skipped:', ex)
