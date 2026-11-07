@@ -133,8 +133,22 @@ def extract_claims(draft, llm):
         return deterministic_claims(draft), "deterministic"
 
 
+SOFT = "~soft"  # first element of an edge_names entry: check entity match, but never count it as mismatched
+GENERIC = {"and", "the", "for", "via", "not", "are", "its", "has", "with", "from", "into", "that", "this", "their", "driven", "pathway", "process", "regulation", "positive",
+           "negative", "cell", "cells", "cellular", "protein", "disease", "activity", "response", "signaling", "via",
+           "involved", "associated", "type", "factor", "receptor", "complex", "system", "increased", "decreased"}
+
+
+def _toks(s):
+    """Distinctive words, crudely stemmed to 6 characters (inhibitor ~ inhibition); keeps 3-letter symbols like VHL."""
+    return {t[:6] for t in re.findall(r"[a-z0-9\u0370-\u03ff]+", str(s).lower()) if len(t) >= 3 and t not in GENERIC}
+
+
 def _mentions(claim, names):
-    c = claim.lower()
+    """True if the claim names one of the endpoints: the whole name, or at least half of its distinctive words
+    (so long DisMech step labels like 'Immune Evasion via PD-L1 and ...' still match a paraphrase)."""
+    c = str(claim).lower()
+    ct = _toks(c)
     for n in names:
         n = str(n).lower()
         if n.startswith("patient:") or n.startswith("patient "):
@@ -142,6 +156,10 @@ def _mentions(claim, names):
                 return True
         elif len(n) >= 3 and n in c:
             return True
+        else:
+            nt = _toks(n)
+            if len(nt) >= 2 and len(nt & ct) * 2 >= len(nt):
+                return True
     return False
 
 
@@ -169,8 +187,12 @@ def verify(draft, evidence, llm, edge_names=None, strict=None):
         ok_e = [x for x in e_ids if x in ev_edges]
         ok_p = [x for x in p_ids if x in ev_pmids]
         hyp = bool(c.get("is_hypothesis")) or bool(HYP.match(text))
-        ent = (bool(ok_p) or any(_mentions(text, edge_names.get(x, [])) for x in ok_e)) if edge_names else None
-        backed = bool(ok_e or ok_p) and (ent is not False or not strict)
+        said = f"{text} {quote}"  # the quote carries every name the cited IDs belong to
+        ent = (bool(ok_p) or any(_mentions(said, edge_names.get(x, [])) for x in ok_e)) if edge_names else None
+        # every cited edge must name something the sentence talks about: catches "Lenvatinib [<axitinib edge>]"
+        mism = [x for x in ok_e if x in edge_names and edge_names[x][:1] != [SOFT]  # long DisMech labels: too loose
+                and not _mentions(said, edge_names[x])]
+        backed = bool(ok_e or ok_p) and (not strict or (ent is not False and not mism))
         status = "supported" if backed else ("hypothesis" if hyp else "removed")
         if status == "removed":
             why = non_claim_reason(quote, section_of(draft, quote)) or non_claim_reason(text)
@@ -185,6 +207,7 @@ def verify(draft, evidence, llm, edge_names=None, strict=None):
             "quote": quote,
             "unmatched_ids": [x for x in e_ids + p_ids if x not in ev_edges and x not in ev_pmids],
             "entity_match": ent,
+            "mismatched_ids": mism,
             "model_output_only": model_only,
         })
         if quote and quote in answer:
@@ -202,6 +225,7 @@ def verify(draft, evidence, llm, edge_names=None, strict=None):
              "n_supported_entity_match": sum(c["status"] == "supported" and c["entity_match"] is not False
                                              for c in claims),
              "n_supported_model": sum(bool(c.get("model_output_only")) for c in claims),
+             "n_claims_mismatched": sum(bool(c.get("mismatched_ids")) for c in claims),
              "n_non_claims": len(non_claims), "non_claims": non_claims,
              "strict": strict}
     return claims, answer, stats, splitter

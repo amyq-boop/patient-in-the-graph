@@ -139,6 +139,7 @@ class FakeLLM:
         edges = [e for r in results for e in r.get("edge_ids", [])]
         pt = [x["edge_id"] for r in results for k in ("proteins_up",) for x in r.get(k, [])]
         pmids = [p for r in results for c in r.get("chains", []) for s in c["steps"] for p in s["pmids"]]
+        pmids += [p for r in results for p in re.findall(r"PMID:\d+", r.get("citable_lines", ""))]  # get_mechanism view
         return {"content": self._draft(edges, pt, pmids), "tool_calls": []}
 
     @staticmethod

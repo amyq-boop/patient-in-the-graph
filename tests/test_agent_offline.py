@@ -91,6 +91,20 @@ def test_entity_match_and_strict_mode():
     assert [c["status"] for c in claims] == ["supported", "removed"] and "PBRM1" not in answer
 
 
+def test_mislabelled_citation_is_caught():
+    """'Lenvatinib [<axitinib edge>]' must not pass in strict mode; long mechanism labels still match a paraphrase."""
+    names = {"E58": ["Sunitinib", "DRUGBANK:DB01268"], "E60": ["Axitinib", "DRUGBANK:DB06626"],
+             "E83": ["Immune Evasion via PD-L1 and Immunosuppressive Microenvironment", "dismech:x"]}
+    ev = {"edge_ids": list(names), "pmids": []}
+    draft = "- Sunitinib and lenvatinib treat ccRCC [E58, E60].\n- Immune evasion in ccRCC occurs via PD-L1 [E83]."
+    claims, _, stats, _ = verify(draft, ev, FakeLLM(), edge_names=names)
+    assert claims[0]["mismatched_ids"] == ["E60"] and claims[0]["status"] == "supported"  # recorded, not removed
+    assert claims[1]["entity_match"] is True and claims[1]["mismatched_ids"] == []
+    assert stats["n_claims_mismatched"] == 1
+    claims, _, _, _ = verify(draft, ev, FakeLLM(), edge_names=names, strict=True)
+    assert [c["status"] for c in claims] == ["removed", "supported"]
+
+
 def test_agent_end_to_end_patient():
     t = run(Q, patient_id=PID, qid="P01")
     assert check(t) == [], check(t)

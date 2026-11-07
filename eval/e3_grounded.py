@@ -14,7 +14,7 @@ from pathlib import Path
 from agent import config as C
 
 COLS = ["mode", "qid", "n_claims", "n_supported", "n_hypothesis", "n_removed", "n_supported_entity_match",
-        "n_supported_model", "n_non_claims"]
+        "n_supported_model", "n_non_claims", "n_claims_mismatched"]
 
 
 def main(argv=None):
@@ -36,6 +36,7 @@ def main(argv=None):
             claims += [{"mode": t["mode"], "qid": t["qid"], "claim_id": c["claim_id"], "text": c["text"],
                         "cited": " ".join(c["support"]["edge_ids"] + c["support"]["pmids"]),
                         "entity_match": c.get("entity_match"),
+                        "mismatched_ids": " ".join(c.get("mismatched_ids", [])),
                         "verifier_status": c["status"], "human_status": ""} for c in t["claims"]]
 
     out = Path(a.out)

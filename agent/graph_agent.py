@@ -35,10 +35,27 @@ def _llm_view(name, res):
     if name == "retrieve_subgraph":
         view = {"triples_text": res.get("triples_text", ""), "edge_ids": res.get("edge_ids", []),
                 "n_nodes": len(res.get("nodes", []))}
+    elif name == "get_mechanism":  # one line per citable edge: models copy IDs reliably from aligned lines, not JSON
+        view = {"disease": res.get("disease"), "name": res.get("name"), "citable_lines": _mechanism_lines(res),
+                "genes": res.get("genes", [])}
     else:
         view = {k: v for k, v in res.items() if not k.startswith("_")}
     s = json.dumps(view)
     return s if len(s) <= C.TOOL_RESULT_CHARS else s[: C.TOOL_RESULT_CHARS] + " ...[truncated]"
+
+
+def _mechanism_lines(res):
+    dis = res.get("name", "")
+    lines = []
+    for ch in res.get("chains", []):
+        for i, st in enumerate(ch.get("steps", [])):
+            eid = f"[{st['edge_id']}] " if st.get("edge_id") else "(no edge ID) "
+            pm = (" " + " ".join(f"[{p}]" for p in st.get("pmids", []))) if st.get("pmids") else ""
+            lines.append(f"{eid}{ch.get('chain_id')} step {i + 1}: {st.get('label', '')} (mechanism of {dis}){pm}")
+    for d in res.get("drug_evidence", []):
+        pm = (" " + " ".join(f"[{p}]" for p in d.get("pmids", []))) if d.get("pmids") else ""
+        lines.append(f"[{d['edge_id']}] {d.get('name', '')} (drug) --{d.get('relation', '')}--> {dis} (disease){pm}")
+    return "\n".join(lines)
 
 
 def _evidence(tool_calls):
@@ -84,11 +101,11 @@ def _edge_names(tool_calls):
         elif tc["name"] == "get_mechanism":
             for ch in r.get("chains", []):
                 for st in ch.get("steps", []):
-                    if st.get("edge_id"):
-                        out[st["edge_id"]] = [st.get("label", ""), r.get("name", ""), st.get("mechanism", ""), r.get("disease", "")]
+                    if st.get("edge_id"):  # the step itself, not the disease, so a mislabel can't match on "ccRCC"
+                        out[st["edge_id"]] = ["~soft", st.get("label", ""), st.get("mechanism", "")]
             for d in r.get("drug_evidence", []):
                 if d.get("edge_id"):
-                    out[d["edge_id"]] = [d.get("name", ""), r.get("name", ""), d["curie"], r.get("disease", "")]
+                    out[d["edge_id"]] = [d.get("name", ""), d["curie"]]
         elif tc["name"] == "predict_patient":
             if r.get("evidence_id"):
                 out[r["evidence_id"]] = ["patient", "risk"]
