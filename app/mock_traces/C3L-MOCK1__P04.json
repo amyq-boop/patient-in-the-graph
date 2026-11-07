@@ -1,11 +1,12 @@
 {
  "contract_version": "1",
- "run_id": "mock",
- "qid": "P01",
+ "run_id": "mock_curated",
+ "qid": "P04",
  "mode": "agent",
  "patient_id": "C3L-MOCK1",
- "question": "Why is this patient high-risk, and what would you target?",
+ "question": "Which of this patient's dysregulated proteins are known ccRCC driver genes?",
  "model": "mock",
+ "variant": "full",
  "tool_calls": [
   {
    "name": "get_patient",
@@ -54,11 +55,45 @@
      }
     ]
    },
-   "ms": 0
+   "ms": 42
+  },
+  {
+   "name": "predict_patient",
+   "args": {
+    "patient_id": "C3L-MOCK1"
+   },
+   "result": {
+    "patient_id": "C3L-MOCK1",
+    "label": "y_stage",
+    "risk": 0.78,
+    "model": "gnn",
+    "fold": 2,
+    "top_contributing": [
+     {
+      "curie": "NCBIGene:7422",
+      "name": "VEGFA",
+      "type": "gene",
+      "score": 0.41
+     },
+     {
+      "curie": "HP:0000822",
+      "name": "Hypertension",
+      "type": "phenotype",
+      "score": 0.22
+     }
+    ]
+   },
+   "ms": 180
   },
   {
    "name": "retrieve_subgraph",
-   "args": {},
+   "args": {
+    "question": "Which of this patient's dysregulated proteins are known ccRCC driver genes?",
+    "seeds": [
+     "PATIENT:C3L-MOCK1"
+    ],
+    "budget": 50
+   },
    "result": {
     "nodes": [
      {
@@ -189,7 +224,7 @@
      "mock": true
     }
    },
-   "ms": 0
+   "ms": 1240
   },
   {
    "name": "get_mechanism",
@@ -249,7 +284,7 @@
      "DRUGBANK:MOCK_BELZ"
     ]
    },
-   "ms": 0
+   "ms": 85
   }
  ],
  "evidence": {
@@ -274,14 +309,14 @@
    "PMID:00000003"
   ]
  },
- "draft": "...",
+ "draft": "Of the known kidney-cancer driver genes, VHL is the one changed here: its protein is low [pt:C3L-MOCK1:protein_down:NCBIGene:7428], and VHL is linked to clear cell renal carcinoma in the graph [E900001]. HIF-2α (EPAS1) is also linked to the disease [E900002] but isn't among this patient's top changes. Lower protein is not the same as a mutation.",
  "claims": [
   {
    "claim_id": "c1",
-   "text": "The patient's tumour overexpresses VEGFA.",
+   "text": "VHL protein is low in this tumor.",
    "support": {
     "edge_ids": [
-     "pt:C3L-MOCK1:protein_up:NCBIGene:7422"
+     "pt:C3L-MOCK1:protein_down:NCBIGene:7428"
     ],
     "pmids": []
    },
@@ -289,21 +324,21 @@
   },
   {
    "claim_id": "c2",
-   "text": "VHL loss stabilizes HIF-2alpha.",
+   "text": "VHL is linked to clear cell renal carcinoma.",
    "support": {
-    "edge_ids": [],
-    "pmids": [
-     "PMID:00000002"
-    ]
+    "edge_ids": [
+     "E900001"
+    ],
+    "pmids": []
    },
    "status": "supported"
   },
   {
    "claim_id": "c3",
-   "text": "Sunitinib targets KDR, downstream of VEGFA.",
+   "text": "EPAS1 (HIF-2α) contributes to clear cell renal carcinoma.",
    "support": {
     "edge_ids": [
-     "E900006"
+     "E900002"
     ],
     "pmids": []
    },
@@ -311,19 +346,23 @@
   },
   {
    "claim_id": "c4",
-   "text": "ENO1 upregulation may reflect a glycolytic shift.",
+   "text": "This patient carries a VHL mutation.",
    "support": {
     "edge_ids": [],
     "pmids": []
    },
-   "status": "hypothesis"
+   "status": "removed",
+   "reason": "The patient record measures how much VHL protein there is, not the VHL gene sequence. No mutation evidence was returned."
   }
  ],
- "answer": "...",
+ "answer": "Of the known kidney-cancer driver genes, VHL is the one changed here: its protein is low [pt:C3L-MOCK1:protein_down:NCBIGene:7428], and VHL is linked to clear cell renal carcinoma in the graph [E900001]. HIF-2α (EPAS1) is also linked to the disease [E900002] but isn't among this patient's top changes. Lower protein is not the same as a mutation.",
  "verifier": {
   "n_claims": 4,
   "n_supported": 3,
-  "n_hypothesis": 1,
-  "n_removed": 0
- }
+  "n_hypothesis": 0,
+  "n_removed": 1
+ },
+ "notes": [
+  "MOCK DATA: curated demo trace"
+ ]
 }

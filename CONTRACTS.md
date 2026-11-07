@@ -106,6 +106,7 @@ The PyG exports are `graph_full.pt`, `graph_slim.pt` and `graph_slim_e1.pt`. Eac
 ## 6. GNN outputs still to build (GNN)
 
 - **`data/processed/gnn_a/predictions.parquet`** has columns `patient_id` · `model` (`clinical_lr`, `prot_pca_lr`, `concat_lr`, `gnn`, `gnn_no_dismech`) · `fold` · `risk` (0–1). Every prediction is **out of fold**, and `predict_patient` reads from this file. E2 also comes from it.
+- **`data/processed/gnn_a/contributions.parquet`** *(optional)* has columns `patient_id` · `curie` · `score` · `rank`, the top neighbours behind each patient's `gnn` risk. `predict_patient` fills `top_contributing` from this file and returns an empty list until it exists.
 - **GNN-B lives in `models/retriever.py`:**
   ```python
   retrieve_subgraph(question: str, seeds: list[str], budget: int = 50,
@@ -122,7 +123,7 @@ Both modules expose `TOOLS` (OpenAI tool schemas) and `dispatch(name, args) -> d
 |---|---|
 | `resolve_terms(texts)` | `{"results": [{"text", "matches": [{"curie", "name", "type", "score"}]}]}`, where matches are limited to CURIEs present in `nodes.parquet` |
 | `get_patient(patient_id)` | `{"patient_id", "curie", "clinical_summary", "phenotypes": [{"curie", "name", "edge_id"}], "proteins_up": [{"curie", "symbol", "z", "edge_id"}], "proteins_down": [...]}`. Each `edge_id` is the patient's `pt:…` ID, so the agent can cite it. **No labels.** |
-| `predict_patient(patient_id)` | `{"patient_id", "label": "y_stage", "risk", "model": "gnn", "fold", "top_contributing": [{"curie", "name", "type", "score"}]}` |
+| `predict_patient(patient_id)` | `{"patient_id", "label": "y_stage", "risk", "model": "gnn", "fold", "evidence_id": "pred:<pid>:gnn", "top_contributing": [{"curie", "name", "type", "score", "evidence_id": "contrib:<pid>:<curie>"}]}` |
 | `rank_for_patient(patient_id, node_type, k=10)` | `{"patient_id", "node_type", "items": [{"curie", "name", "score", "rank"}]}`. This wraps `GnnA.rank_for_patient_rel` with `patient_neighbours`, and `node_type` is one of `gene`, `pathway`, `drug`. |
 | `retrieve_subgraph(question, seeds, budget=50)` | **SubgraphResult**: `{"nodes": [{"curie", "name", "type", "prize"}], "edges": [{"edge_id", "src_curie", "rel", "dst_curie", "origin"}], "edge_ids": [...], "triples_text": str, "meta": {"retriever", "variant", "budget", "n_candidates", "alpha", "beta"}}` |
 | `get_mechanism(disease_curie)` | `{"disease", "name", "chains": [{"chain_id", "steps": [{"mechanism", "label", "edge_id", "pmids": [...], "quotes": [...]}]}], "genes": [CURIE], "drugs": [CURIE]}` |
@@ -147,6 +148,8 @@ Both modules expose `TOOLS` (OpenAI tool schemas) and `dispatch(name, args) -> d
 ```
 - `mode` is `agent` or `llm_only`, and `status` is `supported`, `hypothesis` or `removed`.
 - **A claim counts as supported only if** at least one of its cited `edge_ids` appears in `evidence.edge_ids` (everything `retrieve_subgraph` and `get_patient` returned in this trace), or at least one of its `pmids` appears in `evidence.pmids` (everything `get_mechanism` returned). The model's word that a claim is supported doesn't count.
+- **Model outputs are citable too** (added Nov 7): `pred:<pid>:<model>` and `contrib:<pid>:<curie>` from `predict_patient`, and `rank:<pid>:<node_type>:<curie>` from `rank_for_patient` (helpers in `common/contracts.py`). They go in `evidence.edge_ids`. The verifier reports claims backed only by these as `verifier.n_supported_model`, so E3 can separate "the graph says" from "the model says".
+- **Not every sentence is a claim** (added Nov 7): section headers are skipped, and caveats, statements that something cannot be determined, and proposed experiments are kept in the answer but not scored. They're listed in `verifier.non_claims` (`text`, `reason`) and counted in `verifier.n_non_claims`, so the hand-check can catch biology hiding in a caveat.
 
 | file | owner | shape |
 |---|---|---|

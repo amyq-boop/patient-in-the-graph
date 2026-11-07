@@ -124,6 +124,24 @@ def patient_curie(patient_id: str) -> str:
     return f"PATIENT:{patient_id}"
 
 
+def pred_id(patient_id: str, model: str = "gnn") -> str:
+    """Citable ID for a predict_patient risk (a model output, not a graph fact)."""
+    return f"pred:{patient_id}:{model}"
+
+
+def contrib_id(patient_id: str, curie: str) -> str:
+    """Citable ID for one top_contributing neighbour behind a patient's gnn risk."""
+    return f"contrib:{patient_id}:{curie}"
+
+
+def rank_id(patient_id: str, node_type: str, curie: str) -> str:
+    """Citable ID for one rank_for_patient item."""
+    return f"rank:{patient_id}:{node_type}:{curie}"
+
+
+MODEL_OUTPUT_PREFIXES = ("pred:", "contrib:", "rank:")
+
+
 def patient_edge_id(patient_id: str, relation: str, curie: str) -> str:
     return f"pt:{patient_id}:{relation}:{curie}"
 
@@ -141,7 +159,7 @@ def patient_neighbours(patient_id: str, phenotypes=None, proteins=None) -> tuple
 # ---------------------------------------------------------------- models / LLM
 TEXT_EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"   # what feat_text.pt uses today; GNN-B must match
 NIM_BASE_URL = "https://integrate.api.nvidia.com/v1"
-LLM_MODEL = "<tool-calling model id from build.nvidia.com>"     # Agent owner: set once
+LLM_MODEL = "nvidia/nemotron-3-ultra-550b-a55b"   # Agent owner: probed Nov 7 with python -m agent.models --probe
 GNN_A_TAGS = ("main", "no_dismech")
 
 
