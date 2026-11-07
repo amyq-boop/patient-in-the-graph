@@ -35,7 +35,7 @@ TOOLS = [
         "(a PATIENT:<id> seed expands to the patient's phenotypes and proteins). Returns triples with edge IDs "
         "(E...). Only edges returned here or by get_patient can be cited.",
         {"question": _S, "seeds": {"type": "array", "items": _S, "description": "Seed CURIEs"},
-         "budget": {"type": "integer", "description": "Max nodes (default 50)"}},
+         "budget": {"type": "integer", "description": "Max nodes (default 50). Usually leave unset."}},
         ["question", "seeds"]),
     _fn("get_mechanism",
         "Curated dismech causal mechanism chains for a disease, with PubMed IDs and supporting quotes.",

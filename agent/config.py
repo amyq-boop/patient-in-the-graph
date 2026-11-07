@@ -55,8 +55,18 @@ if RANK_BASIS not in ("tumor", "all"):
 _TT = os.environ.get("BIOHACK_TARGET_TYPES", "agent")
 TARGET_TYPES = (None if _TT == "e1" else
                 ("gene", "biological_process", "molecular_function", "cellular_component",
-                 "drug", "phenotype", "pathway", "mechanism") if _TT == "agent" else
+                 "drug", "phenotype", "pathway") if _TT == "agent" else  # not "mechanism": comorbidity seeds
+                # (obesity) pulled in mechanisms of unrelated diseases; ccRCC's own come from get_mechanism
                 tuple(t.strip() for t in _TT.split(",") if t.strip()))
 MAX_TOOL_CALLS = int(os.environ.get("AGENT_MAX_TOOL_CALLS", "12"))
 MAX_RETRIEVAL_RETRIES = 3
+# What the LLM sees of one retrieve_subgraph result: edges ranked by relevance, as many as fit, then a note
+# saying how many were left out (the old 6000-char cut sliced the text mid-line and said nothing).
+RETRIEVE_VIEW_CHARS = int(os.environ.get("AGENT_RETRIEVE_VIEW_CHARS", "15000"))
+# Retries add new seeds and grow the budget by a fixed step (was x1.5 each time: 50 -> 75 -> 112 -> 168).
+RETRY_BUDGET_STEP = int(os.environ.get("AGENT_RETRY_BUDGET_STEP", "25"))
+RETRY_BUDGET_MAX = int(os.environ.get("AGENT_RETRY_BUDGET_MAX", "100"))
+# "fixed" (default): pass the budget. "auto": let the retriever size the subgraph itself, if it supports that
+# (models/retriever.py sets ADAPTIVE_BUDGET = True when budget=None means self-sizing); otherwise falls back.
+BUDGET_MODE = os.environ.get("BIOHACK_BUDGET", "fixed").lower()
 TOOL_RESULT_CHARS = int(os.environ.get("AGENT_TOOL_RESULT_CHARS", "6000"))  # what the LLM sees per tool result

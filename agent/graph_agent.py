@@ -33,8 +33,7 @@ def _llm_view(name, res):
     if "error" in res:
         return json.dumps({"error": res["error"]})
     if name == "retrieve_subgraph":
-        view = {"triples_text": res.get("triples_text", ""), "edge_ids": res.get("edge_ids", []),
-                "n_nodes": len(res.get("nodes", []))}
+        return json.dumps(_subgraph_view(res))
     elif name == "get_mechanism":  # one line per citable edge: models copy IDs reliably from aligned lines, not JSON
         view = {"disease": res.get("disease"), "name": res.get("name"), "citable_lines": _mechanism_lines(res),
                 "genes": res.get("genes", [])}
@@ -42,6 +41,36 @@ def _llm_view(name, res):
         view = {k: v for k, v in res.items() if not k.startswith("_")}
     s = json.dumps(view)
     return s if len(s) <= C.TOOL_RESULT_CHARS else s[: C.TOOL_RESULT_CHARS] + " ...[truncated]"
+
+
+def _ranked_lines(res, skip=()):
+    """triples_text lines ordered by relevance: edges touching a seed first, then by the higher endpoint prize."""
+    lines = {}
+    for line in (res.get("triples_text") or "").splitlines():
+        if line.startswith("[") and "]" in line:
+            lines[line[1:line.index("]")]] = line
+    prize = {n["curie"]: (1 if n.get("is_seed") else 0, float(n.get("prize") or 0)) for n in res.get("nodes", [])}
+    ranked = sorted(res.get("edges", []), key=lambda e: max(prize.get(e["src_curie"], (0, 0)),
+                                                              prize.get(e["dst_curie"], (0, 0))), reverse=True)
+    out = [lines[e["edge_id"]] for e in ranked if e["edge_id"] in lines and e["edge_id"] not in skip]
+    return out + [l for k, l in lines.items() if k not in skip and l not in out]  # anything without an edge record
+
+
+def _fit(lines, limit):
+    shown, size = [], 0
+    for line in lines:
+        if size + len(line) + 1 > limit:
+            break
+        shown.append(line)
+        size += len(line) + 1
+    note = f"\n...{len(lines) - len(shown)} lower-ranked edges not shown" if len(shown) < len(lines) else ""
+    return "\n".join(shown) + note, len(shown)
+
+
+def _subgraph_view(res, skip=()):
+    lines = _ranked_lines(res, skip)
+    text, n = _fit(lines, C.RETRIEVE_VIEW_CHARS)
+    return {"n_nodes": len(res.get("nodes", [])), "n_edges": len(lines), "n_edges_shown": n, "triples_text": text}
 
 
 def _mechanism_lines(res):
@@ -168,21 +197,36 @@ def _retrieval_guarantee(question, tool_calls, msgs, draft, llm, patient):
     """Patient questions must end with a protein -> phenotype path, or 3 retries (build guide WS5)."""
     prior = [tc for tc in tool_calls if _ok(tc, "retrieve_subgraph")]
     budget = int(prior[-1]["args"].get("budget") or C.DEFAULT_BUDGET) if prior else C.DEFAULT_BUDGET
+    tried = {s for tc in prior for s in tc["args"].get("seeds", [])}
+    up, down = patient.get("proteins_up", []), patient.get("proteins_down", [])
+    seed_rounds = [  # each retry brings seeds the agent hasn't tried, instead of only a bigger budget
+        [m["curie"] for m in patient.get("mutations", [])] + [p["curie"] for p in patient["phenotypes"]]
+        + [p["curie"] for p in up[:10]] + [p["curie"] for p in down[:5]],
+        [p["curie"] for p in up[10:25]] + [p["curie"] for p in down[5:12]],
+        [p["curie"] for p in up[25:50]] + [p["curie"] for p in down[12:25]],
+    ]
     tries = 0
     while (not prior or not protein_phenotype_connected(tool_calls, patient)) and tries < C.MAX_RETRIEVAL_RETRIES:
+        new_seeds = [s for s in seed_rounds[min(tries, len(seed_rounds) - 1)] if s not in tried]
         tries += 1
         if prior:
-            budget = int(budget * 1.5)
-        seeds = ([patient["curie"]] + [p["curie"] for p in patient["phenotypes"]]
-                 + [p["curie"] for p in patient["proteins_up"][:10]] + [p["curie"] for p in patient["proteins_down"][:5]])
+            budget = min(budget + C.RETRY_BUDGET_STEP, max(C.RETRY_BUDGET_MAX, budget))
+        seeds = [patient["curie"]] + list(dict.fromkeys(new_seeds or seed_rounds[0]))
+        tried.update(seeds)
         res = _call(tool_calls, "retrieve_subgraph", {"question": question, "seeds": seeds, "budget": budget},
                     by="controller")
         if "error" not in res:
             prior.append(res)
     if not tries:
         return draft
-    new = [tc["result"].get("triples_text", "") for tc in tool_calls
-           if tc["by"] == "controller" and _ok(tc, "retrieve_subgraph")]
+    seen = {e for tc in tool_calls if tc["by"] == "llm" and _ok(tc, "retrieve_subgraph")
+            for e in tc["result"].get("edge_ids", [])}
+    new = []
+    for tc in tool_calls:  # only edges the model hasn't seen yet, ranked, within the same view limit
+        if tc["by"] == "controller" and _ok(tc, "retrieve_subgraph"):
+            new.append(_subgraph_view(tc["result"], skip=seen)["triples_text"])
+            seen.update(tc["result"].get("edge_ids", []))
+    new = [x for x in new if x.strip()]
     if not any(new):
         return draft
     msgs += [{"role": "assistant", "content": draft},
@@ -195,6 +239,8 @@ def run(question, patient_id=None, qid="adhoc", mode="agent", llm=None, run_id=N
     run_id = run_id or datetime.now().strftime("%Y-%m-%dT%H-%M") + f"_{mode}"
     if isinstance(getattr(llm, "truncated", None), list):
         llm.truncated.clear()
+    if isinstance(getattr(llm, "calls", None), list):
+        llm.calls.clear()
     t0 = time.perf_counter()
     tool_calls = []
     user = question + (f"\n\nPatient: {patient_id}" if patient_id else "")
@@ -248,4 +294,9 @@ def run(question, patient_id=None, qid="adhoc", mode="agent", llm=None, run_id=N
                                        f"{'_CLAIMS' if p == 'claims' else ''})"
                                        for p in sorted(set(getattr(llm, "truncated", None) or []))],
         "elapsed_s": round(time.perf_counter() - t0, 2),
+        # where the time went: one entry per LLM call, plus the size of every retrieved subgraph
+        "llm_calls": list(getattr(llm, "calls", None) or []),
+        "subgraph_sizes": [{"by": tc["by"], "budget": tc["args"].get("budget"),
+                            "n_nodes": len(tc["result"].get("nodes", [])), "n_edges": len(tc["result"].get("edges", []))}
+                           for tc in tool_calls if _ok(tc, "retrieve_subgraph")],
     }

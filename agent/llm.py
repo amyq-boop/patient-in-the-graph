@@ -52,6 +52,7 @@ class NimLLM:
         self.cache = cache and os.environ.get("LLM_CACHE", "1") != "0"
         self.cache_dir = C.CACHE / "llm"
         self.truncated = []  # purposes whose output hit max_tokens during the current run
+        self.calls = []      # per call: purpose, seconds, tokens, finish_reason, cached
 
     def chat(self, messages, tools=None, json_mode=False, purpose="agent"):
         # Reasoning models spend hidden tokens against max_tokens, so leave room: at 2048 the final answer
@@ -66,8 +67,11 @@ class NimLLM:
             req["response_format"] = {"type": "json_object"}
         key = hashlib.sha256(json.dumps(req, sort_keys=True, default=str).encode()).hexdigest()[:32]
         f = self.cache_dir / f"{key}.json"
+        t_call = time.perf_counter()
         if self.cache and f.exists():
             out = json.loads(f.read_text(encoding="utf-8"))
+            self.calls.append({"purpose": purpose, "s": 0.0, "cached": True, "finish_reason": out.get("finish_reason"),
+                               "completion_tokens": (out.get("usage") or {}).get("completion_tokens")})
             if out.get("finish_reason") == "length":
                 self.truncated.append(purpose)
             return out
@@ -97,10 +101,17 @@ class NimLLM:
                     req.pop("response_format")  # some models return empty content in JSON mode: retry as plain text
                     raise RuntimeError("empty content in JSON mode")
                 finish = getattr(resp.choices[0], "finish_reason", None)
+                u = getattr(resp, "usage", None)
+                details = getattr(u, "completion_tokens_details", None)
+                usage = {"prompt_tokens": getattr(u, "prompt_tokens", None),
+                         "completion_tokens": getattr(u, "completion_tokens", None),
+                         "reasoning_tokens": getattr(details, "reasoning_tokens", None)}
+                self.calls.append({"purpose": purpose, "s": round(time.perf_counter() - t_call, 2), "cached": False,
+                                   "attempt": attempt + 1, "finish_reason": finish, **usage})
                 if finish == "length":
                     self.truncated.append(purpose)  # surfaced in the trace notes by graph_agent
                 out = {"content": None if calls and not msg.tool_calls else msg.content, "tool_calls": calls,
-                       "finish_reason": finish}
+                       "finish_reason": finish, "usage": usage}
                 if self.cache and (calls or (msg.content or "").strip()):  # never cache an empty answer
                     self.cache_dir.mkdir(parents=True, exist_ok=True)
                     f.write_text(json.dumps(out), encoding="utf-8")
@@ -137,6 +148,7 @@ class FakeLLM:
             return {"content": None, "tool_calls": [{"id": f"call_{len(done)}", "name": name, "arguments": args}]}
         results = [json.loads(m["content"]) for m in messages if m["role"] == "tool"]
         edges = [e for r in results for e in r.get("edge_ids", [])]
+        edges += [e for r in results for e in re.findall(r"^\[(E\d+)\]", r.get("triples_text", ""), re.M)]  # ranked view
         pt = [x["edge_id"] for r in results for k in ("proteins_up",) for x in r.get(k, [])]
         pmids = [p for r in results for c in r.get("chains", []) for s in c["steps"] for p in s["pmids"]]
         pmids += [p for r in results for p in re.findall(r"PMID:\d+", r.get("citable_lines", ""))]  # get_mechanism view

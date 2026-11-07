@@ -105,6 +105,26 @@ def test_mislabelled_citation_is_caught():
     assert [c["status"] for c in claims] == ["removed", "supported"]
 
 
+def test_subgraph_view_ranks_and_reports_cut():
+    from agent import graph_agent as G
+    res = {"nodes": [{"curie": "A", "prize": 0.1}, {"curie": "B", "prize": 0.9}, {"curie": "S", "prize": 0, "is_seed": True}],
+           "edges": [{"edge_id": "E1", "src_curie": "A", "dst_curie": "A"}, {"edge_id": "E2", "src_curie": "B", "dst_curie": "A"},
+                     {"edge_id": "E3", "src_curie": "S", "dst_curie": "A"}],
+           "triples_text": "[E1] a --r--> a\n[E2] b --r--> a\n[E3] s --r--> a"}
+    assert [l[:4] for l in G._ranked_lines(res)] == ["[E3]", "[E2]", "[E1]"]  # seed edge first, then by prize
+    text, n = G._fit(G._ranked_lines(res), 35)
+    assert n == 2 and text.endswith("1 lower-ranked edges not shown")
+    assert G._ranked_lines(res, skip={"E3"})[0].startswith("[E2]")
+
+
+def test_trace_logs_llm_calls_and_subgraph_sizes():
+    t = run(Q, patient_id=PID, qid="P01")
+    assert t["subgraph_sizes"] and all("n_nodes" in s for s in t["subgraph_sizes"])
+    assert isinstance(t["llm_calls"], list)
+    ctrl = [tc for tc in t["tool_calls"] if tc["by"] == "controller"]
+    assert all(tc["args"]["budget"] <= max(C.RETRY_BUDGET_MAX, C.DEFAULT_BUDGET) for tc in ctrl)  # no x1.5 blow-up
+
+
 def test_agent_end_to_end_patient():
     t = run(Q, patient_id=PID, qid="P01")
     assert check(t) == [], check(t)

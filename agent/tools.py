@@ -278,10 +278,14 @@ def _to_dict(res):
 
 def retrieve_subgraph(question, seeds, budget=C.DEFAULT_BUDGET, retriever="gnn_pcst", variant=None):
     try:
-        from models.retriever import retrieve_subgraph as _rs  # GNN-B (WS4)
+        import models.retriever as _rmod  # GNN-B (WS4)
+        _rs = _rmod.retrieve_subgraph
     except ImportError as e:
         raise Missing(f"models/retriever.py not importable ({e})")
-    res = _to_dict(_rs(question=question, seeds=list(seeds), budget=int(budget), retriever=retriever,
+    if C.BUDGET_MODE == "auto" and getattr(_rmod, "ADAPTIVE_BUDGET", False):
+        budget = None  # the retriever sizes the subgraph itself (its own ceiling applies)
+    res = _to_dict(_rs(question=question, seeds=list(seeds), budget=None if budget is None else int(budget),
+                       retriever=retriever,
                        variant=variant or C.VARIANT, target_types=C.TARGET_TYPES))
     res.setdefault("edge_ids", [e["edge_id"] for e in res.get("edges", [])])
     if not res.get("triples_text"):
