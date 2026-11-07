@@ -116,6 +116,7 @@ The PyG exports are `graph_full.pt`, `graph_slim.pt` and `graph_slim_e1.pt`. Eac
                     variant: str = "full",
                     target_types=None) -> dict      # SubgraphResult, section 7
   ```
+  **Adaptive size (optional, Nov 7):** if `models/retriever.py` sets a module constant `ADAPTIVE_BUDGET = True`, then `budget=None` means the retriever sizes the subgraph itself (PCST's own prize/cost trade-off, with its own ceiling). The agent passes `budget=None` only when run with `BIOHACK_BUDGET=auto`; E1 always passes fixed budgets.
   `target_types` (added Nov 7) picks which node types get prizes. `None` keeps the default (genes + GO terms, the E1 setting); the agent passes a wider set via `BIOHACK_TARGET_TYPES` in `agent/config.py`.
   `seeds` are CURIEs; patient seeds are expanded through `patient_neighbours`. All three retrievers share the signature, so E1 just loops over them with `variant="e1"`.
 

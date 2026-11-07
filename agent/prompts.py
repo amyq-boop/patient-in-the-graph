@@ -28,7 +28,7 @@ When you have enough evidence, write the final answer with these sections:
 
 LLM_ONLY_SYSTEM = """You are a translational research assistant answering questions about clear cell renal cell carcinoma (ccRCC). You have no tools. Answer from your own knowledge with the same sections: Summary, Evidence paths, Mechanism, Targets / drugs, Testable hypothesis (start with "Hypothesis:"), Caveats. Cite sources (PMIDs) if you know them."""
 
-RETRY_NOTE = """The evidence subgraph does not yet connect the patient's dysregulated proteins to their phenotypes. I re-ran retrieve_subgraph with a larger budget and more seeds; the result is above. Revise your answer using this evidence, citing edge IDs exactly. If a protein-to-phenotype link is still missing, say so and mark it as a hypothesis."""
+RETRY_NOTE = """The evidence subgraph does not yet connect the patient's dysregulated proteins to their phenotypes. I re-ran retrieve_subgraph with new seeds (mutated genes, more of the patient's proteins); the new edges are above. Revise your answer using this evidence, citing edge IDs exactly. If a protein-to-phenotype link is still missing, say so and mark it as a hypothesis."""
 
 CLAIMS_SYSTEM = """You split an answer into atomic claims for fact-checking. Return JSON only:
 {"claims": [{"claim_id": "c1", "text": "<one atomic claim>", "quote": "<exact sentence or bullet from the answer that contains it>", "edge_ids": ["<edge IDs cited for this claim, e.g. E123 or pt:...>"], "pmids": ["PMID:..."], "is_hypothesis": false}]}
