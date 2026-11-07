@@ -194,6 +194,11 @@ def verify(draft, evidence, llm, edge_names=None, strict=None):
                 and not _mentions(said, edge_names[x])]
         backed = bool(ok_e or ok_p) and (not strict or (ent is not False and not mism))
         status = "supported" if backed else ("hypothesis" if hyp else "removed")
+        if status == "hypothesis" and (EXPERIMENT.match(quote) or EXPERIMENT.match(text)
+                                       or re.match(r"(?i)\W*(?:treat|measure|compare|knock|perform|test)\w*\b", text)
+                                       and "experiment" in section_of(draft, quote).lower()
+                                       or EXPERIMENT.search(quote.split(":", 1)[0] + ":")):
+            status = "removed"  # a proposed experiment is not a hypothesis claim: keep it unlabelled, as a non-claim
         if status == "removed":
             why = non_claim_reason(quote, section_of(draft, quote)) or non_claim_reason(text)
             if why:  # kept in the answer, not scored; listed so the hand-check can audit it
