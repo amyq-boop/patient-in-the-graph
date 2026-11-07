@@ -1,0 +1,63 @@
+{
+  "description": "E4 answer key: DisMech's curated ccRCC mechanism graph. Built from the latest DisMech release (dismech_nodes.tsv / dismech_edges.tsv, downloaded 2026-11-07). Run the agent on the e4 graph variant, where all of these edges are masked, and score how much of this it recovers. Never load this file in the agent, retriever or GNN.",
+  "disease": "MONDO:0005005",
+  "graph_variant": "e4",
+  "core_chain": [
+    {"step": 1, "mechanism": "dismech:Clear_Cell_Renal_Cell_Carcinoma#VHL_Tumor_Suppressor_Inactivation", "label": "VHL Tumor Suppressor Inactivation", "pmids": ["PMID:37085424"], "accept_terms": ["VHL loss", "VHL inactivation", "pVHL"]},
+    {"step": 2, "mechanism": "dismech:Clear_Cell_Renal_Cell_Carcinoma#HIF_2_Stabilization", "label": "HIF-2alpha Stabilization", "pmids": [], "accept_terms": ["HIF-2alpha", "HIF2A", "EPAS1", "HIF stabilization"]}
+  ],
+  "downstream_of_hif2": [
+    {"mechanism": "dismech:Clear_Cell_Renal_Cell_Carcinoma#VEGF_Driven_Angiogenesis", "label": "VEGF-Driven Angiogenesis", "pmids": [], "accept_terms": ["VEGF", "VEGFA", "angiogenesis"]},
+    {"mechanism": "dismech:Clear_Cell_Renal_Cell_Carcinoma#Growth_Factor_Pathway_Activation", "label": "Growth Factor Pathway Activation", "pmids": [], "accept_terms": ["growth factor", "PDGF", "TGF-alpha"]},
+    {"mechanism": "dismech:Clear_Cell_Renal_Cell_Carcinoma#Metabolic_Reprogramming_and_Aerobic_Glycolysis", "label": "Metabolic Reprogramming and Aerobic Glycolysis", "pmids": ["PMID:23792563"], "accept_terms": ["glycolysis", "Warburg", "metabolic reprogramming"]}
+  ],
+  "causal_edges": [
+    ["VHL_Tumor_Suppressor_Inactivation", "causes", "HIF_2_Stabilization"],
+    ["HIF_2_Stabilization", "causes", "VEGF_Driven_Angiogenesis"],
+    ["HIF_2_Stabilization", "causes", "Growth_Factor_Pathway_Activation"],
+    ["HIF_2_Stabilization", "causes", "Metabolic_Reprogramming_and_Aerobic_Glycolysis"],
+    ["Epigenetic_Dysregulation", "causes", "Growth_Factor_Pathway_Activation"],
+    ["VSP_Inhibitor_Blockade_of_Systemic_Endothelial_VEGF_Signaling", "causes", "Treatment_Emergent_Vasoconstriction_and_Increased_Peripheral_Vascular_Resistance"],
+    ["Treatment_Emergent_Vasoconstriction_and_Increased_Peripheral_Vascular_Resistance", "causes", "HP:0000822"]
+  ],
+  "other_mechanisms": [
+    {"mechanism": "dismech:Clear_Cell_Renal_Cell_Carcinoma#Epigenetic_Dysregulation", "label": "Epigenetic Dysregulation", "pmids": ["PMID:37085424"]},
+    {"mechanism": "dismech:Clear_Cell_Renal_Cell_Carcinoma#Immune_Evasion_via_PD_L1_and_Immunosuppressive_Microenvironment", "label": "Immune Evasion via PD-L1 and Immunosuppressive Microenvironment", "pmids": ["PMID:38762484"]}
+  ],
+  "hypertension_branch": {
+    "question": "P02",
+    "steps": [
+      {"mechanism": "dismech:Clear_Cell_Renal_Cell_Carcinoma#VSP_Inhibitor_Blockade_of_Systemic_Endothelial_VEGF_Signaling", "label": "VEGF signaling pathway inhibitor blockade of systemic endothelial VEGF signaling", "pmids": ["PMID:21527770", "PMID:36621810"]},
+      {"mechanism": "dismech:Clear_Cell_Renal_Cell_Carcinoma#Treatment_Emergent_Vasoconstriction_and_Increased_Peripheral_Vascular_Resistance", "label": "Treatment-emergent vasoconstriction and increased peripheral vascular resistance", "pmids": ["PMID:29931399"]},
+      {"phenotype": "HP:0000822", "label": "Hypertension", "pmids": ["PMID:26492223", "PMID:36621810"]}
+    ],
+    "note": "DisMech models ccRCC hypertension as drug-driven (VEGF pathway inhibitors). CPTAC patients were treatment-naive at collection, so for a real patient the cause still cannot be determined."
+  },
+  "genes": [
+    {"curie": "NCBIGene:7428", "dismech_id": "hgnc:12687", "symbol": "VHL", "pmids": ["PMID:23792563"]},
+    {"curie": "NCBIGene:55193", "dismech_id": "hgnc:30064", "symbol": "PBRM1", "pmids": ["PMID:23792563"]},
+    {"curie": "NCBIGene:8314", "dismech_id": "hgnc:950", "symbol": "BAP1", "pmids": ["PMID:37085424"]}
+  ],
+  "drugs": [
+    {"name": "belzutifan", "dismech_id": "NCIT:C135627", "target": "HIF-2alpha (EPAS1)", "drugbank": null, "in_primekg_ccrcc_indications": false},
+    {"name": "sunitinib", "dismech_id": "CHEBI:38940", "target": "VEGFR (plus PDGFR, KIT)", "drugbank": "DB01268", "in_primekg_ccrcc_indications": true},
+    {"name": "pazopanib", "dismech_id": "CHEBI:71219", "target": "VEGFR (plus PDGFR, KIT)", "drugbank": "DB06589", "in_primekg_ccrcc_indications": true},
+    {"name": "axitinib", "dismech_id": "CHEBI:66910", "target": "VEGFR1-3", "drugbank": "DB06626", "in_primekg_ccrcc_indications": true},
+    {"name": "cabozantinib", "dismech_id": "CHEBI:72317", "target": "VEGFR2, MET, AXL", "drugbank": "DB08875", "in_primekg_ccrcc_indications": true}
+  ],
+  "drug_note": "DrugBank IDs from data/primekg_extracts/primekg_ccrcc_direct_edges.csv (PrimeKG ccRCC indication edges). Belzutifan has no PrimeKG ccRCC edge (2022 snapshot predates its approvals), so it cannot be recovered on the e4 graph; score drugs_surfaced on the other four. PrimeKG also lists other ccRCC drugs not in DisMech (lenvatinib, sorafenib, tivozanib, everolimus, temsirolimus); surfacing these is acceptable but not required.",
+  "phenotypes": [
+    {"curie": "HP:0000790", "label": "Hematuria", "pmids": []},
+    {"curie": "HP:0000822", "label": "Hypertension", "pmids": ["PMID:26492223", "PMID:36621810"]},
+    {"curie": "HP:0012378", "label": "Fatigue", "pmids": []},
+    {"curie": "HP:0001824", "label": "Weight loss", "pmids": []},
+    {"curie": "HP:0009726", "label": "Renal neoplasm", "pmids": [], "leaky": true}
+  ],
+  "phenotype_note": "HP:0009726 (renal neoplasm) describes the tumor itself; treat it as leaky and do not use it as a patient phenotype or seed (see LEAKY_PHENOTYPE_TERMS).",
+  "success_criteria": {
+    "pass": "Recovers both core_chain steps AND at least one downstream_of_hif2 mechanism AND surfaces at least one drug from drugs.",
+    "partial": "Recovers VHL inactivation and HIF-2alpha stabilization only, or surfaces drugs without the chain.",
+    "fail": "Does not connect VHL to HIF-2alpha.",
+    "scoring": "A step counts as recovered when the answer names it (accept_terms) AND cites an edge or PMID that supports it in the trace evidence. Report recovered_steps / expected_steps (expected = 2 core + 3 downstream = 5) in eval/results/e4.json."
+  }
+}
