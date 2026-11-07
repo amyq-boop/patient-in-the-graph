@@ -316,7 +316,9 @@ def run(question, patient_id=None, qid="adhoc", mode="agent", llm=None, run_id=N
         "elapsed_s": round(time.perf_counter() - t0, 2),
         # where the time went: one entry per LLM call, plus the size of every retrieved subgraph
         "llm_calls": list(getattr(llm, "calls", None) or []),
-        "subgraph_sizes": [{"by": tc["by"], "budget": tc["args"].get("budget"),
+        "subgraph_sizes": [{"by": tc["by"], "requested_budget": tc["args"].get("budget"),
+                            "budget": (tc["result"].get("meta") or {}).get("budget", tc["args"].get("budget")),
+                            "adaptive": bool((tc["result"].get("meta") or {}).get("adaptive_budget")),
                             "n_nodes": len(tc["result"].get("nodes", [])), "n_edges": len(tc["result"].get("edges", []))}
                            for tc in tool_calls if _ok(tc, "retrieve_subgraph")],
     }

@@ -241,5 +241,6 @@ def verify(draft, evidence, llm, edge_names=None, strict=None):
 
 
 def _tidy(text):
-    lines = [l.rstrip() for l in text.splitlines() if not (l.strip() and re.fullmatch(r"\s*[-*•]?\s*", l))]
+    # drop list items emptied by a removed claim: "-", "*", or a bare number like "3." left behind
+    lines = [l.rstrip() for l in text.splitlines() if not (l.strip() and re.fullmatch(r"\s*(?:[-*•]|\d+[.)])?\s*", l))]
     return re.sub(r"\n{3,}", "\n\n", "\n".join(lines)).strip()
