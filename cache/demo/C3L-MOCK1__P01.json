@@ -1,0 +1,329 @@
+{
+ "contract_version": "1",
+ "run_id": "mock",
+ "qid": "P01",
+ "mode": "agent",
+ "patient_id": "C3L-MOCK1",
+ "question": "Why is this patient high-risk, and what would you target?",
+ "model": "mock",
+ "tool_calls": [
+  {
+   "name": "get_patient",
+   "args": {
+    "patient_id": "C3L-MOCK1"
+   },
+   "result": {
+    "patient_id": "C3L-MOCK1",
+    "curie": "PATIENT:C3L-MOCK1",
+    "clinical_summary": "62-year-old male; history of hypertension; anemia at presentation.",
+    "phenotypes": [
+     {
+      "curie": "HP:0000822",
+      "name": "Hypertension",
+      "edge_id": "pt:C3L-MOCK1:has_phenotype:HP:0000822"
+     },
+     {
+      "curie": "HP:0001903",
+      "name": "Anemia",
+      "edge_id": "pt:C3L-MOCK1:has_phenotype:HP:0001903"
+     }
+    ],
+    "proteins_up": [
+     {
+      "curie": "NCBIGene:7422",
+      "name": "VEGFA",
+      "edge_id": "pt:C3L-MOCK1:protein_up:NCBIGene:7422",
+      "symbol": "VEGFA",
+      "z": 3.4
+     },
+     {
+      "curie": "NCBIGene:2023",
+      "name": "ENO1",
+      "edge_id": "pt:C3L-MOCK1:protein_up:NCBIGene:2023",
+      "symbol": "ENO1",
+      "z": 2.9
+     }
+    ],
+    "proteins_down": [
+     {
+      "curie": "NCBIGene:7428",
+      "name": "VHL",
+      "edge_id": "pt:C3L-MOCK1:protein_down:NCBIGene:7428",
+      "symbol": "VHL",
+      "z": -2.7
+     }
+    ]
+   },
+   "ms": 0
+  },
+  {
+   "name": "retrieve_subgraph",
+   "args": {},
+   "result": {
+    "nodes": [
+     {
+      "curie": "DRUGBANK:DB01268",
+      "name": "Sunitinib",
+      "type": "drug",
+      "prize": 0.5
+     },
+     {
+      "curie": "DRUGBANK:MOCK_BELZ",
+      "name": "Belzutifan",
+      "type": "drug",
+      "prize": 0.5
+     },
+     {
+      "curie": "MONDO:0005005",
+      "name": "clear cell renal carcinoma",
+      "type": "disease",
+      "prize": 0.5
+     },
+     {
+      "curie": "NCBIGene:2034",
+      "name": "EPAS1",
+      "type": "gene",
+      "prize": 0.5
+     },
+     {
+      "curie": "NCBIGene:3791",
+      "name": "KDR",
+      "type": "gene",
+      "prize": 0.5
+     },
+     {
+      "curie": "NCBIGene:7422",
+      "name": "VEGFA",
+      "type": "gene",
+      "prize": 0.5
+     },
+     {
+      "curie": "NCBIGene:7428",
+      "name": "VHL",
+      "type": "gene",
+      "prize": 0.5
+     },
+     {
+      "curie": "REACT:MOCK_HIF",
+      "name": "Cellular response to hypoxia",
+      "type": "pathway",
+      "prize": 0.5
+     }
+    ],
+    "edges": [
+     {
+      "edge_id": "E900001",
+      "src_curie": "NCBIGene:7428",
+      "rel": "disease_protein",
+      "dst_curie": "MONDO:0005005",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E900002",
+      "src_curie": "NCBIGene:2034",
+      "rel": "dm_contributes_to",
+      "dst_curie": "MONDO:0005005",
+      "origin": "dismech"
+     },
+     {
+      "edge_id": "E900003",
+      "src_curie": "NCBIGene:7428",
+      "rel": "protein_protein",
+      "dst_curie": "NCBIGene:2034",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E900004",
+      "src_curie": "NCBIGene:2034",
+      "rel": "protein_protein",
+      "dst_curie": "NCBIGene:7422",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E900005",
+      "src_curie": "NCBIGene:7422",
+      "rel": "protein_protein",
+      "dst_curie": "NCBIGene:3791",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E900006",
+      "src_curie": "DRUGBANK:DB01268",
+      "rel": "drug_protein",
+      "dst_curie": "NCBIGene:3791",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E900007",
+      "src_curie": "DRUGBANK:MOCK_BELZ",
+      "rel": "drug_protein",
+      "dst_curie": "NCBIGene:2034",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E900008",
+      "src_curie": "NCBIGene:2034",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:MOCK_HIF",
+      "origin": "primekg"
+     }
+    ],
+    "edge_ids": [
+     "E900001",
+     "E900002",
+     "E900003",
+     "E900004",
+     "E900005",
+     "E900006",
+     "E900007",
+     "E900008"
+    ],
+    "triples_text": "[E900001] VHL (gene) --disease_protein--> clear cell renal carcinoma (disease)\n[E900002] EPAS1 (gene) --dm_contributes_to--> clear cell renal carcinoma (disease)\n[E900003] VHL (gene) --protein_protein--> EPAS1 (gene)\n[E900004] EPAS1 (gene) --protein_protein--> VEGFA (gene)\n[E900005] VEGFA (gene) --protein_protein--> KDR (gene)\n[E900006] Sunitinib (drug) --drug_protein--> KDR (gene)\n[E900007] Belzutifan (drug) --drug_protein--> EPAS1 (gene)\n[E900008] EPAS1 (gene) --pathway_protein--> Cellular response to hypoxia (pathway)",
+    "meta": {
+     "retriever": "gnn_pcst",
+     "variant": "full",
+     "budget": 50,
+     "n_candidates": 13,
+     "alpha": 0.5,
+     "beta": 0.5,
+     "mock": true
+    }
+   },
+   "ms": 0
+  },
+  {
+   "name": "get_mechanism",
+   "args": {
+    "disease_curie": "MONDO:0005005"
+   },
+   "result": {
+    "disease": "MONDO:0005005",
+    "name": "clear cell renal carcinoma",
+    "chains": [
+     {
+      "chain_id": "chain-1",
+      "steps": [
+       {
+        "mechanism": "dismech:MOCK-1",
+        "label": "VHL loss of function",
+        "edge_id": "E900101",
+        "pmids": [
+         "PMID:00000001"
+        ],
+        "quotes": [
+         "(mock quote for step 1)"
+        ]
+       },
+       {
+        "mechanism": "dismech:MOCK-2",
+        "label": "HIF-2alpha stabilization",
+        "edge_id": "E900102",
+        "pmids": [
+         "PMID:00000002"
+        ],
+        "quotes": [
+         "(mock quote for step 2)"
+        ]
+       },
+       {
+        "mechanism": "dismech:MOCK-3",
+        "label": "VEGF-driven angiogenesis",
+        "edge_id": "E900103",
+        "pmids": [
+         "PMID:00000003"
+        ],
+        "quotes": [
+         "(mock quote for step 3)"
+        ]
+       }
+      ]
+     }
+    ],
+    "genes": [
+     "NCBIGene:7428",
+     "NCBIGene:2034",
+     "NCBIGene:7422"
+    ],
+    "drugs": [
+     "DRUGBANK:DB01268",
+     "DRUGBANK:MOCK_BELZ"
+    ]
+   },
+   "ms": 0
+  }
+ ],
+ "evidence": {
+  "edge_ids": [
+   "pt:C3L-MOCK1:has_phenotype:HP:0000822",
+   "pt:C3L-MOCK1:has_phenotype:HP:0001903",
+   "pt:C3L-MOCK1:protein_up:NCBIGene:7422",
+   "pt:C3L-MOCK1:protein_up:NCBIGene:2023",
+   "pt:C3L-MOCK1:protein_down:NCBIGene:7428",
+   "E900001",
+   "E900002",
+   "E900003",
+   "E900004",
+   "E900005",
+   "E900006",
+   "E900007",
+   "E900008"
+  ],
+  "pmids": [
+   "PMID:00000001",
+   "PMID:00000002",
+   "PMID:00000003"
+  ]
+ },
+ "draft": "...",
+ "claims": [
+  {
+   "claim_id": "c1",
+   "text": "The patient's tumour overexpresses VEGFA.",
+   "support": {
+    "edge_ids": [
+     "pt:C3L-MOCK1:protein_up:NCBIGene:7422"
+    ],
+    "pmids": []
+   },
+   "status": "supported"
+  },
+  {
+   "claim_id": "c2",
+   "text": "VHL loss stabilizes HIF-2alpha.",
+   "support": {
+    "edge_ids": [],
+    "pmids": [
+     "PMID:00000002"
+    ]
+   },
+   "status": "supported"
+  },
+  {
+   "claim_id": "c3",
+   "text": "Sunitinib targets KDR, downstream of VEGFA.",
+   "support": {
+    "edge_ids": [
+     "E900006"
+    ],
+    "pmids": []
+   },
+   "status": "supported"
+  },
+  {
+   "claim_id": "c4",
+   "text": "ENO1 upregulation may reflect a glycolytic shift.",
+   "support": {
+    "edge_ids": [],
+    "pmids": []
+   },
+   "status": "hypothesis"
+  }
+ ],
+ "answer": "...",
+ "verifier": {
+  "n_claims": 4,
+  "n_supported": 3,
+  "n_hypothesis": 1,
+  "n_removed": 0
+ }
+}
