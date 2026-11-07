@@ -21,9 +21,12 @@ VEGFA_UP, VHL_DOWN = PT("protein_up", "NCBIGene:7422"), PT("protein_down", "NCBI
 HTN = PT("has_phenotype", "HP:0000822")
 
 
-def claim(i, text, edges=(), pmids=(), status="supported"):
-    return {"claim_id": f"c{i}", "text": text, "support": {"edge_ids": list(edges), "pmids": list(pmids)},
-            "status": status}
+def claim(i, text, edges=(), pmids=(), status="supported", reason=None):
+    c = {"claim_id": f"c{i}", "text": text, "support": {"edge_ids": list(edges), "pmids": list(pmids)},
+         "status": status}
+    if reason:  # extra key (allowed by CONTRACTS.md): why the verifier removed or relabeled the claim
+        c["reason"] = reason
+    return c
 
 
 SCRIPTS = {
@@ -39,15 +42,19 @@ SCRIPTS = {
          claim(4, "HIF-2α drives VEGF-dependent angiogenesis.", pmids=["PMID:00000003"]),
          claim(5, "Sunitinib targets KDR, the VEGF receptor.", ["E900006"]),
          claim(6, "Belzutifan targets HIF-2α.", ["E900007"]),
-         claim(7, "This patient will respond to sunitinib.", status="removed"),
-         claim(8, "Blocking HIF-2α may lower VEGFA more than blocking VEGFR in VHL-low tumors.", status="hypothesis")]),
+         claim(7, "This patient will respond to sunitinib.", status="removed",
+               reason="A drug-target edge shows sunitinib acts on KDR. Nothing the tools returned measures response in this patient."),
+         claim(8, "Blocking HIF-2α may lower VEGFA more than blocking VEGFR in VHL-low tumors.", status="hypothesis",
+               reason="Plausible from the evidence but untested, so it is kept and labeled as a hypothesis.")]),
     "P02": (
         f"The record lists hypertension [{HTN}]. The evidence can't tell whether it is caused by the disease or by a "
         "drug: these tumors were collected before treatment, and there is no blood-pressure timeline. VEGF-pathway "
         "drugs are known to raise blood pressure, so it should be watched if treatment starts.",
         [claim(1, "This patient has hypertension on record.", [HTN]),
-         claim(2, "The hypertension is caused by the tumor.", status="removed"),
-         claim(3, "Blood pressure may rise if a VEGF-pathway drug is started.", status="hypothesis")]),
+         claim(2, "The hypertension is caused by the tumor.", status="removed",
+               reason="There is no treatment or blood-pressure timeline, and no edge links this tumor to the patient's hypertension."),
+         claim(3, "Blood pressure may rise if a VEGF-pathway drug is started.", status="hypothesis",
+               reason="Plausible from the evidence but untested, so it is kept and labeled as a hypothesis.")]),
     "P03": (
         f"The strongest supported path runs from this tumor's low VHL [{VHL_DOWN}] through HIF-2α [E900003] to VEGFA "
         f"[E900004], which is up in this tumor [{VEGFA_UP}]. The graph has no edge linking these proteins to the "
@@ -56,8 +63,10 @@ SCRIPTS = {
          claim(2, "VHL interacts with HIF-2α (EPAS1).", ["E900003"]),
          claim(3, "HIF-2α interacts with VEGFA.", ["E900004"]),
          claim(4, "VEGFA is strongly overexpressed in this tumor.", [VEGFA_UP]),
-         claim(5, "VEGFA overexpression causes this patient's anemia.", status="removed"),
-         claim(6, "High VEGFA may track with blood-pressure changes across the cohort.", status="hypothesis")]),
+         claim(5, "VEGFA overexpression causes this patient's anemia.", status="removed",
+               reason="No edge or citation connects VEGFA to anemia in what the tools returned."),
+         claim(6, "High VEGFA may track with blood-pressure changes across the cohort.", status="hypothesis",
+               reason="Plausible from the evidence but untested, so it is kept and labeled as a hypothesis.")]),
     "P04": (
         f"Of the known kidney-cancer driver genes, VHL is the one changed here: its protein is low [{VHL_DOWN}], and "
         "VHL is linked to clear cell renal carcinoma in the graph [E900001]. HIF-2α (EPAS1) is also linked to the "
@@ -65,15 +74,18 @@ SCRIPTS = {
         [claim(1, "VHL protein is low in this tumor.", [VHL_DOWN]),
          claim(2, "VHL is linked to clear cell renal carcinoma.", ["E900001"]),
          claim(3, "EPAS1 (HIF-2α) contributes to clear cell renal carcinoma.", ["E900002"]),
-         claim(4, "This patient carries a VHL mutation.", status="removed")]),
+         claim(4, "This patient carries a VHL mutation.", status="removed",
+               reason="The patient record measures how much VHL protein there is, not the VHL gene sequence. No mutation evidence was returned.")]),
     "P05": (
         f"The model ranks this tumor as likely higher-stage (score 0.78). The biggest contributors are VEGFA, which is "
         f"strongly up [{VEGFA_UP}], and the hypertension on record [{HTN}]. The score comes from about 100 patients and "
         "has no validated confidence interval, so treat it as a ranking signal, not a probability to quote.",
         [claim(1, "VEGFA is strongly overexpressed in this tumor.", [VEGFA_UP]),
          claim(2, "This patient has hypertension on record.", [HTN]),
-         claim(3, "The risk score is 95% accurate.", status="removed"),
-         claim(4, "VEGFA and hypertension are what drive this score.", status="hypothesis")]),
+         claim(3, "The risk score is 95% accurate.", status="removed",
+               reason="The model has no validated accuracy or calibration for a single patient; no tool returned one."),
+         claim(4, "VEGFA and hypertension are what drive this score.", status="hypothesis",
+               reason="Plausible from the evidence but untested, so it is kept and labeled as a hypothesis.")]),
 }
 
 

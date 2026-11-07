@@ -55,16 +55,26 @@ E3_MODES = {"llm_only": "Same LLM, no tools", "agent": "Our agent"}
 OURS = {"gnn_pcst", "gnn", "gnn_mut", "agent"}
 FAKE_MARKERS = ("fake_", "MOCK", "FAKE")
 
-# Palette (dataviz reference instance, light): ours = blue, baselines = neutral; composition = 3 validated slots.
-BLUE, BASE = "#2a78d6", "#c3c1b8"
-SUPPORTED, HYPOTHESIS, UNSUPPORTED = "#2a78d6", "#1baf7a", "#eb6834"
-INK, INK2, MUTED, GRID, STAMP = "#0b0b0b", "#52514e", "#6f6d68", "#e1e0d9", "#c4451c"
+# Brand palette from H&E staining (matches the demo site). Composition slots validated for colorblind separation
+# (dataviz validator: violet / amber / eosin, all checks pass on a light surface).
+BLUE, BASE = "#4f3fbf", "#cbc6d8"          # ours = hematoxylin violet, baselines = pale lilac-grey
+SUPPORTED, HYPOTHESIS, UNSUPPORTED = "#4f3fbf", "#b88a00", "#d6457a"
+INK, INK2, MUTED, GRID, STAMP = "#1b1530", "#3d3852", "#6e6a7c", "#e6e2ee", "#8a5a12"
+PAPER = "#fbfafc"
 FOOT = 13  # minimum footnote size (pt) at 16:9 slide size
 
+# Newsreader (titles, numbers) + Public Sans (text), bundled in eval/fonts/ under the SIL Open Font License.
+from matplotlib import font_manager as _fm  # noqa: E402
+for _f in (ROOT / "eval" / "fonts").glob("*.ttf"):
+    _fm.fontManager.addfont(str(_f))
+_have = {f.name for f in _fm.fontManager.ttflist}
+SANS = [f for f in ("Public Sans", "DejaVu Sans") if f in _have]
+SERIF = [f for f in ("Newsreader", "DejaVu Serif") if f in _have] + SANS  # sans as glyph fallback (e.g. checkmarks)
+
 plt.rcParams.update({
-    "font.family": "DejaVu Sans", "font.size": 14, "axes.edgecolor": GRID, "axes.labelcolor": INK2,
+    "font.family": SANS + ["DejaVu Sans"], "font.size": 14, "axes.edgecolor": GRID, "axes.labelcolor": INK2,
     "xtick.color": INK2, "ytick.color": INK, "axes.spines.top": False, "axes.spines.right": False,
-    "axes.spines.left": False, "figure.facecolor": "white", "axes.facecolor": "white",
+    "axes.spines.left": False, "figure.facecolor": PAPER, "axes.facecolor": PAPER, "savefig.facecolor": PAPER,
 })
 
 
@@ -246,12 +256,12 @@ def load(name: str, results: Path, key_path: Path) -> Loaded:
 # ------------------------------------------------------------------ drawing helpers
 def figure(title, subtitle, fake, size=(12, 6.75)):
     fig = plt.figure(figsize=size)
-    fig.text(0.04, 0.89, title, fontsize=24, weight="bold", color=INK)
+    fig.text(0.04, 0.885, title, fontsize=30, color=INK, family=SERIF)
     fig.text(0.04, 0.835, subtitle, fontsize=15, color=INK2)
     if fake:  # stamped twice so it survives cropping: banner + diagonal watermark
-        fig.text(0.96, 0.955, "PLACEHOLDER DATA", fontsize=14, weight="bold", color="white", ha="right",
-                 bbox={"boxstyle": "round,pad=0.35", "fc": STAMP, "ec": STAMP})
-        fig.text(0.5, 0.45, "PLACEHOLDER", fontsize=90, weight="bold", color=STAMP, alpha=0.08, ha="center",
+        fig.text(0.96, 0.955, "Placeholder data", fontsize=14, color=STAMP, ha="right",
+                 bbox={"boxstyle": "round,pad=0.4", "fc": "#f8eedf", "ec": "#e9d3ad"})
+        fig.text(0.5, 0.45, "PLACEHOLDER", fontsize=90, weight="semibold", color=STAMP, alpha=0.08, ha="center",
                  va="center", rotation=20, zorder=0)
     return fig
 
@@ -274,7 +284,7 @@ def save(fig, out: Path, name: str) -> Path:
 def style_ylabels(ax, ours_flags):
     ax.tick_params(axis="y", length=0)
     for t, o in zip(ax.get_yticklabels(), ours_flags):
-        t.set_fontweight("bold" if o else "normal")
+        t.set_fontweight("semibold" if o else "normal")
 
 
 def whole_percents(shares) -> list[int]:
@@ -324,7 +334,7 @@ def chart_e1(L: Loaded, out: Path):
         ours = [x in OURS for x in methods]
         ax.barh(y, vals, height=0.6, color=[BLUE if o else BASE for o in ours])
         for yi, v, o in zip(y, vals, ours):
-            ax.text(v + xmax * 0.02, yi, f"{v:.0%}", va="center", fontsize=15, weight="bold" if o else "normal")
+            ax.text(v + xmax * 0.02, yi, f"{v:.0%}", va="center", fontsize=19, family=SERIF, color=BLUE if o else INK2)
         ax.set_yticks(y, [E1_METHODS[x] for x in methods] if i == 0 else [""] * len(methods))
         style_ylabels(ax, ours)
         ax.set_xlim(0, xmax)  # shared scale across both panels
@@ -356,7 +366,7 @@ def chart_e2(L: Loaded, out: Path, n_patients=None):
                marker="o", zorder=3, edgecolor="white", linewidth=2)
     for yi, (mname, row), o in zip(y, g.iterrows(), ours):
         ax.text(min(row["mean"] + row["std"] + 0.01, hi - 0.06), yi + 0.28, f"{row['mean']:.2f}", va="center",
-                fontsize=15, weight="bold" if o else "normal")
+                fontsize=17, family=SERIF, color=BLUE if o else INK2)
     ax.axvline(0.5, color=MUTED, ls="--", lw=1)
     ax.text(0.505, y.max() + 0.55, "chance", color=MUTED, fontsize=FOOT)
     ax.set_yticks(y, [E2_MODELS[m] for m in models])
@@ -392,7 +402,7 @@ def chart_e3(L: Loaded, out: Path):
         for yi, (mode, l, w) in enumerate(zip(share.index, left, v)):
             if w >= 0.07:
                 ax.text(l + w / 2, yi, f"{pct[mode][j]}%", ha="center", va="center", color="white", fontsize=16,
-                        weight="bold", bbox={"boxstyle": "round,pad=0.15", "fc": color, "ec": "none"})
+                        weight="semibold", bbox={"boxstyle": "round,pad=0.15", "fc": color, "ec": "none"})
         left += v
     ax.set_yticks(y, [f"{E3_MODES[m]}\n({int(tot.loc[m, 'n_claims'])} claims)" for m in share.index])
     style_ylabels(ax, [m in OURS for m in share.index])
@@ -427,8 +437,8 @@ def chart_e4(L: Loaded, out: Path, key_steps: list[str]):
                                                        boxstyle="round,pad=0.01,rounding_size=0.02",
                                                        fc=fc, ec=ec, lw=2.2, ls=ls))
         tc = "white" if state == "ok" else INK2
-        ax.text(x, y + 0.03, "\n".join(_wrap(text, 24)), ha="center", va="center", fontsize=14, color=tc,
-                weight="bold" if state == "ok" else "normal")
+        ax.text(x, y + 0.03, "\n".join(_wrap(text, 24)), ha="center", va="center", fontsize=17, color=tc,
+                family=SERIF)
         status = {"ok": "✓ recovered, cited", "claimed": "? named, not citation-checked", "miss": "✗ not recovered"}[state]
         ax.text(x, y - 0.085, status, ha="center", va="center", fontsize=FOOT, color=tc)
 
@@ -444,7 +454,7 @@ def chart_e4(L: Loaded, out: Path, key_steps: list[str]):
     head = f"Recovered with citations: {len(verified)} of 5 steps"
     if claimed_only:
         head += f"  (+{len(claimed_only)} named without checked evidence)"
-    fig.text(0.04, 0.2, head, fontsize=16, color=INK, weight="bold")
+    fig.text(0.04, 0.2, head, fontsize=20, color=INK, family=SERIF)
     fig.text(0.04, 0.165, "\n".join(_wrap(f"Drugs mentioned: {drugs}", 120)[:2]), fontsize=FOOT, color=INK2, va="top")
     foot(fig, "Reconstruction under an ablation, not discovery of new biology: the LLM may already know this pathway. "
               "A drug mention is not a treatment recommendation.")
