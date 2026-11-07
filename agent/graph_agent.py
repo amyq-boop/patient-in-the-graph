@@ -53,6 +53,11 @@ def _evidence(tool_calls):
             edges += [x["edge_id"] for k in PATIENT_LISTS for x in r.get(k, []) if x.get("edge_id")]
         elif tc["name"] == "get_mechanism":
             pmids += [p for ch in r.get("chains", []) for st in ch.get("steps", []) for p in st.get("pmids", [])]
+        elif tc["name"] == "predict_patient":  # model outputs are citable too (pred:/contrib:), counted separately
+            edges += [r["evidence_id"]] if r.get("evidence_id") else []
+            edges += [x["evidence_id"] for x in r.get("top_contributing", []) if x.get("evidence_id")]
+        elif tc["name"] == "rank_for_patient":
+            edges += [x["evidence_id"] for x in r.get("items", []) if x.get("evidence_id")]
     return {"edge_ids": list(dict.fromkeys(edges)), "pmids": list(dict.fromkeys(pmids))}
 
 
@@ -72,6 +77,16 @@ def _edge_names(tool_calls):
             for k in PATIENT_LISTS:
                 for x in r.get(k, []):
                     out[x["edge_id"]] = ["patient", x.get("name") or x.get("symbol", ""), x["curie"]]
+        elif tc["name"] == "predict_patient":
+            if r.get("evidence_id"):
+                out[r["evidence_id"]] = ["patient", "risk"]
+            for x in r.get("top_contributing", []):
+                if x.get("evidence_id"):
+                    out[x["evidence_id"]] = ["patient", x.get("name", ""), x["curie"]]
+        elif tc["name"] == "rank_for_patient":
+            for x in r.get("items", []):
+                if x.get("evidence_id"):
+                    out[x["evidence_id"]] = ["patient", x.get("name", ""), x["curie"]]
     return out
 
 

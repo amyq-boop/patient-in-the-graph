@@ -23,7 +23,8 @@ import requests
 from agent import config as C
 from agent import mock_tools
 from agent.schemas import TOOLS  # noqa: F401  (re-exported)
-from common.contracts import GRAPH_VARIANTS, P, edge_id, patient_curie, patient_edge_id, patient_neighbours, triple_line, variant_mask
+from common.contracts import (GRAPH_VARIANTS, P, contrib_id, edge_id, patient_curie, patient_edge_id, patient_neighbours,
+                              pred_id, rank_id, triple_line, variant_mask)
 
 NAMERES = "https://name-resolution-sri.renci.org/lookup"
 NODENORM = "https://nodenormalization-sri.renci.org/get_normalized_nodes"
@@ -204,9 +205,9 @@ def predict_patient(patient_id):
     if C.CONTRIBUTIONS.exists():
         c = pd.read_parquet(C.CONTRIBUTIONS)
         c = c[c.patient_id == pid].sort_values("rank").head(10)
-        top = [_ref(r.curie, score=round(float(r.score), 4)) for r in c.itertuples()]
+        top = [_ref(r.curie, score=round(float(r.score), 4), evidence_id=contrib_id(pid, r.curie)) for r in c.itertuples()]
     out = {"patient_id": pid, "label": C.PRIMARY_LABEL, "risk": round(float(p.risk), 4), "model": "gnn",
-           "fold": int(p.fold), "top_contributing": top}
+           "fold": int(p.fold), "evidence_id": pred_id(pid), "top_contributing": top}
     if not top:
         out["note"] = "no per-patient contributions file yet"
     return out
@@ -232,7 +233,8 @@ def rank_for_patient(patient_id, node_type, k=10):
         return {"error": f"no phenotype or protein neighbours for {patient_id!r}"}
     df = _gnn_a(C.GNN_A_TAG).rank_for_patient_rel(neigh, node_type, k=int(k), weights=w)
     return {"patient_id": pid, "node_type": node_type,
-            "items": [{"curie": r.curie, "name": r.name, "score": round(float(r.score), 4), "rank": i + 1}
+            "items": [{"curie": r.curie, "name": r.name, "score": round(float(r.score), 4), "rank": i + 1,
+                       "evidence_id": rank_id(pid, node_type, r.curie)}
                       for i, r in enumerate(df.itertuples())]}
 
 

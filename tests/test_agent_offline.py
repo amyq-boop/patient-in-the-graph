@@ -49,6 +49,38 @@ def test_verifier_support_rule():
     assert next(c for c in claims if c["text"].startswith("Made-up"))["unmatched_ids"] == ["E999"]
 
 
+def test_verifier_skips_headers_and_keeps_non_claims():
+    """Headers are not claims; caveats, abstentions and experiments are kept but not scored."""
+    draft = ("**Summary**\nVHL drives ccRCC [E1].\n\n**Mechanism** (dismech chains)\n- HIF-2a is stabilized [PMID:7].\n\n"
+             "**Testable hypothesis**\nHypothesis: CA9 predicts response.\nExperiment: Knock down CA9 in 786-O cells and compare growth.\n\n"
+             "**Caveats**\n- Germline VHL status cannot be determined from tumor proteomics.\n- Risk is a model estimate.\n"
+             "- Made-up fact outside the caveats here.")
+    claims, answer, stats, _ = verify(draft, {"edge_ids": ["E1"], "pmids": ["PMID:7"]}, FakeLLM())
+    texts = [c["text"] for c in claims]
+    assert not any("Summary" in x or "Mechanism" in x or "Caveats" in x for x in texts)
+    assert {n["reason"] for n in stats["non_claims"]} == {"experiment", "caveat"}
+    assert stats["n_non_claims"] == 4 and stats["n_supported"] == 2 and stats["n_hypothesis"] == 1
+    assert "cannot be determined" in answer and "Experiment:" in answer and "**Caveats**" in answer
+    assert check({"contract_version": "1", "run_id": "r", "qid": "q", "mode": "agent", "patient_id": None,
+                  "question": "q", "model": "m", "tool_calls": [], "evidence": {"edge_ids": ["E1"], "pmids": ["PMID:7"]},
+                  "draft": draft, "claims": claims, "answer": answer, "verifier": stats}) == []
+
+
+def test_verifier_abstention_outside_caveats_is_kept():
+    draft = "- Whether this patient will respond to checkpoint inhibitors cannot be determined from these data."
+    claims, answer, stats, _ = verify(draft, {"edge_ids": [], "pmids": []}, FakeLLM())
+    assert not claims and stats["non_claims"][0]["reason"] == "abstention" and "cannot be determined" in answer
+
+
+def test_model_outputs_are_citable():
+    tr = run(Q, patient_id=PID, llm=FakeLLM(), run_id="test_model_ids")
+    ev = set(tr["evidence"]["edge_ids"])
+    assert f"pred:{PID}:gnn" in ev and any(x.startswith(f"contrib:{PID}:") for x in ev)
+    draft = f"- The GNN risk for this patient is 0.78 [pred:{PID}:gnn].\n- VEGFA contributes most [contrib:{PID}:NCBIGene:7422]."
+    claims, _, stats, _ = verify(draft, tr["evidence"], FakeLLM())
+    assert [c["status"] for c in claims] == ["supported", "supported"] and stats["n_supported_model"] == 2
+
+
 def test_entity_match_and_strict_mode():
     draft = "- VHL contributes to ccRCC [E1].\n- PBRM1 doubles the risk [E1]."
     names = {"E1": ["VHL", "clear cell renal carcinoma"]}

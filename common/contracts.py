@@ -124,6 +124,24 @@ def patient_curie(patient_id: str) -> str:
     return f"PATIENT:{patient_id}"
 
 
+def pred_id(patient_id: str, model: str = "gnn") -> str:
+    """Citable ID for a predict_patient risk (a model output, not a graph fact)."""
+    return f"pred:{patient_id}:{model}"
+
+
+def contrib_id(patient_id: str, curie: str) -> str:
+    """Citable ID for one top_contributing neighbour behind a patient's gnn risk."""
+    return f"contrib:{patient_id}:{curie}"
+
+
+def rank_id(patient_id: str, node_type: str, curie: str) -> str:
+    """Citable ID for one rank_for_patient item."""
+    return f"rank:{patient_id}:{node_type}:{curie}"
+
+
+MODEL_OUTPUT_PREFIXES = ("pred:", "contrib:", "rank:")
+
+
 def patient_edge_id(patient_id: str, relation: str, curie: str) -> str:
     return f"pt:{patient_id}:{relation}:{curie}"
 

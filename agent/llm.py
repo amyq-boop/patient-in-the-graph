@@ -53,7 +53,9 @@ class NimLLM:
         self.cache_dir = C.CACHE / "llm"
 
     def chat(self, messages, tools=None, json_mode=False, purpose="agent"):
-        req = {"model": self.model, "messages": messages, "temperature": C.TEMPERATURE, "max_tokens": 2048}
+        # the claims split of a long answer needs more room than an agent turn (2048 truncated it to nothing)
+        max_tokens = int(os.environ.get("NIM_MAX_TOKENS_CLAIMS", "8192")) if purpose == "claims" else 2048
+        req = {"model": self.model, "messages": messages, "temperature": C.TEMPERATURE, "max_tokens": max_tokens}
         if tools:
             req["tools"] = tools
             req["tool_choice"] = "auto"
@@ -85,8 +87,11 @@ class NimLLM:
                     calls.append({"id": tc.id, "name": tc.function.name, "arguments": args})
                 if not calls and tools:
                     calls = _parse_text_tool_call(msg.content) or []
+                if json_mode and not calls and not (msg.content or "").strip() and "response_format" in req:
+                    req.pop("response_format")  # some models return empty content in JSON mode: retry as plain text
+                    raise RuntimeError("empty content in JSON mode")
                 out = {"content": None if calls and not msg.tool_calls else msg.content, "tool_calls": calls}
-                if self.cache:
+                if self.cache and (calls or (msg.content or "").strip()):  # never cache an empty answer
                     self.cache_dir.mkdir(parents=True, exist_ok=True)
                     f.write_text(json.dumps(out), encoding="utf-8")
                 return out
