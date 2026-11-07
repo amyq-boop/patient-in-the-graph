@@ -221,6 +221,24 @@ def test_get_mechanism_respects_graph_variant(tiny_processed, monkeypatch):
     assert T.dispatch("get_mechanism", {"disease_curie": "MONDO:0005005"})["chains"]
 
 
+def test_rank_for_patient_uses_tumor_proteins_by_default(tiny_processed, monkeypatch):
+    seen = {}
+
+    class FakeGnnA:
+        def rank_for_patient_rel(self, neigh, node_type, k=10, weights=None):
+            seen["neigh"] = list(neigh)
+            return pd.DataFrame({"curie": ["NCBIGene:7428"], "name": ["VHL"], "score": [0.9]})
+
+    monkeypatch.setattr(C, "MOCK_MODE", "0")
+    monkeypatch.setattr(T, "_gnn_a", lambda tag: FakeGnnA())
+    monkeypatch.setattr(C, "RANK_BASIS", "tumor")
+    r = T.dispatch("rank_for_patient", {"patient_id": "C3L-1", "node_type": "gene"})
+    assert r["basis"] == "tumor_proteins" and seen["neigh"] == ["NCBIGene:7428"]  # no HP:0000822 (hypertension)
+    monkeypatch.setattr(C, "RANK_BASIS", "all")
+    T.dispatch("rank_for_patient", {"patient_id": "C3L-1", "node_type": "gene"})
+    assert seen["neigh"] == ["HP:0000822", "NCBIGene:7428"]
+
+
 def test_auto_mode_falls_back_to_mocks(tiny_processed, monkeypatch):
     monkeypatch.setattr(C, "MOCK_MODE", "auto")
     fb = T.dispatch("retrieve_subgraph", {"question": "q", "seeds": ["PATIENT:C3L-1"]})

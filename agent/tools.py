@@ -228,11 +228,13 @@ def rank_for_patient(patient_id, node_type, k=10):
     if node_type not in ("gene", "pathway", "drug"):
         return {"error": f"node_type must be gene, pathway or drug; got {node_type!r}"}
     _, phe, pro = _patient_tables()
-    neigh, w = patient_neighbours(pid, phe, pro)
+    tumor_only = C.RANK_BASIS == "tumor"
+    neigh, w = patient_neighbours(pid, phe.iloc[0:0] if tumor_only else phe, pro)
     if not neigh:
-        return {"error": f"no phenotype or protein neighbours for {patient_id!r}"}
+        return {"error": f"no {'protein' if tumor_only else 'phenotype or protein'} neighbours for {patient_id!r}"}
     df = _gnn_a(C.GNN_A_TAG).rank_for_patient_rel(neigh, node_type, k=int(k), weights=w)
     return {"patient_id": pid, "node_type": node_type,
+            "basis": "tumor_proteins" if tumor_only else "phenotypes+proteins",
             "items": [{"curie": r.curie, "name": r.name, "score": round(float(r.score), 4), "rank": i + 1,
                        "evidence_id": rank_id(pid, node_type, r.curie)}
                       for i, r in enumerate(df.itertuples())]}
@@ -274,8 +276,12 @@ def retrieve_subgraph(question, seeds, budget=C.DEFAULT_BUDGET, retriever="gnn_p
 def _dm_tables(variant="full"):
     """DisMech edges visible in `variant` (+ evidence). Under e1/e4 the hidden edges must not reach the agent,
     or get_mechanism would hand it the answer key that retrieve_subgraph is hiding."""
-    flags = sorted({f for fl in GRAPH_VARIANTS.values() for f in fl})
-    e = pd.read_parquet(_need(P.edges), columns=["edge_row", "src", "dst", "src_type", "rel", "dst_type", "origin", "dm_row", *flags])
+    flags = list(GRAPH_VARIANTS[variant])  # only this variant's flags: newer variants (bifo_*) may not be in every kit
+    import pyarrow.parquet as pq
+    have = set(pq.read_schema(_need(P.edges)).names)
+    if set(flags) - have:
+        raise Missing(f"edges.parquet has no {sorted(set(flags) - have)} column(s) for variant {variant!r}; get the newer data kit")
+    e = pd.read_parquet(P.edges, columns=["edge_row", "src", "dst", "src_type", "rel", "dst_type", "origin", "dm_row", *flags])
     e = e[variant_mask(e, variant) & (e.origin == "dismech")].drop(columns=flags)
     ev = pd.read_parquet(_need(P.evidence)).set_index("dm_row")
     return e, ev
@@ -338,8 +344,18 @@ def _mechanism_from_graph(disease_curie, variant="full"):
     def of_type(t):
         return sorted({df.curie.at[x] for r in touch.itertuples() for x in (r.src, r.dst) if x != g and df.type.at[x] == t})
 
+    drug_evidence, seen = [], set()  # curated drug <-> disease edges, citable by edge ID or PMID
+    for r in touch.itertuples():
+        d = r.dst if r.src == g else r.src
+        if df.type.at[d] != "drug" or d in seen:
+            continue
+        seen.add(d)
+        pmids, quotes = _evidence_for(int(r.dm_row), ev)
+        drug_evidence.append({"curie": df.curie.at[d], "name": str(df.name.at[d]), "relation": r.rel,
+                              "edge_id": edge_id(r.edge_row), "pmids": pmids, "quotes": quotes[:1]})
+
     return {"disease": df.curie.at[g], "name": str(df.name.at[g]), "chains": chains,
-            "genes": of_type("gene"), "drugs": of_type("drug")}
+            "genes": of_type("gene"), "drugs": of_type("drug"), "drug_evidence": drug_evidence}
 
 
 @lru_cache(maxsize=1)

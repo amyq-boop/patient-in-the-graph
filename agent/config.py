@@ -45,6 +45,13 @@ GNN_A_TAG = "no_dismech" if VARIANT == "no_dismech" else "main"
 # Node types the retriever gives prizes to for agent answers. The retriever's own default (genes + GO terms) is
 # tuned for E1 and returned no drug or phenotype edges for patient questions, so the agent widens it.
 # BIOHACK_TARGET_TYPES=e1 restores the E1 default; or give a comma list of node types.
+# What rank_for_patient ranks from. "tumor" = the patient's dysregulated proteins only: with the clinical
+# phenotypes included, comorbidities (hypertension, obesity) dominated and the top "targets" were leptin and heparin.
+# "all" = phenotypes + proteins (contracts.patient_neighbours, as GNN-A E2 uses).
+RANK_BASIS = os.environ.get("BIOHACK_RANK_BASIS", "tumor")
+if RANK_BASIS not in ("tumor", "all"):
+    raise ValueError(f"BIOHACK_RANK_BASIS={RANK_BASIS!r}; expected tumor or all")
+
 _TT = os.environ.get("BIOHACK_TARGET_TYPES", "agent")
 TARGET_TYPES = (None if _TT == "e1" else
                 ("gene", "biological_process", "molecular_function", "cellular_component",
