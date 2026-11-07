@@ -284,8 +284,10 @@ def retrieve_subgraph(question, seeds, budget=C.DEFAULT_BUDGET, retriever="gnn_p
         raise Missing(f"models/retriever.py not importable ({e})")
     if C.BUDGET_MODE == "auto" and getattr(_rmod, "ADAPTIVE_BUDGET", False):
         budget = None  # the retriever sizes the subgraph itself (its own ceiling applies)
+    import inspect
+    extra = {"anchor": C.ANCHOR_EDGES} if "anchor" in inspect.signature(_rs).parameters else {}
     res = _to_dict(_rs(question=question, seeds=list(seeds), budget=None if budget is None else int(budget),
-                       retriever=retriever,
+                       retriever=retriever, **extra,
                        variant=variant or C.VARIANT, target_types=C.TARGET_TYPES))
     res.setdefault("edge_ids", [e["edge_id"] for e in res.get("edges", [])])
     if not res.get("triples_text"):

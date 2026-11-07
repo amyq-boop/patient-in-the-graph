@@ -62,13 +62,16 @@ MAX_TOOL_CALLS = int(os.environ.get("AGENT_MAX_TOOL_CALLS", "12"))
 MAX_RETRIEVAL_RETRIES = 3
 # What the LLM sees of one retrieve_subgraph result: edges ranked by relevance, as many as fit, then a note
 # saying how many were left out (the old 6000-char cut sliced the text mid-line and said nothing).
-RETRIEVE_VIEW_CHARS = int(os.environ.get("AGENT_RETRIEVE_VIEW_CHARS", "15000"))
+RETRIEVE_VIEW_CHARS = int(os.environ.get("AGENT_RETRIEVE_VIEW_CHARS", "25000"))  # uncapped PCST: ~150-185 nodes
 # Retries add new seeds and grow the budget by a fixed step (was x1.5 each time: 50 -> 75 -> 112 -> 168).
 RETRY_BUDGET_STEP = int(os.environ.get("AGENT_RETRY_BUDGET_STEP", "25"))
 RETRY_BUDGET_MAX = int(os.environ.get("AGENT_RETRY_BUDGET_MAX", "100"))
 # "fixed" (default): pass the budget. "auto": let the retriever size the subgraph itself, if it supports that
 # (models/retriever.py sets ADAPTIVE_BUDGET = True when budget=None means self-sizing); otherwise falls back.
-BUDGET_MODE = os.environ.get("BIOHACK_BUDGET", "fixed").lower()
+BUDGET_MODE = os.environ.get("BIOHACK_BUDGET", "auto").lower()  # auto = PCST sizes it (K prized terminals)
+# Seed -> retrieved-node edges the retriever adds (no extra nodes) so the evidence visibly links back to the patient
+# (Retriever.anchor_edges). 0 turns it off.
+ANCHOR_EDGES = int(os.environ.get("AGENT_ANCHOR", "20"))
 # Rewrite the answer after retrieval retries only if they found the protein -> phenotype link (1 = always rewrite).
 REVISE_ALWAYS = os.environ.get("AGENT_REVISE_ALWAYS", "0") == "1"
 TOOL_RESULT_CHARS = int(os.environ.get("AGENT_TOOL_RESULT_CHARS", "6000"))  # what the LLM sees per tool result

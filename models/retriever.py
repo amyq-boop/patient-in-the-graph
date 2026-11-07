@@ -373,11 +373,13 @@ def _require_inputs(variant: str) -> None:
 # retry trigger) and 45% of nodes were top-1%-degree hubs; hub=0.25 -> 6/6 linked, 14% hubs, ~5.7k chars (fits the
 # agent's 6000-char view). E1 keeps its own tuned weights (hub 0).
 AGENT_HUB_PENALTY = 0.25
-# CONTRACTS.md section 6, adaptive size: budget=None -> the retriever sizes the subgraph itself. PCST connects its
-# top-K prized terminals (left alone it settles at ~150-185 nodes for the demo patients, ~165 on E1), capped at
-# ADAPTIVE_MAX_NODES so the result fits the agent's 15k-char retrieval view (sweep: ~11-14k chars at 100 nodes).
+# CONTRACTS.md section 6, adaptive size: budget=None -> the retriever sizes the subgraph itself. With no binding cap
+# the cost search goes to its minimum, so PCST keeps all K (=150) prized terminals plus the connectors they need:
+# ~150-185 nodes for the demo patients, ~165 on E1. The size is therefore set by K, not by a node count.
+# ADAPTIVE_MAX_NODES is only a safety net far above that (it was 100, which bound every call, i.e. a fixed cap);
+# the agent's ranked retrieval view, not this number, keeps the LLM input bounded. Must stay an int (pcst() compares it).
 ADAPTIVE_BUDGET = True
-ADAPTIVE_MAX_NODES = 100
+ADAPTIVE_MAX_NODES = 500
 
 
 def retrieve_subgraph(question: str, seeds: list[str], budget: int | None = DEFAULT_BUDGET,
