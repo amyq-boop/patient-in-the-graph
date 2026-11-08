@@ -57,8 +57,10 @@ def sha(path):
 def git(*args):
     try:
         env = dict(os.environ, GIT_OPTIONAL_LOCKS="0")  # read-only: never leave .git/index.lock behind
-        return subprocess.run(["git", *args], cwd=C.ROOT, capture_output=True, text=True, env=env,
-                              timeout=20).stdout.strip()
+        # autocrlf=true: on a Windows checkout every file otherwise looks modified; rstrip only, since
+        # porcelain lines start with a status column that may be a space
+        return subprocess.run(["git", "-c", "core.autocrlf=true", *args], cwd=C.ROOT, capture_output=True, text=True,
+                              env=env, timeout=20).stdout.rstrip()
     except Exception:
         return None
 
@@ -66,7 +68,7 @@ def git(*args):
 def manifest(questions_path, extra=None):
     return {
         "created": datetime.now().isoformat(timespec="seconds"),
-        "git_commit": git("rev-parse", "--short", "HEAD"),
+        "git_commit": (git("rev-parse", "--short", "HEAD") or "").strip() or None,
         "git_dirty_files": [l[3:] for l in (git("status", "--porcelain", "--untracked-files=no") or "").splitlines()],
         "model": C.NIM_MODEL if os.environ.get("BIOHACK_FAKE_LLM") != "1" else "fake-llm",
         "variant": C.VARIANT,
@@ -74,6 +76,8 @@ def manifest(questions_path, extra=None):
         "questions": str(Path(questions_path).resolve().relative_to(C.ROOT)) if C.ROOT in Path(questions_path).resolve().parents else str(questions_path),
         "questions_sha": sha(questions_path),
         "file_sha": {f: sha(f) for f in HASHED},
+        "settings": {k: v for k, v in sorted(os.environ.items())
+                     if k.startswith(("VERIFIER_", "BIOHACK_", "AGENT_", "NIM_")) and "KEY" not in k},
         **(extra or {}),
     }
 

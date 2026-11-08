@@ -5,6 +5,7 @@
    cites is in evidence.edge_ids (what retrieve_subgraph and get_patient returned in this trace)
    or a PMID it cites is in evidence.pmids (what get_mechanism returned). Only IDs written in
    the claim's own sentence count, so the splitter can't add any.
+   Citations count in [brackets] or (parentheses); a group naming a PMID makes its bare numbers PMIDs too.
 3. Unsupported claims become "hypothesis" if the draft framed them that way, else "removed".
 4. The answer is the draft with removed claims cut out and unverified hypotheses labelled.
 
@@ -38,6 +39,8 @@ ABSTAIN = re.compile(
 EXPERIMENT = re.compile(r"(?i)^\W*(?:experiment|to test this|validation experiment)\b")
 META = re.compile(r"(?i)\b(?:model estimate|not a (?:clinical|diagnos)\w*|hypothesis-generation tool)\b")
 BRACKET = re.compile(r"\[([^\]]+)\]")
+PAREN = re.compile(r"\(([^()]+)\)")
+BARE_PMID = re.compile(r"(?<![\w:])(\d{7,9})(?![\w:])")  # 38540392 in "[PMID:39334956, 38540392]"
 HYP = re.compile(r"(?i)\W*(?:\w+\s+)?(hypothes|speculat)")  # also "**Additional hypothesis:**"
 
 
@@ -84,12 +87,30 @@ def non_claim_reason(text, section=""):
     return None
 
 
+def _citation_groups(text):
+    """Bracketed and parenthesised groups that contain at least one ID. Models sometimes cite as (E123, E456)
+    instead of [E123, E456]; a parenthesis with no ID in it, like "(stage III)", is ordinary text."""
+    groups = BRACKET.findall(text or "")
+    groups += [g for g in PAREN.findall(BRACKET.sub(" ", text or "")) if ID_TOKEN.search(g)]
+    return groups
+
+
 def cited_ids(text):
-    """Edge IDs and PMIDs cited in square brackets, e.g. [E12, E7] or [PMID:123] or [pt:C3L-1:protein_up:NCBIGene:7]."""
+    """Edge IDs and PMIDs cited in [brackets] or (parentheses), e.g. [E12, E7], (E12), [PMID:123, 456] or
+    [pt:C3L-1:protein_up:NCBIGene:7]. In a group that names a PMID, the bare numbers after it are PMIDs too."""
     ids = []
-    for inner in BRACKET.findall(text or ""):
+    for inner in _citation_groups(text):
         ids += [norm_id(t) for t in ID_TOKEN.findall(inner)]
+        if re.search(r"(?i)\bPMID:", inner):
+            ids += [f"PMID:{n}" for n in BARE_PMID.findall(inner)]
     return list(dict.fromkeys(ids))
+
+
+def strip_citations(text):
+    """The sentence without its citation groups (for the claim's display text)."""
+    t = BRACKET.sub("", text or "")
+    t = PAREN.sub(lambda m: "" if ID_TOKEN.search(m.group(1)) else m.group(0), t)
+    return re.sub(r"\s+([.,;:])", r"\1", re.sub(r"[ \t]{2,}", " ", t)).strip()
 
 
 def split_ids(ids):
@@ -110,7 +131,7 @@ def deterministic_claims(answer):
             if len(sent) < 12:
                 continue
             e, p = split_ids(cited_ids(sent))
-            claims.append({"claim_id": f"c{len(claims) + 1}", "text": BRACKET.sub("", sent).strip(), "quote": sent,
+            claims.append({"claim_id": f"c{len(claims) + 1}", "text": strip_citations(sent), "quote": sent,
                            "edge_ids": e, "pmids": p, "is_hypothesis": bool(HYP.match(sent))})
     return claims
 
@@ -173,7 +194,7 @@ def verify(draft, evidence, llm, edge_names=None, strict=None):
     edge_names = {norm_id(k): v for k, v in (edge_names or {}).items()}
     ev_edges = {norm_id(e) for e in evidence.get("edge_ids", [])}
     ev_pmids = {norm_id(p) for p in evidence.get("pmids", [])}
-    in_draft = {norm_id(t) for t in ID_TOKEN.findall(draft or "")}
+    in_draft = {norm_id(t) for t in ID_TOKEN.findall(draft or "")} | set(cited_ids(draft or ""))
     raw, splitter = extract_claims(draft or "", llm)
 
     claims, non_claims, answer = [], [], draft or ""
@@ -243,4 +264,13 @@ def verify(draft, evidence, llm, edge_names=None, strict=None):
 def _tidy(text):
     # drop list items emptied by a removed claim: "-", "*", or a bare number like "3." left behind
     lines = [l.rstrip() for l in text.splitlines() if not (l.strip() and re.fullmatch(r"\s*(?:[-*•]|\d+[.)])?\s*", l))]
-    return re.sub(r"\n{3,}", "\n\n", "\n".join(lines)).strip()
+    # drop a section header whose whole section was removed (e.g. an uncited Summary sentence): a header followed
+    # only by blank lines and then another header or the end. Display only; claims and stats are unaffected.
+    keep = []
+    for i, l in enumerate(lines):
+        if is_header(l):
+            nxt = next((x for x in lines[i + 1:] if x.strip()), None)
+            if nxt is None or is_header(nxt):
+                continue
+        keep.append(l)
+    return re.sub(r"\n{3,}", "\n\n", "\n".join(keep)).strip()
