@@ -72,7 +72,9 @@ class Retriever:
         self.cur2g, self.gidx_by_type = self.g.cur2g, self.g.gidx_by_type
         # retrieval graph = the contract's graph variant; one representative directed edge per undirected pair
         # (dismech preferred so it carries PMIDs)
-        E = pd.read_parquet(P.edges, columns=['edge_row', 'src', 'dst', 'rel', 'origin', 'dm_row', 'hub', 'e1_holdout', 'e4_dismech', 'e4_full'])
+        base = ['edge_row', 'src', 'dst', 'rel', 'origin', 'dm_row', 'hub', 'e1_holdout', 'e4_dismech', 'e4_full']
+        # also load whatever mask flags the variant needs (e.g. bifo_dropped), or bifo variants raise KeyError
+        E = pd.read_parquet(P.edges, columns=list(dict.fromkeys(base + list(GRAPH_VARIANTS[variant]))))
         E = E[variant_mask(E, variant).values]
         pr = pd.DataFrame({'a': np.minimum(E.src.values, E.dst.values), 'b': np.maximum(E.src.values, E.dst.values),
                            'src': E.src.values, 'dst': E.dst.values, 'rel': E.rel.astype(str).values,
@@ -231,6 +233,23 @@ class Retriever:
         v = np.array(v, dtype=np.int64)
         return nodes[v[v >= n_seed]], (pid[np.array(e, dtype=np.int64)] if e else np.array([], np.int64))
 
+    def anchor_edges(self, seeds, sel, prize, max_edges=30):
+        """Edges tying the retrieved nodes back to the seeds, adding no nodes. PCST gives seeds no prize, so the tree
+        usually floats free of them. Each seed (disease/phenotype seeds first, then genes) gets its best direct edge into
+        the retrieved set: dismech edges first (they carry PMIDs), then by the neighbour's prize. At most `max_edges`."""
+        seeds, sel = np.asarray(seeds, dtype=np.int64), np.asarray(sel, dtype=np.int64)
+        if max_edges <= 0 or not len(seeds) or not len(sel):
+            return np.array([], np.int64)
+        sub = self.A[seeds][:, sel].tocoo()
+        best = {}
+        for r, c, d in zip(sub.row, sub.col, sub.data):
+            pid = int(d) - 1
+            key = (bool(self.is_dm[pid]), float(prize.get(int(sel[c]), 0.0)))
+            if r not in best or key > best[r][0]:
+                best[r] = (key, pid)
+        order = sorted(best, key=lambda r: (self.NT[seeds[r]] == 'gene', not best[r][0][0], -best[r][0][1]))
+        return np.array([best[r][1] for r in order[:max_edges]], dtype=np.int64)
+
     def bfs_order(self, seeds, target_types=MECHANISM_TYPES):
         h1 = np.setdiff1d(np.unique(self.A[seeds].indices), seeds)
         h2 = np.setdiff1d(np.unique(self.A[h1].indices) if len(h1) else np.array([], np.int64), np.concatenate([seeds, h1]))
@@ -283,7 +302,7 @@ class Retriever:
         return np.array(sorted(set(out)), dtype=np.int64), missing, notes
 
     def subgraph(self, question, seed_curies, budget=DEFAULT_BUDGET, retriever='gnn_pcst', target_types=MECHANISM_TYPES,
-                 weights=None, cap=3000, K=150, dm_discount=0.5, per_type=False):
+                 weights=None, cap=3000, K=150, dm_discount=0.5, per_type=False, anchor=0):
         if retriever not in RETRIEVERS:
             return error(f'unknown retriever {retriever!r}; expected one of {list(RETRIEVERS)}')
         seeds, missing, notes = self.resolve_seeds(list(seed_curies))
@@ -310,6 +329,10 @@ class Retriever:
             meta.update(n_candidates=int(len(cand)), alpha=float(w.get('text', 0)), beta=float(w.get('gnn', 0)),
                         ppr=float(w.get('ppr', 0)), hub=float(w.get('hub', 0)), lift=bool(w.get('lift', False)),
                         direct_go=bool(w.get('direct_go', False)))
+        if anchor:  # seed -> retrieved-node edges first, so they survive the agent's truncation; no nodes are added
+            anc = self.anchor_edges(seeds, sel, prize, anchor)
+            pids = np.concatenate([anc, np.setdiff1d(np.asarray(pids, dtype=np.int64), anc)]).astype(np.int64)
+            meta.update(anchor_edges=int(len(anc)))
         allv = np.concatenate([seeds, np.asarray(sel, dtype=np.int64)])
         nodes = [{'curie': self.curies[x], 'name': self.names[x], 'type': self.NT[x], 'prize': round(float(prize.get(int(x), 0.0)), 4),
                   'is_seed': i < len(seeds)} for i, x in enumerate(allv)]
@@ -345,17 +368,44 @@ def _require_inputs(variant: str) -> None:
         raise Missing('GNN-B inputs not found: ' + ', '.join(p.name for p in missing))
 
 
-def retrieve_subgraph(question: str, seeds: list[str], budget: int = DEFAULT_BUDGET,
-                      retriever: str = 'gnn_pcst', variant: str = 'full', target_types=None) -> dict:
+# Hub penalty for agent calls (custom target_types). eval/retriever_budget_sweep.py, 3 demo patients x 2 questions,
+# budget 50: with hub=0 the first subgraph never linked a patient protein to a patient phenotype (0/6, the agent's
+# retry trigger) and 45% of nodes were top-1%-degree hubs; hub=0.25 -> 6/6 linked, 14% hubs, ~5.7k chars (fits the
+# agent's 6000-char view). E1 keeps its own tuned weights (hub 0).
+AGENT_HUB_PENALTY = 0.25
+# CONTRACTS.md section 6, adaptive size: budget=None -> the retriever sizes the subgraph itself. With no binding cap
+# the cost search goes to its minimum, so PCST keeps all K (=150) prized terminals plus the connectors they need:
+# ~150-185 nodes for the demo patients, ~165 on E1. The size is therefore set by K, not by a node count.
+# ADAPTIVE_MAX_NODES is only a safety net far above that (it was 100, which bound every call, i.e. a fixed cap);
+# the agent's ranked retrieval view, not this number, keeps the LLM input bounded. Must stay an int (pcst() compares it).
+ADAPTIVE_BUDGET = True
+ADAPTIVE_MAX_NODES = 500
+
+
+def retrieve_subgraph(question: str, seeds: list[str], budget: int | None = DEFAULT_BUDGET,
+                      retriever: str = 'gnn_pcst', variant: str = 'full', target_types=None,
+                      hub: float | None = None, anchor: int = 0) -> dict:
     """CONTRACTS.md section 6/7. Missing input files raise the agent's `Missing` (handled by agent.tools.dispatch);
     every other failure comes back as {"error": ...}.
     target_types: node types that get prizes; None = MECHANISM_TYPES (genes + GO, the E1 setting). The agent passes
-    a wider set (drugs, phenotypes, pathways, mechanisms) for its answers; E1 calls Retriever.subgraph directly."""
+    a wider set (drugs, phenotypes, pathways, mechanisms) for its answers; E1 calls Retriever.subgraph directly.
+    hub: degree penalty for gnn_pcst prizes; None = AGENT_HUB_PENALTY for custom target_types, else the tuned weights.
+    anchor: add up to this many seed -> retrieved-node edges (no extra nodes) so the subgraph links back to the seeds.
+    budget=None: self-sizing (ADAPTIVE_BUDGET), at most ADAPTIVE_MAX_NODES non-seed nodes."""
     _require_inputs(variant)
     try:
         custom = bool(target_types) and tuple(target_types) != MECHANISM_TYPES
-        return get_retriever(variant).subgraph(question, list(seeds), budget=int(budget), retriever=retriever,
-                                               target_types=tuple(target_types) if target_types else MECHANISM_TYPES,
-                                               per_type=custom)  # custom type sets rank each type separately
+        h = hub if hub is not None else (AGENT_HUB_PENALTY if custom else None)
+        w = {**gnn_weights(), 'hub': float(h)} if (h is not None and retriever == 'gnn_pcst') else None
+        res = get_retriever(variant).subgraph(question, list(seeds),
+                                              budget=ADAPTIVE_MAX_NODES if budget is None else int(budget),
+                                              retriever=retriever,
+                                              target_types=tuple(target_types) if target_types else MECHANISM_TYPES,
+                                              weights=w, per_type=custom,  # custom type sets rank each type separately
+                                              anchor=int(anchor))
+        if budget is None and 'meta' in res:
+            res['meta'].update(adaptive_budget=True, budget_ceiling=ADAPTIVE_MAX_NODES,
+                               n_nonseed=sum(not n['is_seed'] for n in res['nodes']))
+        return res
     except Exception as ex:  # noqa: BLE001 - tools must not raise
         return error(f'retrieve_subgraph failed: {type(ex).__name__}: {ex}')

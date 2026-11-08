@@ -105,6 +105,26 @@ def test_mislabelled_citation_is_caught():
     assert [c["status"] for c in claims] == ["removed", "supported"]
 
 
+def test_subgraph_view_ranks_and_reports_cut():
+    from agent import graph_agent as G
+    res = {"nodes": [{"curie": "A", "prize": 0.1}, {"curie": "B", "prize": 0.9}, {"curie": "S", "prize": 0, "is_seed": True}],
+           "edges": [{"edge_id": "E1", "src_curie": "A", "dst_curie": "A"}, {"edge_id": "E2", "src_curie": "B", "dst_curie": "A"},
+                     {"edge_id": "E3", "src_curie": "S", "dst_curie": "A"}],
+           "triples_text": "[E1] a --r--> a\n[E2] b --r--> a\n[E3] s --r--> a"}
+    assert [l[:4] for l in G._ranked_lines(res)] == ["[E3]", "[E2]", "[E1]"]  # seed edge first, then by prize
+    text, n = G._fit(G._ranked_lines(res), 35)
+    assert n == 2 and text.endswith("1 lower-ranked edges not shown")
+    assert G._ranked_lines(res, skip={"E3"})[0].startswith("[E2]")
+
+
+def test_trace_logs_llm_calls_and_subgraph_sizes():
+    t = run(Q, patient_id=PID, qid="P01")
+    assert t["subgraph_sizes"] and all("n_nodes" in s for s in t["subgraph_sizes"])
+    assert isinstance(t["llm_calls"], list)
+    ctrl = [tc for tc in t["tool_calls"] if tc["by"] == "controller"]
+    assert all(tc["args"]["budget"] <= max(C.RETRY_BUDGET_MAX, C.DEFAULT_BUDGET) for tc in ctrl)  # no x1.5 blow-up
+
+
 def test_agent_end_to_end_patient():
     t = run(Q, patient_id=PID, qid="P01")
     assert check(t) == [], check(t)
@@ -190,7 +210,12 @@ def tiny_processed(tmp_path, monkeypatch):
     monkeypatch.setattr(C, "MECHANISMS", proc / "mechanisms.jsonl")
     monkeypatch.setattr(C, "CONTRIBUTIONS", proc / "gnn_a" / "contributions.parquet")
     monkeypatch.setattr(T, "_nameres", lambda *a, **k: (_ for _ in ()).throw(OSError("offline")))
-    caches = (T._nodes, T._patient_tables, T._predictions, T._dm_tables, T._mech_file, T._gnn_a)
+    pd.DataFrame({"patient_id": ["C3L-1", "C3L-1"], "curie": ["NCBIGene:7428", "NCBIGene:7428"], "name": ["VHL", "VHL"],
+                  "source_field": ["somatic_mutation"] * 2, "source_text": ["p.R167Q", "p.L85P"], "weight": [1.0, 1.0]}).to_parquet(
+        proc / "patients" / "patient_mutations.parquet")
+    monkeypatch.setattr(K.P, "patient_mutations", proc / "patients" / "patient_mutations.parquet")
+    monkeypatch.setattr(K.P, "patient_drugs", proc / "patients" / "patient_drugs.parquet")  # missing on purpose
+    caches = (T._nodes, T._patient_tables, T._predictions, T._dm_tables, T._mech_file, T._gnn_a, T._patient_extras)
     for f in caches:
         f.cache_clear()
     yield proc
@@ -251,6 +276,17 @@ def test_rank_for_patient_uses_tumor_proteins_by_default(tiny_processed, monkeyp
     monkeypatch.setattr(C, "RANK_BASIS", "all")
     T.dispatch("rank_for_patient", {"patient_id": "C3L-1", "node_type": "gene"})
     assert seen["neigh"] == ["HP:0000822", "NCBIGene:7428"]
+
+
+def test_get_patient_mutations_and_medications(tiny_processed, monkeypatch):
+    monkeypatch.setattr(C, "MOCK_MODE", "0")
+    p = T.dispatch("get_patient", {"patient_id": "C3L-1"})
+    assert p["mutations"] == [{"curie": "NCBIGene:7428", "symbol": "VHL", "type": "somatic", "protein_change": "p.R167Q, p.L85P",
+                               "edge_id": "pt:C3L-1:somatic_mutation:NCBIGene:7428"}]
+    assert p["medications"] == []  # the medications file is optional
+    monkeypatch.setattr(C, "MOCK_MODE", "1")  # the mock patient carries a VHL mutation too
+    tr = run("Which of this patient's genes are mutated?", patient_id=PID, llm=FakeLLM(), run_id="t_mut")
+    assert f"pt:{PID}:somatic_mutation:NCBIGene:7428" in tr["evidence"]["edge_ids"]  # citable (mock patient)
 
 
 def test_auto_mode_falls_back_to_mocks(tiny_processed, monkeypatch):

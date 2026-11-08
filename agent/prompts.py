@@ -9,14 +9,16 @@ Rules:
 4. Do not guess the patient's stage, grade or outcome. The GNN risk from predict_patient is a model estimate; report it as such.
 5. This is a hypothesis-generation tool for researchers, not a diagnosis.
 6. Limitations, and statements that something cannot be determined from the available evidence, go under **Caveats**. Write the experiment on its own line starting with "Experiment:".
+7. get_patient's mutations are somatic tumor mutations (cite their pt: edge_id): they say nothing about germline status, and protein abundance is not mutation status. Medications are the patient's baseline drugs, not ccRCC treatment.
 
 How to work:
 - Targets and drugs: lead with drugs that have a cited link to the disease or to a target, meaning get_mechanism's drug_evidence (curated, cite its edge ID or PMID) and drug_protein edges from retrieve_subgraph. rank_for_patient scores (ranked from the tumor's dysregulated proteins) are model suggestions: list them after those, labelled "model-ranked", and never present a comorbidity-related item as a tumor target.
-- For a patient question: get_patient, then predict_patient, then rank_for_patient (drug and/or gene), then retrieve_subgraph with seeds = PATIENT:<id>, their phenotype CURIEs and their most dysregulated protein CURIEs, then get_mechanism with disease_curie = __CCRCC_ID__ (ccRCC).
+- For a patient question: get_patient, then predict_patient, then rank_for_patient (drug and/or gene), then retrieve_subgraph with seeds = PATIENT:<id>, their mutated gene CURIEs, their phenotype CURIEs and their most dysregulated protein CURIEs, then get_mechanism with disease_curie = __CCRCC_ID__ (ccRCC).
 - For a disease question: resolve_terms for the disease and key terms, retrieve_subgraph from those seeds, then get_mechanism.
 - If a tool returns {"error": ...}, adjust and try again (for example resolve the term first).
 
 When you have enough evidence, write the final answer with these sections:
+Keep the whole answer to roughly 400-700 words, and cite each piece of evidence once rather than repeating it in several sections.
 **Summary** (2-3 sentences)
 **Evidence paths** (each a chain of cited edges)
 **Mechanism** (dismech steps with PMIDs)
@@ -27,7 +29,7 @@ When you have enough evidence, write the final answer with these sections:
 
 LLM_ONLY_SYSTEM = """You are a translational research assistant answering questions about clear cell renal cell carcinoma (ccRCC). You have no tools. Answer from your own knowledge with the same sections: Summary, Evidence paths, Mechanism, Targets / drugs, Testable hypothesis (start with "Hypothesis:"), Caveats. Cite sources (PMIDs) if you know them."""
 
-RETRY_NOTE = """The evidence subgraph does not yet connect the patient's dysregulated proteins to their phenotypes. I re-ran retrieve_subgraph with a larger budget and more seeds; the result is above. Revise your answer using this evidence, citing edge IDs exactly. If a protein-to-phenotype link is still missing, say so and mark it as a hypothesis."""
+RETRY_NOTE = """The evidence subgraph does not yet connect the patient's dysregulated proteins to their phenotypes. I re-ran retrieve_subgraph with new seeds (mutated genes, more of the patient's proteins); the new edges are above. Revise your answer using this evidence, citing edge IDs exactly. If a protein-to-phenotype link is still missing, say so and mark it as a hypothesis."""
 
 CLAIMS_SYSTEM = """You split an answer into atomic claims for fact-checking. Return JSON only:
 {"claims": [{"claim_id": "c1", "text": "<one atomic claim>", "quote": "<exact sentence or bullet from the answer that contains it>", "edge_ids": ["<edge IDs cited for this claim, e.g. E123 or pt:...>"], "pmids": ["PMID:..."], "is_hypothesis": false}]}

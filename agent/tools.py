@@ -160,6 +160,14 @@ def _patient_tables():
             pd.read_parquet(_need(P.patient_proteins)))
 
 
+@lru_cache(maxsize=1)
+def _patient_extras():
+    """Somatic mutations and baseline medications (WS2). Optional: empty tables if a kit predates them."""
+    cols = ["patient_id", "curie", "name", "source_field", "source_text", "weight"]
+    load = lambda p: pd.read_parquet(p) if p.exists() else pd.DataFrame(columns=cols)  # noqa: E731
+    return load(P.patient_mutations), load(P.patient_drugs)
+
+
 def get_patient(patient_id):
     pid = _pid(patient_id)
     pts, phe, pro = _patient_tables()
@@ -186,7 +194,23 @@ def get_patient(patient_id):
                        for r in ph.itertuples()],
         "proteins_up": prot(pr[pr.direction == "up"], "protein_up"),
         "proteins_down": prot(pr[pr.direction == "down"], "protein_down"),
+        **_mutations_and_meds(pid),
     }
+
+
+def _mutations_and_meds(pid):
+    mut, med = _patient_extras()
+    mut, med = mut[mut.patient_id == pid], med[med.patient_id == pid]
+    mutations = [{"curie": c, "symbol": str(g.name.iloc[0]), "type": "somatic",
+                  "protein_change": ", ".join(t for t in g.source_text.astype(str).str.strip() if t and t != "nan"),
+                  "edge_id": patient_edge_id(pid, "somatic_mutation", c)}
+                 for c, g in mut.groupby("curie", sort=False)]
+    medications = [{"curie": c, "name": str(g.name.iloc[0]), "source_text": str(g.source_text.iloc[0]),
+                    "edge_id": patient_edge_id(pid, "takes_medication", c)}
+                   for c, g in med.groupby("curie", sort=False)]
+    return {"mutations": mutations, "medications": medications,
+            "note": "mutations are somatic (tumor) calls, not germline status; medications are baseline, "
+                    "not ccRCC treatment"}
 
 
 @lru_cache(maxsize=1)
@@ -254,10 +278,16 @@ def _to_dict(res):
 
 def retrieve_subgraph(question, seeds, budget=C.DEFAULT_BUDGET, retriever="gnn_pcst", variant=None):
     try:
-        from models.retriever import retrieve_subgraph as _rs  # GNN-B (WS4)
+        import models.retriever as _rmod  # GNN-B (WS4)
+        _rs = _rmod.retrieve_subgraph
     except ImportError as e:
         raise Missing(f"models/retriever.py not importable ({e})")
-    res = _to_dict(_rs(question=question, seeds=list(seeds), budget=int(budget), retriever=retriever,
+    if C.BUDGET_MODE == "auto" and getattr(_rmod, "ADAPTIVE_BUDGET", False):
+        budget = None  # the retriever sizes the subgraph itself (its own ceiling applies)
+    import inspect
+    extra = {"anchor": C.ANCHOR_EDGES} if "anchor" in inspect.signature(_rs).parameters else {}
+    res = _to_dict(_rs(question=question, seeds=list(seeds), budget=None if budget is None else int(budget),
+                       retriever=retriever, **extra,
                        variant=variant or C.VARIANT, target_types=C.TARGET_TYPES))
     res.setdefault("edge_ids", [e["edge_id"] for e in res.get("edges", [])])
     if not res.get("triples_text"):

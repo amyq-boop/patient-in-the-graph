@@ -18,7 +18,8 @@ TOOLS = [
         "Call this before using a term as a seed.",
         {"texts": {"type": "array", "items": _S, "description": "Terms to resolve"}}, ["texts"]),
     _fn("get_patient",
-        "A patient's clinical summary, phenotypes, and top up- and down-regulated tumor proteins (z-scores). "
+        "A patient's clinical summary, phenotypes, top up- and down-regulated tumor proteins (z-scores), "
+        "somatic tumor mutations (gene + protein change) and baseline medications. "
         "Each item has a citable edge_id (pt:...). Never includes stage, grade or outcome.",
         {"patient_id": {"type": "string", "description": "CPTAC case ID, e.g. C3L-00004"}}, ["patient_id"]),
     _fn("predict_patient",
@@ -34,7 +35,7 @@ TOOLS = [
         "(a PATIENT:<id> seed expands to the patient's phenotypes and proteins). Returns triples with edge IDs "
         "(E...). Only edges returned here or by get_patient can be cited.",
         {"question": _S, "seeds": {"type": "array", "items": _S, "description": "Seed CURIEs"},
-         "budget": {"type": "integer", "description": "Max nodes (default 50)"}},
+         "budget": {"type": "integer", "description": "Max nodes (default 50). Usually leave unset."}},
         ["question", "seeds"]),
     _fn("get_mechanism",
         "Curated dismech causal mechanism chains for a disease, with PubMed IDs and supporting quotes.",
