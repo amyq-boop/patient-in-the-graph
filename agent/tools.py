@@ -154,23 +154,65 @@ def resolve_terms(texts):
     return {"results": out}
 
 
-@lru_cache(maxsize=1)
-def _patient_tables():
-    return (pd.read_parquet(_need(P.patients)), pd.read_parquet(_need(P.patient_phenotypes)),
-            pd.read_parquet(_need(P.patient_proteins)))
+# ---------------------------------------------------------------- cancer cohorts
+
+def _cohort_paths(cancer):
+    """Patient table paths for a cohort. ccRCC uses the contract paths (common.contracts.P) unchanged."""
+    if cancer == "ccrcc":
+        return {"patients": P.patients, "phenotypes": P.patient_phenotypes, "proteins": P.patient_proteins,
+                "mutations": P.patient_mutations, "drugs": P.patient_drugs}
+    d = C.CANCERS[cancer]["patients_dir"]
+    return {"patients": d / "patients.parquet", "phenotypes": d / "patient_phenotypes.parquet",
+            "proteins": d / "patient_proteins.parquet", "mutations": d / "patient_mutations.parquet",
+            "drugs": d / "patient_drugs.parquet"}
 
 
 @lru_cache(maxsize=1)
-def _patient_extras():
+def _cohort_index():
+    """patient_id -> cancer, from each cohort's patients.parquet that exists."""
+    out = {}
+    for cancer in C.CANCERS:
+        f = _cohort_paths(cancer)["patients"]
+        if f.exists():
+            for pid in pd.read_parquet(f, columns=["patient_id"]).patient_id.astype(str):
+                out.setdefault(pid, cancer)
+    return out
+
+
+def cancer_of(patient_id):
+    """The cohort a patient belongs to, or None if no cohort table lists them."""
+    if not patient_id:
+        return None
+    try:
+        return _cohort_index().get(_pid(patient_id))
+    except Exception:
+        return None
+
+
+def _cancer(patient_id):
+    return cancer_of(patient_id) or "ccrcc"
+
+
+@lru_cache(maxsize=4)
+def _patient_tables(cancer="ccrcc"):
+    f = _cohort_paths(cancer)
+    return (pd.read_parquet(_need(f["patients"])), pd.read_parquet(_need(f["phenotypes"])),
+            pd.read_parquet(_need(f["proteins"])))
+
+
+@lru_cache(maxsize=4)
+def _patient_extras(cancer="ccrcc"):
     """Somatic mutations and baseline medications (WS2). Optional: empty tables if a kit predates them."""
     cols = ["patient_id", "curie", "name", "source_field", "source_text", "weight"]
     load = lambda p: pd.read_parquet(p) if p.exists() else pd.DataFrame(columns=cols)  # noqa: E731
-    return load(P.patient_mutations), load(P.patient_drugs)
+    f = _cohort_paths(cancer)
+    return load(f["mutations"]), load(f["drugs"])
 
 
 def get_patient(patient_id):
     pid = _pid(patient_id)
-    pts, phe, pro = _patient_tables()
+    cancer = _cancer(pid)
+    pts, phe, pro = _patient_tables(cancer)
     row = pts[pts.patient_id == pid]
     if row.empty:
         return {"error": f"unknown patient_id {patient_id!r}"}
@@ -186,7 +228,7 @@ def get_patient(patient_id):
         n = _info(r.curie)[0]
         return n if n != r.curie else str(getattr(r, "source_text", r.curie))
 
-    return {
+    out = {
         "patient_id": pid,
         "curie": patient_curie(pid),
         "clinical_summary": str(row.get("clinical_summary", "")),
@@ -194,12 +236,18 @@ def get_patient(patient_id):
                        for r in ph.itertuples()],
         "proteins_up": prot(pr[pr.direction == "up"], "protein_up"),
         "proteins_down": prot(pr[pr.direction == "down"], "protein_down"),
-        **_mutations_and_meds(pid),
+        **_mutations_and_meds(pid, cancer),
     }
+    if cancer != "ccrcc":  # ccRCC output stays byte-identical (E3 / demo runs)
+        out["cancer"] = cancer
+        if "z_ref" in pr and set(pr.z_ref.astype(str)) == {"cohort"}:
+            out["protein_reference"] = ("cohort: no matched normal tissue, so protein changes are relative to other "
+                                        "tumors in this cohort, and programs most tumors share look average")
+    return out
 
 
-def _mutations_and_meds(pid):
-    mut, med = _patient_extras()
+def _mutations_and_meds(pid, cancer="ccrcc"):
+    mut, med = _patient_extras(cancer)
     mut, med = mut[mut.patient_id == pid], med[med.patient_id == pid]
     mutations = [{"curie": c, "symbol": str(g.name.iloc[0]), "type": "somatic",
                   "protein_change": ", ".join(t for t in g.source_text.astype(str).str.strip() if t and t != "nan"),
@@ -210,7 +258,7 @@ def _mutations_and_meds(pid):
                    for c, g in med.groupby("curie", sort=False)]
     return {"mutations": mutations, "medications": medications,
             "note": "mutations are somatic (tumor) calls, not germline status; medications are baseline, "
-                    "not ccRCC treatment"}
+                    f"not {C.CANCERS[cancer]['short']} treatment"}
 
 
 @lru_cache(maxsize=1)
@@ -220,6 +268,10 @@ def _predictions():
 
 def predict_patient(patient_id):
     pid = _pid(patient_id)
+    cancer = _cancer(pid)
+    if cancer != "ccrcc":
+        return {"error": f"no GNN-A risk model for {C.CANCERS[cancer]['short']}: the outcome head was trained on the "
+                         "ccRCC cohort only, so there is no risk estimate for this patient"}
     pred = _predictions()
     p = pred[(pred.patient_id == pid) & (pred.model == "gnn")]
     if p.empty:
@@ -254,7 +306,8 @@ def rank_for_patient(patient_id, node_type, k=10):
     pid = _pid(patient_id)
     if node_type not in ("gene", "pathway", "drug"):
         return {"error": f"node_type must be gene, pathway or drug; got {node_type!r}"}
-    _, phe, pro = _patient_tables()
+    cancer = _cancer(pid)
+    _, phe, pro = _patient_tables(cancer)
     tumor_only = C.RANK_BASIS == "tumor"
     neigh, w = patient_neighbours(pid, phe.iloc[0:0] if tumor_only else phe, pro)
     if not neigh:
@@ -262,7 +315,7 @@ def rank_for_patient(patient_id, node_type, k=10):
     out = {"patient_id": pid, "node_type": node_type,
            "basis": "tumor_proteins" if tumor_only else "phenotypes+proteins"}
     if node_type == "drug" and C.RANK_DRUGS == "cohort":
-        rows, filtered = _rank_drugs_cohort(pid, neigh, w, int(k))
+        rows, filtered = _rank_drugs_cohort(pid, neigh, w, int(k), cancer)
         out.update(scoring="cohort_relative",
                    filter="drugs with an indication edge" if filtered else "none (this variant has no indication edges)",
                    note="score = how far above the rest of the cohort this drug scores for this patient (SD units); "
@@ -299,12 +352,13 @@ def _patient_scores(g, pid, node_type, basis, phe, pro):
     return np.asarray(g.relation_scores(neigh, node_type, w), dtype=float)
 
 
-@lru_cache(maxsize=4)
-def _cohort_scores(tag, node_type, basis):
-    """(patient IDs, standardized GNN-A scores: patients x candidates). Built once per process, a few seconds."""
+@lru_cache(maxsize=8)
+def _cohort_scores(tag, node_type, basis, cancer="ccrcc"):
+    """(patient IDs, standardized GNN-A scores: patients x candidates) for ONE cohort, so a patient is only ever
+    compared with patients of the same cancer. Built once per process and cohort, a few seconds."""
     import numpy as np
     g = _gnn_a(tag)
-    _, phe, pro = _patient_tables()
+    _, phe, pro = _patient_tables(cancer)
     pids = sorted(set(pro.patient_id) | (set() if basis == "tumor" else set(phe.patient_id)))
     return pids, np.vstack([_standardize(_patient_scores(g, p, node_type, basis, phe, pro)) for p in pids])
 
@@ -323,10 +377,10 @@ def _approved_drugs(variant):
     return frozenset(e.src[e.src_type == "drug"].tolist()) | frozenset(e.dst[e.dst_type == "drug"].tolist())
 
 
-def _rank_drugs_cohort(pid, neigh, w, k):
+def _rank_drugs_cohort(pid, neigh, w, k, cancer="ccrcc"):
     import numpy as np
     g = _gnn_a(C.GNN_A_TAG)
-    pids, R = _cohort_scores(C.GNN_A_TAG, "drug", C.RANK_BASIS)
+    pids, R = _cohort_scores(C.GNN_A_TAG, "drug", C.RANK_BASIS, cancer)
     raw = np.asarray(g.relation_scores(neigh, "drug", w), dtype=float)
     lift = cohort_lift(R, pids.index(pid) if pid in pids else None, _standardize(raw))
     cand = np.asarray(g.gidx_by_type["drug"])
@@ -336,6 +390,133 @@ def _rank_drugs_cohort(pid, neigh, w, k):
     order = [j for j in np.argsort(-lift, kind="stable")[:k] if ok[j]]
     return [{"curie": str(g.nodes.curie.values[cand[j]]), "name": str(g.nodes.name.values[cand[j]]),
              "score": round(float(lift[j]), 3), "model_score": round(float(raw[j]), 4)} for j in order], bool(approved)
+
+
+# ---------------------------------------------------------------- drug-target overlap
+
+MUTATION_WEIGHT = 5.0  # a somatically mutated target counts like a strongly up-regulated one (top-50 z is ~2-15)
+# PrimeKG's drug_protein mixes therapeutic targets with metabolizing enzymes, transporters and carriers, and
+# edges.parquet doesn't keep the distinction (kg.csv's display_relation). So genes in the standard drug-handling
+# (ADME) families are not counted as targets: otherwise "Cisplatin -> ABCC3" and "Tamoxifen -> CYP2A6" ranked first.
+ADME_PREFIXES = ("CYP", "UGT", "SULT", "ABC", "SLC", "CES", "FMO", "GST", "AKR1", "ADH", "EPHX", "ATP7")
+ADME_GENES = {"ALB", "ORM1", "ORM2", "SERPINA6", "SERPINA7", "AOX1", "TPMT", "NAT1", "NAT2", "APOD", "TTR", "SHBG",
+              "NQO1", "NQO2", "POR", "MAOA", "MAOB", "COMT", "XDH", "DPYD"}
+
+
+def is_adme(symbol):
+    s = str(symbol).upper()
+    return s in ADME_GENES or s.startswith(ADME_PREFIXES)
+
+
+@lru_cache(maxsize=8)
+def _drug_edges(rel, variant):
+    """drug -> X edges of one relation visible in `variant` (edge_row, drug gidx, other gidx), one direction only."""
+    flags = list(GRAPH_VARIANTS[variant])
+    import pyarrow.parquet as pq
+    have = set(pq.read_schema(_need(P.edges)).names)
+    if set(flags) - have:
+        raise Missing(f"edges.parquet has no {sorted(set(flags) - have)} column(s) for variant {variant!r}; get the newer data kit")
+    e = pd.read_parquet(P.edges, columns=["edge_row", "src", "dst", "rel", "src_type", "origin", *flags])
+    e = e[(e.rel.astype(str) == rel) & (e.src_type.astype(str) == "drug")]
+    e = e[variant_mask(e, variant)]
+    return e[["edge_row", "src", "dst"]].reset_index(drop=True)
+
+
+@lru_cache(maxsize=8)
+def _cancer_indications(variant, cancer):
+    """drug gidx -> [(edge_id, disease name)]: indication edges to diseases whose name matches the cancer."""
+    df, _, _ = _nodes()
+    e = _drug_edges("indication", variant)
+    kw = re.compile("|".join(re.escape(k) for k in C.CANCERS[cancer]["indication_keywords"]), re.I)
+    out = defaultdict(list)
+    for row, drug, dis in e.itertuples(index=False):
+        name = str(df.name.at[dis])
+        if kw.search(name):
+            out[drug].append((edge_id(row), name))
+    return dict(out)
+
+
+def get_drug_targets(patient_id, k=15):
+    """Approved drugs whose PrimeKG drug_protein targets are among the patient's up-regulated tumor proteins or
+    somatically mutated genes. Every link is citable: the drug-target edge (E...) and the patient edge (pt:...)."""
+    pid = _pid(patient_id)
+    cancer = _cancer(pid)
+    pts, _, pro = _patient_tables(cancer)
+    if not (pts.patient_id.astype(str) == pid).any():
+        return {"error": f"unknown patient_id {patient_id!r}"}
+    mut, _ = _patient_extras(cancer)
+    df, cur2g, _ = _nodes()
+
+    targets = defaultdict(list)  # gene gidx -> what the patient has at that gene
+    for r in pro[(pro.patient_id == pid) & (pro.direction == "up")].itertuples():
+        g = cur2g.get(r.curie)
+        if g is not None:
+            targets[g].append({"basis": "protein_up", "symbol": r.symbol, "curie": r.curie, "z": round(float(r.z), 2),
+                               "patient_edge_id": patient_edge_id(pid, "protein_up", r.curie), "w": abs(float(r.z))})
+    for cur, gm in mut[mut.patient_id == pid].groupby("curie", sort=False):
+        g = cur2g.get(cur)
+        if g is not None:
+            change = ", ".join(t for t in gm.source_text.astype(str).str.strip() if t and t != "nan")
+            targets[g].append({"basis": "somatic_mutation", "symbol": str(gm.name.iloc[0]), "curie": cur,
+                               "protein_change": change, "w": MUTATION_WEIGHT,
+                               "patient_edge_id": patient_edge_id(pid, "somatic_mutation", cur)})
+    if not targets:
+        return {"error": f"no up-regulated proteins or mutated genes in the graph for {patient_id!r}"}
+
+    dp_all = _drug_edges("drug_protein", C.VARIANT)
+    adme = _adme_gidx()
+    dp_all = dp_all[~dp_all.dst.isin(adme)]
+    n_total = dp_all.groupby("src").size()  # each drug's therapeutic-target count, for the promiscuity penalty
+    dp = dp_all[dp_all.dst.isin([g for g in targets if g not in adme])]
+    approved = _approved_drugs(C.VARIANT)
+    indic = _cancer_indications(C.VARIANT, cancer)
+
+    drugs = []
+    for drug, grp in dp.groupby("src", sort=False):
+        hits = []
+        for row, _, gene in grp.itertuples(index=False):
+            best = max(targets[gene], key=lambda x: x["w"])
+            for t in targets[gene]:
+                hit = {k2: v for k2, v in t.items() if k2 != "w"}
+                hit["drug_target_edge_id"] = edge_id(row)
+                hits.append((best["w"], hit))
+        hits.sort(key=lambda x: -x[0])
+        raw = sum(max(targets[g], key=lambda x: x["w"])["w"] for g in set(grp.dst))
+        tot = int(n_total.get(drug, len(set(grp.dst))))
+        ind = indic.get(drug, [])
+        drugs.append({"curie": str(df.curie.at[drug]), "name": str(df.name.at[drug]),
+                      "indicated_for_cancer": bool(ind), "has_indication_edge": drug in approved,
+                      "indication": [{"disease": n, "edge_id": e} for e, n in ind[:2]],
+                      "n_patient_targets": len(set(grp.dst)), "n_targets_total": tot,
+                      "score": round(raw / tot ** 0.5, 2),  # specific drugs first: 1 hit of 1 target beats 3 of 300
+                      "targets": [h for _, h in hits[:5]]})
+    drugs.sort(key=lambda d: (not d["indicated_for_cancer"], -d["score"], d["name"]))
+    main = [d for d in drugs if d["has_indication_edge"]] if approved else drugs
+    # Drugs with no indication edge are mostly lab compounds (crystallography ligands, nucleotide analogues). Keep
+    # only those that hit a mutated gene and carry a drug-like (single-word) name: e.g. alpelisib -> PIK3CA, which
+    # PrimeKG's 2022 indication data predates.
+    extra = [d for d in drugs if approved and not d["has_indication_edge"]
+             and any(t["basis"] == "somatic_mutation" for t in d["targets"])
+             and re.fullmatch(r"[A-Za-z]{6,}", d["name"])][:5]
+    return {"patient_id": pid, "cancer": cancer,
+            "basis": "the patient's top up-regulated tumor proteins and somatically mutated genes "
+                     "(down-regulated proteins are not used)",
+            "filter": "items: drugs with an indication edge (our approval proxy). other_drugs_on_mutated_genes: drugs "
+                      "without one that target a mutated gene (PrimeKG 2022 lacks some newer approvals, e.g. alpelisib). "
+                      "Drug-handling genes (CYP, UGT, ABC, SLC, ...) are not counted as targets.",
+            "n_patient_targets_in_graph": len(targets), "n_drugs": len(main),
+            "items": main[: int(k)],
+            "other_drugs_on_mutated_genes": extra,
+            "note": "drug_protein edges are PrimeKG drug-target links. A shared target is a rationale to investigate, "
+                    "not evidence that the drug works for this patient. indicated_for_cancer = an indication edge to a "
+                    "disease of this cancer type exists; score = summed target weight / sqrt(the drug's target count)."}
+
+
+@lru_cache(maxsize=1)
+def _adme_gidx():
+    df, _, _ = _nodes()
+    genes = df[df.type.astype(str) == "gene"]
+    return frozenset(genes.gidx[genes.name.map(is_adme)].tolist())
 
 
 def _to_dict(res):
@@ -484,7 +665,7 @@ def get_mechanism(disease_curie):
 
 FUNCS = {
     "resolve_terms": resolve_terms, "get_patient": get_patient, "predict_patient": predict_patient,
-    "rank_for_patient": rank_for_patient, "retrieve_subgraph": retrieve_subgraph, "get_mechanism": get_mechanism,
+    "rank_for_patient": rank_for_patient, "get_drug_targets": get_drug_targets, "retrieve_subgraph": retrieve_subgraph, "get_mechanism": get_mechanism,
 }
 
 

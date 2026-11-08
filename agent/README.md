@@ -36,6 +36,8 @@ BIOHACK_VARIANT=e4 python -m agent.run -q "Explain why this patient is high-risk
 | `BIOHACK_VARIANT` | `full` (default), `e4`, `e4_dismech`, `no_dismech`, ... | graph variant for every `retrieve_subgraph` call (the LLM can't change it) |
 | `NIM_MODEL` | any tool-calling model on build.nvidia.com | default `nvidia/nemotron-3-ultra-550b-a55b` (`contracts.LLM_MODEL`); re-check with `python -m agent.models --probe` |
 | `VERIFIER_STRICT` | `0` (default), `1` | `1` also requires the cited edge to mention something in the claim |
+| `BIOHACK_CANCER` | `ccrcc` (default), `brca` | cohort for questions with no patient; a patient ID always selects its own cohort (`agent.tools.cancer_of`) |
+| `AGENT_DRUG_TARGETS` | `0` (default), `1` | offer `get_drug_targets` to ccRCC runs too (always offered for BRCA). E3/E4/demo were run without it; turning it on changes the ccRCC tool list, so re-run them |
 | `LLM_CACHE` | `1` (default), `0` | NIM responses cached in `cache/llm/` |
 
 ## How a run works (`agent/graph_agent.py`)

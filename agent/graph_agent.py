@@ -14,8 +14,8 @@ from datetime import datetime
 from agent import config as C
 from agent import prompts
 from agent.llm import get_llm
-from agent.schemas import TOOLS
-from agent.tools import timed_dispatch
+from agent.schemas import tools_for
+from agent.tools import cancer_of, timed_dispatch
 from agent.verifier import verify
 
 PATIENT_LISTS = ("phenotypes", "proteins_up", "proteins_down", "mutations", "medications")
@@ -44,6 +44,9 @@ def _llm_view(name, res):
                      "driver_split": res.get("driver_split", {}),
                      "note": "tumor_drivers are tumor proteins; clinical_drivers are recorded phenotypes "
                              "(symptoms or comorbidities), which the model also uses but which are not tumor biology"})
+    elif name == "get_drug_targets":
+        view = {"patient_id": res.get("patient_id"), "cancer": res.get("cancer"), "basis": res.get("basis"),
+                "filter": res.get("filter"), "citable_lines": _drug_target_lines(res), "note": res.get("note")}
     elif name == "get_mechanism":  # one line per citable edge: models copy IDs reliably from aligned lines, not JSON
         view = {"disease": res.get("disease"), "name": res.get("name"), "citable_lines": _mechanism_lines(res),
                 "genes": res.get("genes", [])}
@@ -66,7 +69,23 @@ def _patient_view(res, n_up=25, n_down=15):
         "proteins_down": [line(p, f" z={p.get('z')}") for p in down[:n_down]],
         "more_proteins": (f"{max(len(up) - n_up, 0)} more up and {max(len(down) - n_down, 0)} more down-regulated "
                           "proteins are measured (all citable; ask retrieve_subgraph about specific ones)"),
+        **{k: res[k] for k in ("cancer", "protein_reference") if k in res},  # non-ccRCC cohorts only
     }
+
+
+def _drug_target_lines(res):
+    """One citable line per drug-target link, plus the patient edge for the target and any cancer indication."""
+    lines = []
+    for group, label in (("items", ""), ("other_drugs_on_mutated_genes", " (no indication edge in PrimeKG)")):
+        for d in res.get(group, []):
+            for t in d.get("targets", []):
+                what = (f"somatic mutation {t.get('protein_change', '')}".strip() if t["basis"] == "somatic_mutation"
+                        else f"up-regulated z={t.get('z')}")
+                lines.append(f"[{t['drug_target_edge_id']}] {d['name']} (drug{label}) --drug_protein--> {t['symbol']} "
+                             f"(gene); patient: [{t['patient_edge_id']}] {t['symbol']} {what}")
+            for ind in d.get("indication", []):
+                lines.append(f"[{ind['edge_id']}] {d['name']} (drug) --indication--> {ind['disease']} (disease)")
+    return "\n".join(lines)
 
 
 def _ranked_lines(res, skip=()):
@@ -134,6 +153,10 @@ def _evidence(tool_calls):
             edges += [x["evidence_id"] for x in r.get("top_contributing", []) if x.get("evidence_id")]
         elif tc["name"] == "rank_for_patient":
             edges += [x["evidence_id"] for x in r.get("items", []) if x.get("evidence_id")]
+        elif tc["name"] == "get_drug_targets":
+            for d in r.get("items", []) + r.get("other_drugs_on_mutated_genes", []):
+                edges += [t[k] for t in d.get("targets", []) for k in ("drug_target_edge_id", "patient_edge_id") if t.get(k)]
+                edges += [i["edge_id"] for i in d.get("indication", []) if i.get("edge_id")]
     return {"edge_ids": list(dict.fromkeys(edges)), "pmids": list(dict.fromkeys(pmids))}
 
 
@@ -171,6 +194,13 @@ def _edge_names(tool_calls):
             for x in r.get("items", []):
                 if x.get("evidence_id"):
                     out[x["evidence_id"]] = ["patient", x.get("name", ""), x["curie"]]
+        elif tc["name"] == "get_drug_targets":
+            for d in r.get("items", []) + r.get("other_drugs_on_mutated_genes", []):
+                for t in d.get("targets", []):
+                    out[t["drug_target_edge_id"]] = [d["name"], t["symbol"], d["curie"], t["curie"]]
+                    out.setdefault(t["patient_edge_id"], ["patient", t["symbol"], t["curie"]])
+                for i in d.get("indication", []):
+                    out[i["edge_id"]] = [d["name"], i["disease"], d["curie"]]
     return out
 
 
@@ -272,16 +302,19 @@ def run(question, patient_id=None, qid="adhoc", mode="agent", llm=None, run_id=N
     t0 = time.perf_counter()
     tool_calls = []
     user = question + (f"\n\nPatient: {patient_id}" if patient_id else "")
+    cancer = cancer_of(patient_id) or C.DEFAULT_CANCER  # the patient's cohort; disease questions use the default
+    drug_targets = C.drug_targets_enabled(cancer)
+    tools = tools_for(drug_targets)
 
     if mode == "llm_only":
-        msgs = [{"role": "system", "content": prompts.LLM_ONLY_SYSTEM}, {"role": "user", "content": user}]
+        msgs = [{"role": "system", "content": prompts.llm_only_system(cancer)}, {"role": "user", "content": user}]
         draft = llm.chat(msgs, purpose="agent")["content"] or ""
     else:
-        system = prompts.AGENT_SYSTEM.replace("__CCRCC_ID__", C.CCRCC_ID)
+        system = prompts.agent_system(cancer, drug_targets)
         msgs = [{"role": "system", "content": system}, {"role": "user", "content": user}]
         draft = None
         while len(tool_calls) < C.MAX_TOOL_CALLS:
-            out = llm.chat(msgs, tools=TOOLS, purpose="agent")
+            out = llm.chat(msgs, tools=tools, purpose="agent")
             if not out["tool_calls"]:
                 draft = out["content"] or ""
                 break
@@ -311,6 +344,8 @@ def run(question, patient_id=None, qid="adhoc", mode="agent", llm=None, run_id=N
         "run_id": run_id, "qid": qid, "mode": mode,
         "patient_id": patient_id, "question": question, "model": getattr(llm, "model", "unknown"),
         "variant": C.VARIANT,
+        "cancer": cancer,
+        "tools_offered": [t["function"]["name"] for t in tools] if mode == "agent" else [],
         "tool_calls": tool_calls if mode == "agent" else [],
         "evidence": evidence,
         "draft": draft,

@@ -46,3 +46,17 @@ TOOLS = [
 ]
 
 TOOL_NAMES = [t["function"]["name"] for t in TOOLS]
+
+DRUG_TARGETS_TOOL = _fn(
+    "get_drug_targets",
+    "Approved drugs whose PrimeKG drug-protein targets are among this patient's up-regulated tumor proteins or "
+    "somatically mutated genes. Each target comes with two citable IDs: the drug-target edge (E...) and the "
+    "patient edge (pt:...). Also flags drugs with an indication edge to this patient's cancer. A shared target is a "
+    "rationale to investigate, not evidence that the drug works for this patient.",
+    {"patient_id": _S, "k": {"type": "integer", "description": "How many drugs (default 15)"}},
+    ["patient_id"])
+
+
+def tools_for(drug_targets=False):
+    """The tool list the agent sends. TOOLS itself never changes, so runs without get_drug_targets stay identical."""
+    return TOOLS + [DRUG_TARGETS_TOOL] if drug_targets else TOOLS

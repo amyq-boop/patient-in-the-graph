@@ -83,3 +83,24 @@ ANCHOR_EDGES = int(os.environ.get("AGENT_ANCHOR", "20"))
 # Rewrite the answer after retrieval retries only if they found the protein -> phenotype link (1 = always rewrite).
 REVISE_ALWAYS = os.environ.get("AGENT_REVISE_ALWAYS", "0") == "1"
 TOOL_RESULT_CHARS = int(os.environ.get("AGENT_TOOL_RESULT_CHARS", "6000"))  # what the LLM sees per tool result
+
+# --- Cancer cohorts ---
+# The agent takes the cohort from the patient ID (each ID is in exactly one cohort's patients.parquet). Questions
+# with no patient use BIOHACK_CANCER (default ccrcc). For ccRCC every prompt and tool output is unchanged.
+CANCERS = {
+    "ccrcc": {"label": "clear cell renal cell carcinoma (ccRCC)", "short": "ccRCC", "disease_id": CCRCC_ID,
+              "patients_dir": P.patients_dir, "indication_keywords": ("renal cell carcinoma", "renal carcinoma",
+                                                                      "kidney cancer")},
+    "brca": {"label": "breast cancer (BRCA)", "short": "BRCA", "disease_id": "MONDO:0004989",  # breast carcinoma
+             "patients_dir": P.processed / "brca" / "patients", "indication_keywords": ("breast",)},
+}
+DEFAULT_CANCER = os.environ.get("BIOHACK_CANCER", "ccrcc").lower()
+if DEFAULT_CANCER not in CANCERS:
+    raise ValueError(f"BIOHACK_CANCER={DEFAULT_CANCER!r}; expected one of {list(CANCERS)}")
+# get_drug_targets is offered for every non-ccRCC cohort. For ccRCC it is off unless AGENT_DRUG_TARGETS=1, so the
+# E3 / E4 / demo runs (made without it) keep an identical tool list; turn it on and re-run them to use it there.
+DRUG_TARGETS_CCRCC = os.environ.get("AGENT_DRUG_TARGETS", "0") == "1"
+
+
+def drug_targets_enabled(cancer):
+    return cancer != "ccrcc" or DRUG_TARGETS_CCRCC

@@ -29,6 +29,35 @@ Keep the whole answer to roughly 400-700 words, and cite each piece of evidence 
 
 LLM_ONLY_SYSTEM = """You are a translational research assistant answering questions about clear cell renal cell carcinoma (ccRCC). You have no tools. Answer from your own knowledge with the same sections: Summary, Evidence paths, Mechanism, Targets / drugs, Testable hypothesis (start with "Hypothesis:"), Caveats. Cite sources (PMIDs) if you know them."""
 
+DRUG_TARGETS_RULE = """- get_drug_targets lists approved drugs whose drug-protein targets are among the patient's up-regulated proteins or mutated genes. Cite the drug-target edge (E...) right after the drug and the patient edge (pt:...) right after the target. Present each as a rationale to investigate, not evidence that the drug works for this patient.
+"""
+
+
+def agent_system(cancer="ccrcc", drug_targets=False):
+    """The agent's system prompt for a cohort. ccRCC without get_drug_targets is byte-identical to the original
+    AGENT_SYSTEM (with the disease ID filled in), so E3 / E4 / demo runs keep the same requests."""
+    from agent.config import CANCERS
+    cfg = CANCERS[cancer]
+    s = AGENT_SYSTEM
+    if cancer != "ccrcc":
+        s = (s.replace("clear cell renal cell carcinoma (ccRCC)", cfg["label"])
+              .replace("__CCRCC_ID__ (ccRCC)", f"__CCRCC_ID__ ({cfg['short']})")
+              .replace("not ccRCC treatment", f"not {cfg['short']} treatment"))
+        assert "ccRCC" not in s, "agent prompt still names ccRCC"
+    if drug_targets:
+        s = s.replace("then rank_for_patient (drug and/or gene), then retrieve_subgraph",
+                      "then rank_for_patient (drug and/or gene), then get_drug_targets, then retrieve_subgraph")
+        s = s.replace("- For a patient question:", DRUG_TARGETS_RULE + "- For a patient question:")
+    return s.replace("__CCRCC_ID__", cfg["disease_id"])
+
+
+def llm_only_system(cancer="ccrcc"):
+    from agent.config import CANCERS
+    if cancer == "ccrcc":
+        return LLM_ONLY_SYSTEM
+    return LLM_ONLY_SYSTEM.replace("clear cell renal cell carcinoma (ccRCC)", CANCERS[cancer]["label"])
+
+
 RETRY_NOTE = """The evidence subgraph does not yet connect the patient's dysregulated proteins to their phenotypes. I re-ran retrieve_subgraph with new seeds (mutated genes, more of the patient's proteins); the new edges are above. Revise your answer using this evidence, citing edge IDs exactly. If a protein-to-phenotype link is still missing, say so and mark it as a hypothesis."""
 
 CLAIMS_SYSTEM = """You split an answer into atomic claims for fact-checking. Return JSON only:

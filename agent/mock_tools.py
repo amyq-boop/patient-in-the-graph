@@ -133,6 +133,21 @@ def get_mechanism(disease_curie: str) -> dict:
 
 
 # ------------------------------------------------------------------ registry
+def get_drug_targets(patient_id: str, k: int = 15) -> dict:
+    """Mock of agent.tools.get_drug_targets: drugs whose targets are the patient's up-regulated or mutated genes."""
+    if patient_id not in PATIENTS:
+        return error(f"unknown patient_id {patient_id!r}", known=PATIENTS)
+    item = {"curie": "DRUGBANK:MOCK_BEV", "name": "Bevacizumab", "indicated_for_cancer": True, "has_indication_edge": True,
+            "indication": [{"disease": _N[CCRCC_ID][0], "edge_id": "E900011"}], "n_patient_targets": 1,
+            "n_targets_total": 1, "score": 3.4,
+            "targets": [{"basis": "protein_up", "symbol": "VEGFA", "curie": "NCBIGene:7422", "z": 3.4,
+                         "patient_edge_id": patient_edge_id(patient_id, "protein_up", "NCBIGene:7422"),
+                         "drug_target_edge_id": "E900010"}]}
+    return {"patient_id": patient_id, "cancer": "ccrcc", "basis": "mock", "filter": "mock",
+            "n_patient_targets_in_graph": 3, "n_drugs": 1, "items": [item][:k], "other_drugs_on_mutated_genes": [],
+            "note": "mock: edge IDs E9000xx are fake"}
+
+
 def _fn(name, desc, props, required):
     return {"type": "function", "function": {"name": name, "description": desc,
                                              "parameters": {"type": "object", "properties": props, "required": required}}}
@@ -155,7 +170,8 @@ TOOLS = [
     _fn("get_mechanism", "Curated dismech causal chains for a disease, with PMIDs.",
         {"disease_curie": _S}, ["disease_curie"]),
 ]
-_IMPL = {"resolve_terms": resolve_terms, "get_patient": get_patient, "predict_patient": predict_patient,
+_IMPL = {"get_drug_targets": get_drug_targets,
+         "resolve_terms": resolve_terms, "get_patient": get_patient, "predict_patient": predict_patient,
          "rank_for_patient": rank_for_patient, "retrieve_subgraph": retrieve_subgraph, "get_mechanism": get_mechanism}
 
 
