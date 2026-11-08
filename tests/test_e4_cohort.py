@@ -219,6 +219,8 @@ def test_agent_hub_is_opt_in(monkeypatch):
     mod = types.ModuleType("models.retriever")
     mod.retrieve_subgraph, mod.ADAPTIVE_BUDGET = fake, True
     monkeypatch.setitem(sys.modules, "models.retriever", mod)
+    import models  # "import models.retriever as x" reads the package attribute once the real module is loaded
+    monkeypatch.setattr(models, "retriever", mod, raising=False)
     monkeypatch.setattr(C, "AGENT_HUB", None)
     T.retrieve_subgraph("q", ["S"], variant="e4")
     monkeypatch.setattr(C, "AGENT_HUB", 0.0)
