@@ -107,6 +107,9 @@ def proteins(nodes):
 
 def phenotypes(nodes):
     ph = read("patient_phenotype_edges")
+    if ph.empty:  # e.g. CPTAC-BRCA records no comorbidities
+        print("Phenotypes: 0 edges (no medical_condition data)")
+        return pd.DataFrame(columns=["patient_id", "curie", "source_field", "source_text"])
     if "source_text" not in ph.columns:
         print("WARNING: rerun ws2_clinical.py (new version) so source_text holds the full raw term")
         ph["source_text"] = ph.get("matched_text", "")
@@ -187,7 +190,10 @@ def patients_table(ph, drugs, nodes):
 def extra(name, nodes, typ, source_field, curie_col=None, name_col="primekg_name", text_col="raw"):
     try:
         e = read(name)
-    except FileNotFoundError:
+    except (FileNotFoundError, pd.errors.EmptyDataError):
+        return pd.DataFrame()
+    if e.empty or "patient_id" not in e.columns:
+        print(f"{name}: 0 edges")
         return pd.DataFrame()
     if curie_col:
         cur = e[curie_col].map(nodes.resolve)
@@ -217,7 +223,9 @@ def main():
     pts = patients_table(ph, drugs, nodes)
 
     for df, n in [(pts, "patients"), (ph, "patient_phenotypes"), (prot, "patient_proteins"), (lab, "labels"),
-                  (fo, "folds"), (mut, "patient_mutations"), (drugs, "patient_drugs"), (expo, "patient_exposures"),
+                  (fo, "folds")]:
+        write(df, n)  # contract tables are always written, even when empty
+    for df, n in [(mut, "patient_mutations"), (drugs, "patient_drugs"), (expo, "patient_exposures"),
                   (hist, "patient_history")]:
         if len(df):
             write(df, n)
