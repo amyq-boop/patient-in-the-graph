@@ -1,6 +1,6 @@
 # CLAUDE.md — Patient-in-the-Graph
 
-The team is 4 people at Nucleate Pittsburgh BioHack 2026 (NVIDIA Bioinformatics track). An LLM agent answers questions about a real ccRCC patient from CPTAC, using a PrimeKG + dismech knowledge graph and GNNs. Every claim must cite a graph edge or a dismech PMID.
+An LLM agent answers questions about a real ccRCC patient from CPTAC, using a PrimeKG + dismech knowledge graph and GNNs. Every claim must cite a graph edge or a dismech PMID.
 
 Several teammates run their own Claude sessions against this repo at the same time, sometimes in the same clone. Most of the rules below exist so those sessions don't break each other's work.
 
