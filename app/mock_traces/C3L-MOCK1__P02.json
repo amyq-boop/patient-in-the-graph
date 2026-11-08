@@ -3,6 +3,9 @@
  "run_id": "mock_curated",
  "qid": "P02",
  "mode": "agent",
+ "cancer": "ccrcc",
+ "data_origin": "mock",
+ "execution": "cached",
  "patient_id": "C3L-MOCK1",
  "question": "Is this patient's hypertension disease-driven or drug-driven?",
  "model": "mock",
@@ -53,7 +56,26 @@
       "symbol": "VHL",
       "z": -2.7
      }
-    ]
+    ],
+    "mutations": [
+     {
+      "curie": "NCBIGene:7428",
+      "name": "VHL",
+      "edge_id": "pt:C3L-MOCK1:somatic_mutation:NCBIGene:7428",
+      "symbol": "VHL",
+      "type": "somatic",
+      "protein_change": "p.R167Q"
+     }
+    ],
+    "medications": [
+     {
+      "curie": "DRUGBANK:DB00722",
+      "name": "Lisinopril",
+      "source_text": "lisinopril",
+      "edge_id": "pt:C3L-MOCK1:takes_medication:DRUGBANK:DB00722"
+     }
+    ],
+    "note": "mutations are somatic (tumor) calls, not germline status; medications are baseline, not ccRCC treatment"
    },
    "ms": 42
   },
@@ -68,22 +90,53 @@
     "risk": 0.78,
     "model": "gnn",
     "fold": 2,
+    "evidence_id": "pred:C3L-MOCK1:gnn",
     "top_contributing": [
      {
       "curie": "NCBIGene:7422",
       "name": "VEGFA",
       "type": "gene",
-      "score": 0.41
+      "score": 0.41,
+      "evidence_id": "contrib:C3L-MOCK1:NCBIGene:7422"
      },
      {
       "curie": "HP:0000822",
       "name": "Hypertension",
       "type": "phenotype",
-      "score": 0.22
+      "score": 0.22,
+      "evidence_id": "contrib:C3L-MOCK1:HP:0000822"
      }
     ]
    },
    "ms": 180
+  },
+  {
+   "name": "rank_for_patient",
+   "args": {
+    "patient_id": "C3L-MOCK1",
+    "node_type": "drug"
+   },
+   "result": {
+    "patient_id": "C3L-MOCK1",
+    "node_type": "drug",
+    "items": [
+     {
+      "curie": "DRUGBANK:DB01268",
+      "name": "Sunitinib",
+      "score": 0.9,
+      "rank": 1,
+      "evidence_id": "rank:C3L-MOCK1:drug:DRUGBANK:DB01268"
+     },
+     {
+      "curie": "DRUGBANK:MOCK_BELZ",
+      "name": "Belzutifan",
+      "score": 0.8,
+      "rank": 2,
+      "evidence_id": "rank:C3L-MOCK1:drug:DRUGBANK:MOCK_BELZ"
+     }
+    ]
+   },
+   "ms": 150
   },
   {
    "name": "retrieve_subgraph",
@@ -309,7 +362,7 @@
    "PMID:00000003"
   ]
  },
- "draft": "The record lists hypertension [pt:C3L-MOCK1:has_phenotype:HP:0000822]. The evidence can't tell whether it is caused by the disease or by a drug: these tumors were collected before treatment, and there is no blood-pressure timeline. VEGF-pathway drugs are known to raise blood pressure, so it should be watched if treatment starts.",
+ "draft": "The record lists hypertension [pt:C3L-MOCK1:has_phenotype:HP:0000822]. The evidence can't tell whether it is caused by the disease or by a drug: these tumors were collected before treatment, and there is no blood-pressure timeline. The hypertension is caused by the tumor. Blood pressure may rise if a VEGF-pathway drug is started. VEGF-pathway drugs are known to raise blood pressure, so it should be watched if treatment starts.",
  "claims": [
   {
    "claim_id": "c1",
@@ -330,7 +383,8 @@
     "pmids": []
    },
    "status": "removed",
-   "reason": "There is no treatment or blood-pressure timeline, and no edge links this tumor to the patient's hypertension."
+   "reason": "There is no treatment or blood-pressure timeline, and no edge links this tumor to the patient's hypertension.",
+   "quote": "The hypertension is caused by the tumor."
   },
   {
    "claim_id": "c3",
@@ -340,10 +394,11 @@
     "pmids": []
    },
    "status": "hypothesis",
-   "reason": "Plausible from the evidence but untested, so it is kept and labeled as a hypothesis."
+   "reason": "Plausible from the evidence but untested, so it is kept and labeled as a hypothesis.",
+   "quote": "Blood pressure may rise if a VEGF-pathway drug is started."
   }
  ],
- "answer": "The record lists hypertension [pt:C3L-MOCK1:has_phenotype:HP:0000822]. The evidence can't tell whether it is caused by the disease or by a drug: these tumors were collected before treatment, and there is no blood-pressure timeline. VEGF-pathway drugs are known to raise blood pressure, so it should be watched if treatment starts.",
+ "answer": "The record lists hypertension [pt:C3L-MOCK1:has_phenotype:HP:0000822]. The evidence can't tell whether it is caused by the disease or by a drug: these tumors were collected before treatment, and there is no blood-pressure timeline. Hypothesis (unverified): Blood pressure may rise if a VEGF-pathway drug is started. VEGF-pathway drugs are known to raise blood pressure, so it should be watched if treatment starts.",
  "verifier": {
   "n_claims": 3,
   "n_supported": 1,
