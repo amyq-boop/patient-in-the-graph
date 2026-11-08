@@ -185,8 +185,8 @@ def observed_evidence(trace: dict) -> tuple[set[str], set[str]]:
             continue
         if name == "retrieve_subgraph":
             edges.update(ids_list(r.get("edge_ids", []), "retrieve_subgraph.edge_ids"))
-        elif name == "get_patient":
-            for k in ("phenotypes", "proteins_up", "proteins_down"):
+        elif name == "get_patient":  # same lists the agent cites from (agent/graph_agent.py PATIENT_LISTS)
+            for k in ("phenotypes", "proteins_up", "proteins_down", "mutations", "medications"):
                 for obj in r.get(k, []):
                     if obj.get("edge_id"):
                         edges.add(normalized_id(obj["edge_id"]))
@@ -194,6 +194,21 @@ def observed_evidence(trace: dict) -> tuple[set[str], set[str]]:
             for chain in r.get("chains", []):
                 for step in chain.get("steps", []):
                     pmids.update(ids_list(step.get("pmids", []), "get_mechanism.pmids"))
+                    if step.get("edge_id"):
+                        edges.add(normalized_id(step["edge_id"]))
+            for d in r.get("drug_evidence", []):
+                pmids.update(ids_list(d.get("pmids", []), "get_mechanism.drug_evidence.pmids"))
+                if d.get("edge_id"):
+                    edges.add(normalized_id(d["edge_id"]))
+        elif name == "get_drug_targets":
+            for d in r.get("items", []) + r.get("other_drugs_on_mutated_genes", []):
+                for t in d.get("targets", []):
+                    for k in ("drug_target_edge_id", "patient_edge_id"):
+                        if t.get(k):
+                            edges.add(normalized_id(t[k]))
+                for ind in d.get("indication", []):
+                    if ind.get("edge_id"):
+                        edges.add(normalized_id(ind["edge_id"]))
         elif name == "predict_patient":
             if r.get("evidence_id"):
                 edges.add(normalized_id(r["evidence_id"]))
