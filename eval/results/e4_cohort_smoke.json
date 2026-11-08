@@ -1,0 +1,179 @@
+{
+ "eval": "e4_cohort",
+ "trace_dir": "C:\\dev\\GitHub\\patient-in-the-graph\\eval\\traces\\e4_cohort_smoke",
+ "plan_sha": "cbcad03b0c45f765",
+ "plan_rule": "From patients with GNN-A predictions (gnn_a/predictions.parquet, model == 'gnn'): sort IDs, then with random.Random(2026) draw 15 without replacement from those with a somatic VHL mutation (NCBIGene:7428 in patients/patient_mutations.parquet), then 5 from those that have mutation data but no VHL mutation. Patients with no mutation data are excluded from the second group.",
+ "seed": 2026,
+ "answer_key_sha256": "487c6672002f3ade",
+ "run_manifest": {
+  "created": "2026-11-07T23:07:31",
+  "git_commit": "a4fd883",
+  "git_dirty_files": [
+   "agent/HANDOFF.md"
+  ],
+  "model": "nvidia/nemotron-3-ultra-550b-a55b",
+  "variant": "e4",
+  "mock_mode": "0",
+  "questions": "eval\\e4_cohort_plan.json",
+  "questions_sha": "cbcad03b0c45",
+  "file_sha": {
+   "agent/prompts.py": "f86f9676e284",
+   "agent/verifier.py": "3828da882b6d",
+   "agent/graph_agent.py": "da45bf3bb433",
+   "agent/tools.py": "a028d4f6afda",
+   "agent/schemas.py": "3139a1f7a04c"
+  },
+  "settings": {
+   "AGENT_DRUG_TARGETS": "0",
+   "BIOHACK_MOCK": "0",
+   "BIOHACK_VARIANT": "e4",
+   "NIM_MODEL": "nvidia/nemotron-3-ultra-550b-a55b",
+   "VERIFIER_SPLITTER": "rules",
+   "VERIFIER_STRICT": "1"
+  },
+  "eval": "e4_cohort",
+  "smoke": true,
+  "plan_sha": "cbcad03b0c45f765",
+  "prompt_sha": "a882cb2067af47dc",
+  "answer_key_sha256": "487c6672002f3ade",
+  "fixed_settings": {
+   "BIOHACK_MOCK": "0",
+   "VERIFIER_STRICT": "1",
+   "VERIFIER_SPLITTER": "rules",
+   "AGENT_DRUG_TARGETS": "0",
+   "BIOHACK_VARIANT": "e4"
+  },
+  "patients": [
+   "C3L-00581"
+  ]
+ },
+ "n_planned": 1,
+ "n_traces": 1,
+ "missing": [],
+ "n_valid": 1,
+ "n_invalid": 0,
+ "n_leaky": 0,
+ "invalid": [],
+ "overall": {
+  "n": 1,
+  "step_recovery": {
+   "VHL Tumor Suppressor Inactivation": 1.0,
+   "HIF-2alpha Stabilization": 0.0,
+   "VEGF-Driven Angiogenesis": 0.0,
+   "Growth Factor Pathway Activation": 0.0,
+   "Metabolic Reprogramming and Aerobic Glycolysis": 0.0
+  },
+  "step_recovery_kg": {
+   "VHL Tumor Suppressor Inactivation": 0.0,
+   "HIF-2alpha Stabilization": 0.0,
+   "VEGF-Driven Angiogenesis": 0.0,
+   "Growth Factor Pathway Activation": 0.0,
+   "Metabolic Reprogramming and Aerobic Glycolysis": 0.0
+  },
+  "mean_steps_recovered": 1.0,
+  "mean_drugs_surfaced": 0.0,
+  "patients_with_any_extra_drug": 0
+ },
+ "by_group": {
+  "vhl_mutated": {
+   "n": 1,
+   "step_recovery": {
+    "VHL Tumor Suppressor Inactivation": 1.0,
+    "HIF-2alpha Stabilization": 0.0,
+    "VEGF-Driven Angiogenesis": 0.0,
+    "Growth Factor Pathway Activation": 0.0,
+    "Metabolic Reprogramming and Aerobic Glycolysis": 0.0
+   },
+   "step_recovery_kg": {
+    "VHL Tumor Suppressor Inactivation": 0.0,
+    "HIF-2alpha Stabilization": 0.0,
+    "VEGF-Driven Angiogenesis": 0.0,
+    "Growth Factor Pathway Activation": 0.0,
+    "Metabolic Reprogramming and Aerobic Glycolysis": 0.0
+   },
+   "mean_steps_recovered": 1.0,
+   "mean_drugs_surfaced": 0.0,
+   "patients_with_any_extra_drug": 0
+  },
+  "no_vhl_mutation": {
+   "n": 0,
+   "step_recovery": {
+    "VHL Tumor Suppressor Inactivation": null,
+    "HIF-2alpha Stabilization": null,
+    "VEGF-Driven Angiogenesis": null,
+    "Growth Factor Pathway Activation": null,
+    "Metabolic Reprogramming and Aerobic Glycolysis": null
+   },
+   "step_recovery_kg": {
+    "VHL Tumor Suppressor Inactivation": null,
+    "HIF-2alpha Stabilization": null,
+    "VEGF-Driven Angiogenesis": null,
+    "Growth Factor Pathway Activation": null,
+    "Metabolic Reprogramming and Aerobic Glycolysis": null
+   },
+   "mean_steps_recovered": null,
+   "mean_drugs_surfaced": null,
+   "patients_with_any_extra_drug": 0
+  }
+ },
+ "scoring_rules": "- A step (each core_chain step and each downstream_of_hif2 item) is recovered iff a verifier-SUPPORTED claim mentions\n  one of the step's accept_terms or its label, AND cites >= 1 ID present in that trace's observed evidence (evidence\n  rebuilt from the tool results by e4_case_study.supported_claims). `recovered_kg` additionally requires one of those\n  IDs to be a graph edge (E...) or PMID, not only a patient or model ID; it is reported alongside, not instead.\n- drugs_surfaced: supported claims naming sunitinib, pazopanib, axitinib or cabozantinib (belzutifan's only links\n  are masked on e4). e4_case_study.EXTRA_DRUGS are reported separately as a bonus.\n- A trace that fails the leak audit (leak_check or audit_graph) is invalid: it is listed with its reason and left\n  out of the rates, never dropped silently. Other validation failures are reported the same way.",
+ "scored_utc": "2026-11-08T04:07:42+00:00",
+ "patients": [
+  {
+   "patient_id": "C3L-00581",
+   "group": "vhl_mutated",
+   "variant": "e4",
+   "valid": true,
+   "leak": false,
+   "invalid_reason": "",
+   "step:VHL Tumor Suppressor Inactivation": true,
+   "step_kg:VHL Tumor Suppressor Inactivation": false,
+   "step:HIF-2alpha Stabilization": false,
+   "step_kg:HIF-2alpha Stabilization": false,
+   "step:VEGF-Driven Angiogenesis": false,
+   "step_kg:VEGF-Driven Angiogenesis": false,
+   "step:Growth Factor Pathway Activation": false,
+   "step_kg:Growth Factor Pathway Activation": false,
+   "step:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "step_kg:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "n_steps_recovered": 1,
+   "n_steps_recovered_kg": 0,
+   "drugs_surfaced": [],
+   "n_drugs_surfaced": 0,
+   "extra_drugs": [],
+   "n_supported_claims": 26,
+   "trace": "C:\\dev\\GitHub\\patient-in-the-graph\\eval\\traces\\e4_cohort_smoke\\C3L-00581.json"
+  }
+ ],
+ "step_matches": {
+  "C3L-00581": [
+   {
+    "step": "VHL Tumor Suppressor Inactivation",
+    "claim_ids": [
+     "c5"
+    ],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "HIF-2alpha Stabilization",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "VEGF-Driven Angiogenesis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Growth Factor Pathway Activation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Metabolic Reprogramming and Aerobic Glycolysis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   }
+  ]
+ }
+}
