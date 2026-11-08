@@ -109,6 +109,24 @@ def qids(pid: str) -> list[str]:
     return sorted({q for p, q, _ in _trace_index() if p == pid})
 
 
+def stage_score(cancer: str, pid: str) -> dict | None:
+    """The GNN's out-of-fold stage score for a kidney patient, read from the committed E2 predictions (read-only).
+    The stage model is kidney-only, so breast cancer gets None."""
+    if cancer != "ccrcc":
+        return None
+    f = ROOT / "models" / "results" / "predictions_y_stage.csv"
+    try:
+        import pandas as pd
+        d = pd.read_csv(f)
+    except Exception:  # noqa: BLE001 - a missing file just hides the tile
+        return None
+    g = d[d.model == "gnn"].sort_values("risk").reset_index(drop=True)
+    row = g[g.patient_id == pid]
+    if row.empty:
+        return None
+    return {"risk": float(row.risk.iloc[0]), "rank": int(row.index[0]) + 1, "n": len(g), "fold": int(row.fold.iloc[0])}
+
+
 def _norm_clusters(d: dict) -> dict:
     """Anikat's clusters_<cancer>.json -> the shape the panels read. Cluster numbers shown from 1."""
     k_sel = {x["k"]: x.get("silhouette") for x in d.get("k_selection", [])}
@@ -133,7 +151,7 @@ def _norm_clusters(d: dict) -> dict:
                           "co_assignment": a.get("co_assignment_rate")}
                          for a in d.get("assignments", [])],
             "clusters": cl, "comparison": comp if "status" not in comp else {"status": comp["status"]},
-            "post_hoc": d.get("descriptive_tests_after_clustering"), "coordinates": meth.get("coordinates", "")
+            "post_hoc": d.get("descriptive_tests_after_clustering"), "k_selection": d.get("k_selection", []), "coordinates": meth.get("coordinates", "")
             if isinstance(meth, dict) else ""}
 
 
@@ -145,12 +163,16 @@ def _norm_brief(b: dict) -> dict:
             "summary": b.get("clinical_summary", ""), "reference": pr.get("reference"),
             "proteins_up": tag(pr.get("top_up", [])[:10]), "proteins_down": tag(pr.get("top_down", [])[:4]),
             "mutations": tag(b.get("mutations", [])), "findings": tag(b.get("phenotypes", [])),
-            "missing": b.get("missing_information", [])}
+            "missing": b.get("missing_information", []), "medications": b.get("medications", []),
+            "demographics": b.get("demographics", {})}
 
 
-def product(cancer: str, name: str) -> tuple[dict | None, str]:
+def product(cancer: str, name: str, mock_only: bool = False) -> tuple[dict | None, str]:
     """A product file: 'clusters.json' or 'briefs/<pid>.json'. Anikat's real files first, then cache/product/, then the
     mocks in app/mock_product/. Returns (data in the panels' shape, origin 'real' | 'mock' | 'missing')."""
+    if mock_only:  # a mock patient is shown with mock cohort files only, never mixed with real ones
+        d = _json(PRODUCT_MOCK / cancer / name)
+        return (d, "mock") if d else (None, "missing")
     if name == "clusters.json" and (d := _json(REAL_CLUSTERS / f"clusters_{cancer}.json")):
         return _norm_clusters(d), d.get("data_origin", "real")
     if name.startswith("briefs/") and (d := _json(REAL_BRIEFS / name.split("/", 1)[1])) and d.get("cancer") == cancer:
@@ -180,14 +202,37 @@ def patient(pid: str) -> dict:
     return out
 
 
+MOCK_ID = re.compile(r"\bE9000\d\d\b|PMID:0{6,}\d")
+
+
+def _is_mock(t: dict) -> bool:
+    """Mock by content, not by folder: declared mock, a mock or fake model, mock tool results, or mock-range IDs."""
+    if t.get("data_origin") == "mock" or str(t.get("model", "")).lower() in ("mock", "fake-llm"):
+        return True
+    if any(isinstance(tc.get("result"), dict) and (tc["result"].get("meta") or {}).get("mock") for tc in t.get("tool_calls", [])):
+        return True
+    return bool(MOCK_ID.search(json.dumps(t.get("evidence", {}))))
+
+
+def _belongs_to(t: dict, pid: str) -> bool:
+    """Every patient-level tool result in the trace must be about this patient."""
+    for tc in t.get("tool_calls", []):
+        r = tc.get("result")
+        if tc.get("name") in ("get_patient", "predict_patient", "rank_for_patient") and isinstance(r, dict) \
+                and r.get("patient_id") not in (None, pid):
+            return False
+    return t.get("patient_id") in (None, pid)
+
+
 def trace(pid: str, qid: str) -> tuple[dict | None, str]:
-    """Returns (trace, source): source is 'cached', 'mock' or 'missing'."""
-    for folder, source in ((P.demo_cache, "cached"), (MOCK_DIR, "mock")):
+    """Returns (trace, source): source is 'cached', 'mock' or 'missing'. A trace whose tool results are about a
+    different patient is never shown."""
+    for folder in (P.demo_cache, MOCK_DIR):
         f = folder / f"{pid}__{qid}.json"
         if f.exists():
             t = json.loads(f.read_text())
-            if _usable(t):
-                return t, source
+            if _usable(t) and _belongs_to(t, pid):
+                return t, "mock" if _is_mock(t) or folder == MOCK_DIR else "cached"
     return None, "missing"
 
 

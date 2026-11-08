@@ -44,6 +44,12 @@ def _plain(s):
 
 
 # ------------------------------------------------------------------ evidence roles
+def sym_cls(name):
+    """One class per gene or drug name, shared by every panel that shows it, so hovering it anywhere lights it up everywhere."""
+    base = re.sub(r"[^A-Za-z0-9]", "", str(name).split(" ")[0]).upper()
+    return f"sy-{base}" if base else ""
+
+
 def edge_role(key, e):
     if key.startswith(("pt:", "contrib:", "rank:")):
         return "observed"
@@ -228,7 +234,7 @@ def graph_svg(v, limit=18, intro=False):
         fill, ink, _ = ROLE[node_role(n, observed)]
         label = n["name"] if len(n["name"]) <= 22 else n["name"][:21] + "…"
         w = min(230, max(54, 9.6 * len(label) + 26))
-        out.append(f'<g class="g-n {v["nidx"][cc]}{" hot" if cc in hot else ""}" style="--d:{.04 * i:.2f}s">'
+        out.append(f'<g class="g-n {v["nidx"][cc]} {sym_cls(n["name"])}{" hot" if cc in hot else ""}" style="--d:{.04 * i:.2f}s">'
                    f'<title>{esc(n["name"])} ({esc(cc)})</title><rect x="{x - w / 2}" y="{y - 17}" width="{w}" '
                    f'height="34" rx="7" fill="{fill}"/><text x="{x}" y="{y + 6}" text-anchor="middle" font-size="16.5" '
                    f'font-weight="500" fill="{ink}">{esc(label)}</text></g>')
@@ -421,97 +427,69 @@ def chain_html(g):
 
 # ------------------------------------------------------------------ the guide
 def narration(v):
-    """[(stage_key, text)] for the guide, built only from what this trace's tools returned."""
+    """[(stage_key, text)] for the guide: one short line per stage, only from what this trace's tools returned."""
     t, calls, by = v["trace"], v["calls"], v["claims"]
     out = []
     if p := calls.get("get_patient"):
         ups = [x.get("symbol") or x["name"] for x in p.get("proteins_up", [])][:2]
-        downs = [x.get("symbol") or x["name"] for x in p.get("proteins_down", [])][:2]
-        phen = [x["name"] for x in p.get("phenotypes", [])][:3]
-        bits = []
-        if ups:
-            bits.append(f"{', '.join(ups)} up")
-        if downs:
-            bits.append(f"{', '.join(downs)} down")
-        out.append(("patient", f"I'm loading {p['patient_id']}'s record. The tumor's proteins are compared with normal "
-                               f"kidney: {' and '.join(bits) or 'no large changes'}. "
-                    + (f"On record: {', '.join(phen)}." if phen else "") + " No stage, grade or outcome goes in."))
+        out.append(("patient", f"Loading {p['patient_id']}" + (f": {', '.join(ups)} up." if ups else ".")
+                    + " No stage or outcome goes in."))
     else:
-        out.append(("patient", "I'm loading the patient's record."))
+        out.append(("patient", "Loading the patient's record."))
     if p := calls.get("predict_patient"):
-        top = [x["name"] for x in p.get("top_contributing", [])][:2]
-        out.append(("score", f"The GNN scores this tumor {p['risk']:.2f} toward late stage. It's a ranking against the "
-                             "other patients, scored on a fold it never trained on. "
-                    + (f"It leans most on {' and '.join(top)}." if top else "")))
+        out.append(("score", f"GNN stage score {p['risk']:.2f}, scored out of fold."))
     else:
-        out.append(("score", "No stage score here. The stage model was trained on kidney cancer only, so it isn't used "
-                             "on breast cancer." if t.get("cancer") == "brca" else "No stage score was requested for this question."))
+        out.append(("score", "No stage score: the stage model is kidney-only." if t.get("cancer") == "brca"
+                    else "No stage score for this question."))
     if s := calls.get("retrieve_subgraph"):
-        cand = s.get("meta", {}).get("n_candidates")
-        out.append(("retrieve", f"Now the GNN searches {PRIMEKG_EDGES / 1e6:.2f}M connections"
-                    + (f", narrows to {cand:,} candidates near this patient" if isinstance(cand, int) else "")
-                    + f", and keeps {len(s.get('nodes', []))} facts. The agent only ever sees these."))
+        out.append(("retrieve", f"{PRIMEKG_EDGES / 1e6:.2f}M connections down to {len(s.get('nodes', []))} facts."))
     else:
-        out.append(("retrieve", "This question didn't need a graph search."))
+        out.append(("retrieve", "No graph search for this question."))
     if g := calls.get("get_mechanism"):
-        labels = [st.get("label", "") for c in g.get("chains", []) for st in c.get("steps", [])][:4]
         n_pm = len({p for c in g.get("chains", []) for st in c.get("steps", []) for p in st.get("pmids", [])})
-        out.append(("lookup", f"Next, the curated DisMech mechanism for {g.get('name', 'this disease')}: "
-                              f"{' → '.join(labels)}, backed by {n_pm} PubMed paper{'s' if n_pm != 1 else ''}."))
+        out.append(("lookup", f"Curated mechanism pulled, {n_pm} PubMed papers."))
     else:
-        names = [tc["name"] for tc in t.get("tool_calls", [])]
-        out.append(("lookup", f"It ran {len(names)} graph lookups in total."))
-    model = t.get("model", "")
-    out.append(("draft", f"The agent{' (' + model + ')' if model and model != 'mock' else ''} writes a draft. "
-                         "Every sentence is supposed to cite one of the facts it was handed."))
-    n_s, n_h, n_r = (len(by[k]) for k in ("supported", "hypothesis", "removed"))
-    msg = (f"The verifier checks every citation against what the tools actually returned. {n_s} claims are backed, "
-           f"{n_h} kept as hypotheses, {n_r} removed.")
+        out.append(("lookup", f"{len(t.get('tool_calls', []))} graph lookups."))
+    out.append(("draft", "The agent drafts. Every sentence must cite a fact."))
+    n_s, n_r = len(by["supported"]), len(by["removed"])
+    msg = f"{n_s} claims kept, {n_r} cut."
     if by["removed"]:
-        c = by["removed"][0]
-        msg += f" It cut “{strip_ids(c['text'])}” {why_removed(c)}"
+        msg += f" Cut: “{strip_ids(by['removed'][0]['text'])}”"
     out.append(("verify", msg))
     return out
 
 
 def outro():
-    return ("Done. Hover any sentence to light up its evidence in the graph, or hover a line in the graph to find "
-            "the sentence that cites it. Ask me anything about this patient below.")
+    return "Done. Hover a sentence to see its evidence, or ask me below."
 
 
 def explain(intent, v, score_note=""):
-    """Deterministic follow-up answers for the guide, drawn only from the trace."""
+    """Short, deterministic follow-up answers for the guide, drawn only from the trace."""
     by, calls = v["claims"], v["calls"]
     if intent == "score":
         p = calls.get("predict_patient")
         if not p:
-            return "This run didn't score the patient. Step 1 does."
-        top = [x["name"] for x in p.get("top_contributing", [])][:3]
-        return (f"{p['risk']:.2f} is the GNN's out-of-fold score for stage III–IV versus I–II. Higher means this tumor "
-                "looks more like the late-stage tumors in the cohort. It isn't calibrated, so it is not a "
-                f"{p['risk']:.0%} chance of anything. " + (f"It leans most on {', '.join(top)}. " if top else "")
-                + score_note)
+            return "No stage score in this run."
+        top = [x["name"] for x in p.get("top_contributing", [])][:2]
+        return (f"{p['risk']:.2f}: the GNN's out-of-fold score, stage III–IV vs I–II. A ranking, not a probability."
+                + (f" Leans on {', '.join(top)}." if top else "") + (f" {score_note}" if score_note else ""))
     if intent == "removed":
         if not by["removed"]:
-            hyp = "; ".join(f"“{strip_ids(c['text'])}”" for c in by["hypothesis"][:2])
-            return "Nothing was removed in this run." + (f" Kept as hypotheses: {hyp}." if hyp else "")
-        return " ".join(f"Removed “{strip_ids(c['text'])}” {why_removed(c)}" for c in by["removed"][:3])
+            return "Nothing was cut in this run."
+        c = by["removed"][0]
+        more = f" ({len(by['removed']) - 1} more cut.)" if len(by["removed"]) > 1 else ""
+        return f"Cut “{strip_ids(c['text'])}” {why_removed(c)}{more}"
     if intent == "evidence":
         refs = v["order"]
         n_pt = sum(r.startswith("pt:") for r in refs)
         n_pm = sum(r.startswith("PMID") for r in refs)
-        n_mo = sum(r.startswith(MODEL_PREFIXES) for r in refs)
-        n_kg = len(refs) - n_pt - n_pm - n_mo
-        pl = lambda n, w: f"{n} {w}{'' if n == 1 else 's'}"  # noqa: E731
-        parts = [pl(n_pt, "measurement") + " from this patient's tumor", pl(n_kg, "knowledge-graph fact"),
-                 pl(n_pm, "PubMed paper")] + ([pl(n_mo, "model output")] if n_mo else [])
-        return (f"This answer cites {', '.join(parts)}. Every one was returned by a tool in this run, which is the "
-                "only way a claim counts as backed. Hover a sentence to see its evidence.")
+        n_kg = len(refs) - n_pt - n_pm - sum(r.startswith(MODEL_PREFIXES) for r in refs)
+        return f"{n_pt} patient measurements, {n_kg} graph facts, {n_pm} papers. All returned by tools in this run."
     if intent == "drugs":
         drug_names = {n["name"].lower() for n in v["nodes"].values() if n["type"] == "drug"}
-        hits = [strip_ids(s["text"]) for s in v["sents"] if any(d in s["text"].lower() for d in drug_names)]
-        return (" ".join(hits[:3]) + " A drug-target edge is a reason to look, not proof the patient will respond."
-                if hits else "This answer doesn't name a drug. Try step 1, which asks what to target.")
+        names = sorted({n["name"] for n in v["nodes"].values() if n["type"] == "drug"})[:3]
+        return (f"{', '.join(names)}: each linked to this tumor's biology by a graph edge. A reason to test, not proof "
+                "of response." if names and drug_names else "No drug in this run.")
     return ""
 
 
