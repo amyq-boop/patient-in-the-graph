@@ -1,0 +1,109 @@
+{
+ "eval": "E4 cohort: masked ccRCC mechanism recovery across patients",
+ "rule": "From patients with GNN-A predictions (gnn_a/predictions.parquet, model == 'gnn'): sort IDs, then with random.Random(2026) draw 15 without replacement from those with a somatic VHL mutation (NCBIGene:7428 in patients/patient_mutations.parquet), then 5 from those that have mutation data but no VHL mutation. Patients with no mutation data are excluded from the second group.",
+ "seed": 2026,
+ "patients": [
+  {
+   "patient_id": "C3L-00581",
+   "group": "vhl_mutated"
+  },
+  {
+   "patient_id": "C3L-01560",
+   "group": "vhl_mutated"
+  },
+  {
+   "patient_id": "C3N-00491",
+   "group": "vhl_mutated"
+  },
+  {
+   "patient_id": "C3N-00494",
+   "group": "vhl_mutated"
+  },
+  {
+   "patient_id": "C3L-00448",
+   "group": "vhl_mutated"
+  },
+  {
+   "patient_id": "C3L-00902",
+   "group": "vhl_mutated"
+  },
+  {
+   "patient_id": "C3N-00953",
+   "group": "vhl_mutated"
+  },
+  {
+   "patient_id": "C3N-00244",
+   "group": "vhl_mutated"
+  },
+  {
+   "patient_id": "C3N-01178",
+   "group": "vhl_mutated"
+  },
+  {
+   "patient_id": "C3N-00852",
+   "group": "vhl_mutated"
+  },
+  {
+   "patient_id": "C3N-00390",
+   "group": "vhl_mutated"
+  },
+  {
+   "patient_id": "C3N-00310",
+   "group": "vhl_mutated"
+  },
+  {
+   "patient_id": "C3L-00908",
+   "group": "vhl_mutated"
+  },
+  {
+   "patient_id": "C3L-00004",
+   "group": "vhl_mutated"
+  },
+  {
+   "patient_id": "C3L-00369",
+   "group": "vhl_mutated"
+  },
+  {
+   "patient_id": "C3L-00607",
+   "group": "no_vhl_mutation"
+  },
+  {
+   "patient_id": "C3N-00150",
+   "group": "no_vhl_mutation"
+  },
+  {
+   "patient_id": "C3N-00577",
+   "group": "no_vhl_mutation"
+  },
+  {
+   "patient_id": "C3L-00183",
+   "group": "no_vhl_mutation"
+  },
+  {
+   "patient_id": "C3N-01646",
+   "group": "no_vhl_mutation"
+  }
+ ],
+ "pool_sizes": {
+  "vhl_mutated": 82,
+  "no_vhl_mutation_with_data": 23,
+  "no_mutation_data": 5
+ },
+ "question": "What drives this patient's predicted risk, and what would you target?",
+ "qid": "E4",
+ "settings": {
+  "BIOHACK_MOCK": "0",
+  "VERIFIER_STRICT": "1",
+  "VERIFIER_SPLITTER": "rules",
+  "AGENT_DRUG_TARGETS": "0",
+  "BIOHACK_VARIANT": "e4"
+ },
+ "scoring": "- A step (each core_chain step and each downstream_of_hif2 item) is recovered iff a verifier-SUPPORTED claim mentions\n  one of the step's accept_terms or its label, AND cites >= 1 ID present in that trace's observed evidence (evidence\n  rebuilt from the tool results by e4_case_study.supported_claims). `recovered_kg` additionally requires one of those\n  IDs to be a graph edge (E...) or PMID, not only a patient or model ID; it is reported alongside, not instead.\n- drugs_surfaced: supported claims naming sunitinib, pazopanib, axitinib or cabozantinib (belzutifan's only links\n  are masked on e4). e4_case_study.EXTRA_DRUGS are reported separately as a bonus.\n- A trace that fails the leak audit (leak_check or audit_graph) is invalid: it is listed with its reason and left\n  out of the rates, never dropped silently. Other validation failures are reported the same way.",
+ "answer_key_sha256": "487c6672002f3ade",
+ "git_commit": "b933315",
+ "git_dirty_files": [
+  "agent/HANDOFF.md"
+ ],
+ "created_utc": "2026-11-08T03:37:55+00:00",
+ "note_development_overlap": "Sampled patients that were also used while building the agent (E3 questions, demo, single E4 case). Reported, not excluded: C3L-00448, C3N-00852, C3N-00310, C3L-00004"
+}
