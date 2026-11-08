@@ -10,6 +10,8 @@ labeled. Nothing on screen is computed into a new claim: every value comes from 
 from __future__ import annotations
 
 import html
+from pathlib import Path
+import json
 import math
 import time
 
@@ -144,14 +146,45 @@ def _n_src(c):
     return f"{n} source{'' if n == 1 else 's'}"
 
 
+ANSWER_LINES = Path(__file__).resolve().parent / "answer_lines.json"
+
+
+def answer_claims(trace):
+    """The run's own claims that answer its question directly (app/answer_lines.json), verbatim. Returns [] unless
+    every listed claim exists with the listed status and the expected opening words, so a re-run never mislabels."""
+    try:
+        sel = json.loads(ANSWER_LINES.read_text(encoding="utf-8")).get(trace.get("patient_id"), {}).get(trace.get("qid"), [])
+    except (OSError, ValueError):
+        return []
+    by_id = {c.get("claim_id"): c for c in trace.get("claims", [])}
+    out = []
+    for s in sel:
+        c = by_id.get(s["claim_id"])
+        if not c or c.get("status") != s.get("status", "supported") or not str(c.get("text", "")).startswith(s["starts"]):
+            return []
+        out.append(c)
+    return out
+
+
 def insight(v):
-    sup = v["claims"]["supported"][:4]
+    ans = answer_claims(v["trace"])
+    picked = {c.get("claim_id") for c in ans}
+    sup = [c for c in v["claims"]["supported"] if c.get("claim_id") not in picked][:max(1, 4 - len(ans))]
     rem = v["claims"]["removed"][:1]
+    head = ""
+    if ans:
+        lines = "".join(f"<li>{'<em>Hypothesis</em> ' if c.get('status') == 'hypothesis' else ''}"
+                        f"{esc(RV.strip_ids(c['text']).replace('Hypothesis: ', ''))}"
+                        f"<small>{'kept as a labelled hypothesis, not a finding' if c.get('status') == 'hypothesis' else _n_src(c)}</small></li>"
+                        for c in ans)
+        head = (f"<div class='ansbox'><div class='ak'>Answer</div><ul>{lines}</ul>"
+                "<div class='an'>The run's own sentences that passed the verifier, unchanged, picked to answer the question first.</div></div>"
+                "<div class='ak2'>Other verified points</div>")
     items = "".join(f"<li><span class='ok'>✓</span>{esc(RV.strip_ids(c['text']))}"
                     f"<small>{_n_src(c)}</small></li>"
                     for c in sup)
     cut = "".join(f"<div class='cut'><span>Not supported</span><s>{esc(RV.strip_ids(c['text']))}</s></div>" for c in rem)
-    return panel("Insight", f"<p class='iq'>{esc(v['trace']['question'])}</p><ul class='ins'>{items}</ul>{cut}",
+    return panel("Insight", f"<p class='iq'>{esc(v['trace']['question'])}</p>{head}<ul class='ins'>{items}</ul>{cut}",
                  kicker="verified answer")
 
 
@@ -273,6 +306,12 @@ CSS = f"""
 .vnums b.rr {{ color:#a3304f; }}
 .gaps2 {{ list-style:none; padding:0 !important; margin:0 !important; font-size:.88rem; color:{BODY}; }}
 .gaps2 li {{ padding:.42rem 0; border-bottom:1px solid {RULE}; line-height:1.4; margin:0 !important; }}
+.ansbox {{ background:#f3f0fd; border:1px solid #d9d2f6; border-radius:8px; padding:.7rem .85rem .6rem; margin:.2rem 0 .8rem; }}
+.ansbox .ak {{ font-weight:600; font-size:.8rem; color:#4f3fbf; margin-bottom:.25rem; }}
+.ansbox ul {{ margin:0; padding-left:1.05rem; }} .ansbox li {{ font-size:1rem; line-height:1.45; color:{INK}; margin:.25rem 0; }}
+.ansbox li small {{ display:block; font-size:.78rem; color:{MUTED}; }} .ansbox em {{ font-style:normal; font-size:.75rem; font-weight:600; color:{MUTED}; border:1px dashed {MUTED}; border-radius:4px; padding:0 .3rem; margin-right:.25rem; }}
+.ansbox .an {{ font-size:.75rem; color:{MUTED}; margin-top:.35rem; }}
+.ak2 {{ font-size:.8rem; color:{MUTED}; font-weight:600; margin:.2rem 0 .1rem; }}
 .askbar {{ margin-top:1.4rem; padding-top:1.1rem; border-top:1px solid {RULE}; }}
 .answer2 {{ background:#fff; border:1px solid {RULE}; border-left:3px solid #4f3fbf; border-radius:8px; padding:.7rem .9rem;
             font-size:.95rem; color:{BODY}; line-height:1.5; margin:.6rem 0; animation: arrive .35s ease-out both; }}
