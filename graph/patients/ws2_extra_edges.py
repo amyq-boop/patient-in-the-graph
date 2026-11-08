@@ -208,7 +208,8 @@ def drug_edges(clin, nodes, keep_periop):
                                "primekg_name": None, "primekg_id": None, "method": "skipped", "score": 0.0})
     edges = pd.DataFrame(rows).drop_duplicates(["patient_id", "primekg_id"]) if rows else pd.DataFrame(
         columns=["patient_id", "primekg_type", "primekg_index", "primekg_id", "primekg_name", "curie", "raw", "method", "score"])
-    return edges, pd.DataFrame(review)
+    return edges, pd.DataFrame(review, columns=["patient_id", "raw", "normalized", "primekg_name", "primekg_id",
+                                                "method", "score"])
 
 
 def pick_exposure(nodes, override, patterns):
