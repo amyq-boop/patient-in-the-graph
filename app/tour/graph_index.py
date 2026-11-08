@@ -30,6 +30,7 @@ PAD7 = {"MONDO", "HPO", "GO", "UBERON"}
 PREFIX = {"NCBI": "NCBIGene", "DrugBank": "DRUGBANK", "MONDO": "MONDO", "HPO": "HP", "GO": "GO",
           "REACTOME": "REACT", "UBERON": "UBERON", "CTD": "MESH"}
 
+PMID_RE = re.compile(r"PMID:\s*(\d+)", re.I)  # same rule as agent.tools
 HUB_RELS = ("anatomy_protein_present", "anatomy_protein_absent", "drug_drug")
 _lock = threading.Lock()
 _index = None
@@ -100,19 +101,30 @@ class GraphIndex:
                          load_s=round(time.time() - t0, 1),
                          description=("Merged PrimeKG + DisMech graph from data/processed (edges.parquet). The opening "
                                       "network is drawn from this project's executed retrievals of the same graph."))
-        threading.Thread(target=self._load_evidence, daemon=True).start()
+        self._full["ev_state"] = "on demand" if P.evidence.exists() else "missing"
 
-    def _load_evidence(self):
+    def _evidence(self, dm_rows) -> dict:
+        """PMIDs + first supporting quote for these DisMech rows, read on demand with a pushed-down filter, so the
+        (large) evidence table is never loaded whole. Same extraction rule as agent.tools._evidence_for."""
         F = self._full
-        if not P.evidence.exists():
-            F["ev_state"] = "missing"
-            return
-        try:
-            import pandas as pd
-            F["ev"] = pd.read_parquet(P.evidence).set_index("dm_row")
-            F["ev_state"] = "ready"
-        except Exception as exc:  # noqa: BLE001
-            F["ev_state"] = f"failed: {type(exc).__name__}"
+        cache = F.setdefault("ev_cache", {})
+        want = sorted({int(d) for d in dm_rows if d is not None and int(d) >= 0} - set(cache))
+        if want and P.evidence.exists():
+            try:
+                import pyarrow.dataset as ds
+                tbl = ds.dataset(P.evidence, format="parquet").to_table(filter=ds.field("dm_row").isin(want))
+                cols = [c for c in tbl.column_names if c != "dm_row"]
+                for row in tbl.to_pylist():
+                    vals = [row[c] for c in cols if isinstance(row[c], str) and row[c]]
+                    pmids = list(dict.fromkeys(f"PMID:{m}" for v in vals for m in PMID_RE.findall(v)))
+                    quotes = [row[c] for c in cols if re.search(r"support|quote|snippet|text", c, re.I)
+                              and isinstance(row[c], str) and row[c].strip()]
+                    cache[int(row["dm_row"])] = (pmids, quotes[0] if quotes else None)
+            except Exception as exc:  # noqa: BLE001
+                F["ev_state"] = f"failed: {type(exc).__name__}"
+            for d in want:
+                cache.setdefault(d, ([], None))
+        return cache
 
     def _load_executed(self):
         files = [f for d in TRACE_DIRS if d.exists() for f in sorted(d.rglob("*.json")) if not f.name.startswith("_")]
@@ -264,20 +276,12 @@ class GraphIndex:
         rows = F["edges"].iloc[F["order"][lo:hi]]
         rows = rows[~rows.rel.astype(str).isin(HUB_RELS)]
         rows = rows.assign(_dm=(rows.origin.astype(str) != "dismech")).sort_values(["_dm", "edge_row"]).head(limit)
-        ev, out = F["ev"], []
+        ev = self._evidence([r.dm_row for r in rows.itertuples() if str(r.origin) == "dismech"]) if "dm_row" in rows else {}
+        out = []
         for r in rows.itertuples():
             d = int(r.dst)
-            pmids, quote = [], None
-            if str(r.origin) == "dismech" and ev is not None and hasattr(r, "dm_row"):
-                try:
-                    from agent.tools import _evidence_for
-                    pmids, quotes = _evidence_for(int(r.dm_row), ev)
-                    quote = quotes[0] if quotes else None
-                except Exception:  # noqa: BLE001
-                    pass
+            pmids, quote = ev.get(int(r.dm_row), ([], None)) if str(r.origin) == "dismech" and "dm_row" in rows else ([], None)
             prov = "merged graph edge (edges.parquet)"
-            if str(r.origin) == "dismech" and ev is None:
-                prov += f"; DisMech evidence {F['ev_state']}"
             out.append({"edge_id": edge_id(int(r.edge_row)), "src": curie, "dst": str(F["curie"][d]), "rel": str(r.rel),
                         "origin": str(r.origin), "pmids": pmids, "quote": quote, "citable": True, "provenance": prov,
                         "_dst_node": {"curie": str(F["curie"][d]), "name": str(F["name"][d]), "type": str(F["type"][d])}})

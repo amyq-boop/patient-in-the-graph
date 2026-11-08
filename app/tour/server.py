@@ -233,6 +233,11 @@ def serve(host="127.0.0.1", port=8600, prefer_live=True, warm=True):
         c = b["capabilities"]
         print(f"  live GNN-B:   {'ready' if c['gnn_ready'] else 'not available (missing graph assets or packages)'}")
         print(f"  NVIDIA LLM:   {'ready' if c['llm_ready'] else 'no NVIDIA_API_KEY'}")
+        try:
+            import resource
+            print(f"  memory:       {resource.getrusage(resource.RUSAGE_SELF).ru_maxrss // 1024} MB peak so far", flush=True)
+        except Exception:  # noqa: BLE001 - not available on Windows
+            pass
     httpd = ThreadingHTTPServer((host, port), Handler)
     print(f"\n  Patient-in-the-Graph tour: http://{'localhost' if host in ('127.0.0.1', '0.0.0.0') else host}:{port}\n")
     try:
