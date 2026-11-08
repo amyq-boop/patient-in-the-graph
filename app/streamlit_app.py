@@ -21,10 +21,12 @@ import streamlit.components.v1  # noqa: E402,F401
 from app import data  # noqa: E402
 from app import run_view as RV  # noqa: E402
 from app.run_view import LABEL, ROLE  # noqa: E402
+from app import product_view as PV  # noqa: E402
 
 TEAM = {"Knowledge graph and patient layer": "", "GNN encoder and retriever": "",  # fill in teammates' names
         "Agent and verifier": "", "Product, demo and pitch": "Amy Qin"}
-STEPS = {"P01": "Risk", "P02": "Hypertension", "P03": "Mechanism", "P04": "Driver genes", "P05": "Confidence"}
+STEPS = {"P01": "Risk", "P02": "Hypertension", "P03": "Mechanism", "P04": "Driver genes", "P05": "Confidence",
+         "B01": "Drivers and targets"}
 VIEW = st.query_params.get("view", "full")
 PACE = 1.0  # replay speed: 1.0 is about 15 seconds per run
 
@@ -116,6 +118,29 @@ div.stButton > button:focus-visible { outline: 2px solid var(--eosin); outline-o
 [data-baseweb="select"] > div { border-radius:6px; border-color: var(--rule); background:#fff; }
 [data-testid="stChatMessage"] { background:#fff; border:1px solid var(--rule); border-radius:8px; }
 :root { --hl:#ece7fb; }
+.cmap { display:block; background:#fff; border:1px solid var(--rule); border-radius:8px; }
+.cmap .dot { transition: opacity .15s, r .15s; cursor:default; } .cmap .dot:hover { r:8; }
+.clegend { display:flex; flex-wrap:wrap; gap:1.2rem; margin:.6rem 0 0; font-size:.9rem; color:var(--body); }
+.clegend .cl { cursor:default; display:flex; align-items:center; gap:.4rem; }
+.clegend i { width:12px; height:12px; border-radius:50%; display:inline-block; }
+.clegend small { color:var(--muted); margin-left:.2rem; }
+.sgcard { border-left:4px solid var(--cc); background:#fff; border-radius:0 8px 8px 0; padding:1rem 1.1rem; }
+.sgcard .k { color:var(--muted); font-size:.84rem; margin:.8rem 0 .35rem; } .sgcard .k:first-child { margin-top:0; }
+.sgname { font-family:"Newsreader",serif; font-size:1.5rem; line-height:1.15; }
+.sg { display:inline-block; font-size:.9rem; padding:.15rem .5rem; border-radius:5px; margin:0 .3rem .35rem 0;
+      background:#f1eef7; color:var(--ink); } .sg small { margin-left:.3rem; color:var(--muted); font-size:.78rem; }
+.sgfoot { font-size:.84rem; color:var(--muted); line-height:1.5; margin-top:.7rem; border-top:1px solid var(--rule); padding-top:.6rem; }
+.brief { grid-template-columns: 1fr 1.4fr 1.2fr; }
+.miss { margin:0; padding-left:1.1rem; font-size:.9rem; color:var(--body); line-height:1.45; }
+.ttab { width:100%; border-collapse:collapse; font-size:.93rem; }
+.ttab th { text-align:left; font-weight:600; color:var(--muted); font-size:.82rem; border-bottom:1px solid var(--rule); padding:.35rem .4rem; }
+.ttab td { border-bottom:1px solid var(--rule); padding:.45rem .4rem; color:var(--body); vertical-align:top; }
+.ttab .kind { color:var(--muted); font-size:.82rem; word-break:break-all; }
+.gaps { list-style:none; padding:0; margin:0; font-size:.93rem; line-height:1.5; color:var(--body); }
+.gaps li { padding:.45rem 0; border-bottom:1px solid var(--rule); }
+.gtag { display:inline-block; font:600 .74rem "Public Sans",sans-serif; color:#a3304f; background:#fbe3ea; border-radius:4px;
+        padding:0 .4rem; margin-right:.5rem; }
+div[role="radiogroup"] label p { font-size:.98rem; }
 .intake { display:grid; grid-template-columns: 1.1fr 1fr 1.6fr; gap:2rem; padding:1.1rem 0 1.3rem; margin:.4rem 0 1.2rem;
           border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); }
 .intake .k { color:var(--muted); font-size:.84rem; margin-bottom:.45rem; }
@@ -314,34 +339,49 @@ else:
     st.markdown("<div id='case'></div><div class='sec'><h2>The case</h2><p>Pick a patient and a question, then press Run. "
                 "Watch the GNN pick the evidence, the agent draft an answer and the verifier cut what it can't back up."
                 "</p></div>", unsafe_allow_html=True)
-pids = data.patients()
-pid_col, _ = st.columns([1, 3])
-pid = pid_col.selectbox("Patient", pids, label_visibility="collapsed")
+cc1, cc2, _ = st.columns([1.7, 1, 1])
+cancer = cc1.radio("Cancer", list(data.CANCERS), format_func=data.CANCERS.get, horizontal=True,
+                   label_visibility="collapsed", key="cancer")
+pids = data.patients(cancer)
+if not pids:
+    st.markdown("<p class='q' style='color:#5d596b'>No verified runs for this cancer yet.</p>", unsafe_allow_html=True)
+    st.stop()
+pid = cc2.selectbox("Patient", pids, label_visibility="collapsed", key=f"pid_{cancer}")
 if st.session_state.get("pid") != pid:
-    st.session_state.update(pid=pid, qid=st.query_params.get("q"), live_trace=None)
+    st.session_state.update(pid=pid, qid=st.query_params.get("q") if cancer == "ccrcc" else None, live_trace=None)
 played = st.session_state.setdefault("played", set())
 
+# cohort map + subgroup card: where this patient sits in the cohort, and why
+CL, cl_origin = data.product(cancer, "clusters.json")
+if CL:
+    mock = "<span class='demo'>Demo data: placeholder subgroups</span> " if cl_origin == "mock" else ""
+    st.markdown(f"{mock}<div class='sub-h'>Cohort map<span>Each dot is a tumor; hover a subgroup to isolate it</span>"
+                "</div>", unsafe_allow_html=True)
+    m1, m2 = st.columns([1.7, 1], gap="large")
+    m1.markdown(PV.cohort_css(CL) + PV.cohort_svg(CL, pid) + PV.cohort_legend(CL), unsafe_allow_html=True)
+    m2.markdown(PV.subgroup_html(CL, pid), unsafe_allow_html=True)
+
+# patient brief: measured proteins, mutations, findings, what's missing
 pt = data.patient(pid)
 info = pt["info"]
-if "error" in info:
+BRIEF, brief_origin = data.product(cancer, f"briefs/{pid}.json")
+if "error" in info and not BRIEF:
     st.markdown(f"<p style='color:#5d596b'>No patient profile available: {esc(info['error'])}</p>", unsafe_allow_html=True)
 else:
-    def pchips(xs, arrow):
-        return "".join(f"<span class='ic obs'>{esc(x.get('symbol') or x['name'])} {arrow}<small>{x['z']:+.1f}</small>"
-                       "</span>" for x in xs)
-    phen = "".join(f"<span class='ic obs'>{esc(x['name'])}</span>" for x in info.get("phenotypes", [])) or "none"
-    st.markdown(f"""<div class='intake'><div><div class='k'>Patient</div><div class='pid'>{esc(pid)}</div>
-<div class='sum'>{esc(info.get('clinical_summary', ''))}</div></div>
-<div><div class='k'>On record</div>{phen}</div>
-<div><div class='k'>Tumor proteins vs matched normal kidney (z-score)</div>{pchips(info.get('proteins_up', []), '↑')}
-{pchips(info.get('proteins_down', []), '↓')}</div></div>""", unsafe_allow_html=True)
+    st.markdown(PV.brief_html(BRIEF, {} if "error" in info else info, pid), unsafe_allow_html=True)
 
-qs = data.demo_questions()
-cols = st.columns(len(qs) or 1)
-for i, (col, qq) in enumerate(zip(cols, qs), 1):
-    if col.button(f"{i}. {STEPS.get(qq['qid'], qq['question'][:24])}", key=f"q_{qq['qid']}", help=qq["question"],
-                  use_container_width=True, type="primary" if st.session_state.get("qid") == qq["qid"] else "secondary"):
-        st.session_state.update(qid=qq["qid"], live_trace=None, play=True)
+# the questions with a verified run for this patient
+qlist = []
+for q_ in data.qids(pid):
+    tq, _ = data.trace(pid, q_)
+    if tq:
+        qlist.append((q_, tq["question"]))
+cols = st.columns(max(len(qlist), 1))
+for i, (col, (q_, text)) in enumerate(zip(cols, qlist), 1):
+    short = STEPS.get(q_) or (text if len(text) <= 40 else text[:40].rsplit(" ", 1)[0] + "…")
+    if col.button(f"{i}. {short}", key=f"q_{pid}_{q_}", help=text, use_container_width=True,
+                  type="primary" if st.session_state.get("qid") == q_ else "secondary"):
+        st.session_state.update(qid=q_, live_trace=None, play=True)
         st.rerun()
 
 qid = st.session_state.get("qid")
@@ -448,6 +488,9 @@ def ask(text, v):
     hist = st.session_state.setdefault("chat", {}).setdefault(pid, [])
     hist.append({"role": "user", "text": text})
     it = RV.intent_of(text)
+    if it == "subgroup" and CL:
+        hist.append({"role": "guide", "text": PV.subgroup_explain(CL, pid)})
+        return
     if it and v:
         hist.append({"role": "guide", "text": RV.explain(it, v, score_note)})
         return
@@ -507,6 +550,12 @@ if V and run_key in played:
         with st.expander("See the agent's draft before verification"):
             st.markdown(RV.draft_html(v, "verify"), unsafe_allow_html=True)
 
+        t1, t2 = st.columns(2, gap="large")
+        t1.markdown("<div class='sub-h'>Drug targets</div><p class='gcap'>From graph edges the tools returned.</p>"
+                    + PV.targets_html(v), unsafe_allow_html=True)
+        t2.markdown("<div class='sub-h'>Evidence gaps</div><p class='gcap'>What it would take to say more.</p>"
+                    + PV.gaps_html(v, BRIEF), unsafe_allow_html=True)
+
         sub = v["calls"].get("retrieve_subgraph")
         st.markdown("<div class='sub-h'>What the GNN retrieved<span>Hover a line to find the sentence that cites it"
                     "</span></div>", unsafe_allow_html=True)
@@ -547,8 +596,10 @@ with right:
                 st.session_state.update(qid=m["qid"], live_trace=None, play=True)
                 st.rerun()
     if V and run_key in played:
-        sugg = [("What does the score mean?", "score"), ("Why was a claim removed?", "removed"),
-                ("Which drugs, and why?", "drugs"), ("Where does the evidence come from?", "evidence")]
+        sugg = ([("What defines this subgroup?", "subgroup")] if CL else []) + [
+            ("Why was a claim removed?", "removed"), ("Which drugs, and why?", "drugs"),
+            ("Where does the evidence come from?", "evidence")] + (
+            [("What does the score mean?", "score")] if V["calls"].get("predict_patient") else [])
         sc = st.columns(2)
         for j, (label, _) in enumerate(sugg):
             if sc[j % 2].button(label, key=f"sg_{j}", use_container_width=True):

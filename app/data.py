@@ -60,10 +60,47 @@ def _trace_files() -> list[Path]:
     return [f for d in (P.demo_cache, MOCK_DIR) if d.exists() for f in sorted(d.glob("*__*.json"))]
 
 
-def patients() -> list[str]:
-    pids = sorted({f.name.split("__")[0] for f in _trace_files()})
+CANCERS = {"ccrcc": "Kidney cancer (ccRCC)", "brca": "Breast cancer (BRCA)"}
+PRODUCT_MOCK = Path(__file__).parent / "mock_product"
+PRODUCT_REAL = ROOT / "cache" / "product"
+
+
+def _trace_index() -> list[tuple[str, str, str]]:
+    """(patient_id, qid, cancer) for every usable trace file; traces without a `cancer` key are ccRCC."""
+    out = []
+    for f in _trace_files():
+        pid, qid = f.stem.split("__", 1)
+        try:
+            cancer = json.loads(f.read_text()).get("cancer") or "ccrcc"
+        except ValueError:
+            continue
+        out.append((pid, qid, cancer))
+    return out
+
+
+def patients(cancer: str = "ccrcc") -> list[str]:
+    pids = sorted({p for p, _, c in _trace_index() if c == cancer})
     real = [p for p in pids if "MOCK" not in p]
-    return real or pids or ["C3L-MOCK1"]
+    return real or pids
+
+
+def qids(pid: str) -> list[str]:
+    """The questions that have a verified run for this patient, in qid order."""
+    return sorted({q for p, q, _ in _trace_index() if p == pid})
+
+
+def product(cancer: str, name: str) -> tuple[dict | None, str]:
+    """A shared product file (clusters.json, briefs/<pid>.json): real one from cache/product/ first, else the mock.
+    Returns (data, origin) with origin 'real', 'mock' or 'missing'."""
+    for root, origin in ((PRODUCT_REAL, "real"), (PRODUCT_MOCK, "mock")):
+        f = root / cancer / name
+        if f.exists():
+            try:
+                d = json.loads(f.read_text())
+            except ValueError:
+                continue
+            return d, d.get("data_origin", origin)
+    return None, "missing"
 
 
 def _from_traces(pid: str, tool: str) -> dict | None:

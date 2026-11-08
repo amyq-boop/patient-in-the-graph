@@ -3,6 +3,9 @@
  "run_id": "mock_curated",
  "qid": "P01",
  "mode": "agent",
+ "cancer": "ccrcc",
+ "data_origin": "mock",
+ "execution": "cached",
  "patient_id": "C3L-MOCK1",
  "question": "What drives this patient's predicted risk, and what would you target?",
  "model": "mock",
@@ -53,7 +56,26 @@
       "symbol": "VHL",
       "z": -2.7
      }
-    ]
+    ],
+    "mutations": [
+     {
+      "curie": "NCBIGene:7428",
+      "name": "VHL",
+      "edge_id": "pt:C3L-MOCK1:somatic_mutation:NCBIGene:7428",
+      "symbol": "VHL",
+      "type": "somatic",
+      "protein_change": "p.R167Q"
+     }
+    ],
+    "medications": [
+     {
+      "curie": "DRUGBANK:DB00722",
+      "name": "Lisinopril",
+      "source_text": "lisinopril",
+      "edge_id": "pt:C3L-MOCK1:takes_medication:DRUGBANK:DB00722"
+     }
+    ],
+    "note": "mutations are somatic (tumor) calls, not germline status; medications are baseline, not ccRCC treatment"
    },
    "ms": 42
   },
@@ -87,6 +109,34 @@
     ]
    },
    "ms": 180
+  },
+  {
+   "name": "rank_for_patient",
+   "args": {
+    "patient_id": "C3L-MOCK1",
+    "node_type": "drug"
+   },
+   "result": {
+    "patient_id": "C3L-MOCK1",
+    "node_type": "drug",
+    "items": [
+     {
+      "curie": "DRUGBANK:DB01268",
+      "name": "Sunitinib",
+      "score": 0.9,
+      "rank": 1,
+      "evidence_id": "rank:C3L-MOCK1:drug:DRUGBANK:DB01268"
+     },
+     {
+      "curie": "DRUGBANK:MOCK_BELZ",
+      "name": "Belzutifan",
+      "score": 0.8,
+      "rank": 2,
+      "evidence_id": "rank:C3L-MOCK1:drug:DRUGBANK:MOCK_BELZ"
+     }
+    ]
+   },
+   "ms": 150
   },
   {
    "name": "retrieve_subgraph",

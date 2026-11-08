@@ -107,14 +107,16 @@ def trace(qid, question):
     text, claims = SCRIPTS[qid]
     draft, answer = drafts(text, claims)
     calls = [("get_patient", {"patient_id": PID}, 42), ("predict_patient", {"patient_id": PID}, 180),
+             ("rank_for_patient", {"patient_id": PID, "node_type": "drug"}, 150),
              ("retrieve_subgraph", {"question": question, "seeds": [patient_curie(PID)], "budget": 50}, 1240),
              ("get_mechanism", {"disease_curie": CCRCC_ID}, 85)]
     tcs = [{"name": n, "args": a, "result": M.dispatch(n, a), "ms": ms} for n, a, ms in calls]
-    pat, sub, mech = tcs[0]["result"], tcs[2]["result"], tcs[3]["result"]
+    pat, sub, mech = tcs[0]["result"], tcs[3]["result"], tcs[4]["result"]
     edges = [x["edge_id"] for k in ("phenotypes", "proteins_up", "proteins_down") for x in pat[k]] + sub["edge_ids"]
     pmids = [p for c in mech["chains"] for s in c["steps"] for p in s["pmids"]]
     n = lambda s: sum(c["status"] == s for c in claims)  # noqa: E731
-    return {"contract_version": CONTRACT_VERSION, "run_id": "mock_curated", "qid": qid, "mode": "agent",
+    return {"contract_version": CONTRACT_VERSION, "run_id": "mock_curated", "qid": qid, "mode": "agent", "cancer": "ccrcc",
+            "data_origin": "mock", "execution": "cached",
             "patient_id": PID, "question": question, "model": "mock", "variant": "full", "tool_calls": tcs,
             "evidence": {"edge_ids": edges, "pmids": pmids}, "draft": draft, "claims": claims, "answer": answer,
             "verifier": {"n_claims": len(claims), "n_supported": n("supported"), "n_hypothesis": n("hypothesis"),

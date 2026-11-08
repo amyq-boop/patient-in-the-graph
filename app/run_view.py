@@ -362,6 +362,8 @@ def stage_metrics(v):
         m["patient"] = f"{n} measurements"
     if p := calls.get("predict_patient"):
         m["score"] = f"{p['risk']:.2f}"
+    else:
+        m["score"] = "not used" if t.get("cancer") == "brca" else "skipped"
     if s := calls.get("retrieve_subgraph"):
         m["retrieve"] = f"{len(s.get('nodes', []))} facts kept"
     if g := calls.get("get_mechanism"):
@@ -442,7 +444,8 @@ def narration(v):
                              "other patients, scored on a fold it never trained on. "
                     + (f"It leans most on {' and '.join(top)}." if top else "")))
     else:
-        out.append(("score", "No stage score was requested for this question."))
+        out.append(("score", "No stage score here. The stage model was trained on kidney cancer only, so it isn't used "
+                             "on breast cancer." if t.get("cancer") == "brca" else "No stage score was requested for this question."))
     if s := calls.get("retrieve_subgraph"):
         cand = s.get("meta", {}).get("n_candidates")
         out.append(("retrieve", f"Now the GNN searches {PRIMEKG_EDGES / 1e6:.2f}M connections"
@@ -512,7 +515,8 @@ def explain(intent, v, score_note=""):
     return ""
 
 
-INTENTS = [("score", r"score|risk|predict|stage|0\.\d|probab|calibrat"),
+INTENTS = [("subgroup", r"subgroup|cluster|stratif|cohort|group"),
+           ("score", r"score|risk|predict|stage|0\.\d|probab|calibrat"),
            ("removed", r"remov|verif|cut|strike|wrong|hallucin|why.*(claim|delet)"),
            ("drugs", r"drug|target|treat|therap|inhibit|sunitinib|belzutifan|cabozantinib|axitinib|pazopanib"),
            ("evidence", r"evidence|source|cite|citation|where.*(from|come)|trust|backed|graph")]
