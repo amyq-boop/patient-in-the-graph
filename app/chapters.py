@@ -248,6 +248,7 @@ def patient_spec(brief, raw):
 
 CSS = f"""
 .chap {{ margin:4.2rem 0 1.6rem; max-width:62rem; }}
+.chap [data-testid="stHeaderActionElements"], .chap h2 a {{ display:none !important; }}
 .chap-n {{ font-size:.9rem; color:{MUTED}; letter-spacing:.02em; display:flex; gap:.9rem; align-items:baseline; }}
 .chap-n b {{ font-family:"Newsreader",serif; font-weight:400; font-size:1.05rem; color:{INK}; }}
 .chap-n span {{ border-left:1px solid {RULE}; padding-left:.9rem; }}
