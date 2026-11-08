@@ -64,10 +64,26 @@ def load_matrix(cfg):
     raise SystemExit(f"no tumor proteomics matrix found in {cfg['prot']}")
 
 
-def embed(X, n_pcs=N_PCS, top_var=TOP_VAR):
-    """Unsupervised feature pipeline, fit on whatever rows are given (refit inside every bootstrap)."""
+def residualize(X, cov):
+    """Remove the linear effect of sample-composition covariates (e.g. ESTIMATE stromal score) from every protein.
+    Covariates are RNA-derived composition estimates, not outcome labels; fit on the rows given."""
+    C = cov.reindex(X.index).astype(float)
+    C = C.fillna(C.median())
+    C = (C - C.mean()) / C.std(ddof=0).replace(0, 1)
+    A = np.column_stack([np.ones(len(C)), C.to_numpy()])
+    beta, *_ = np.linalg.lstsq(A, X.to_numpy(), rcond=None)
+    return pd.DataFrame(X.to_numpy() - A[:, 1:] @ beta[1:], index=X.index, columns=X.columns)
+
+
+def prepare(X, cov=None):
     X = X.loc[:, X.notna().mean() >= 1 - MAX_MISSING]
     X = X.fillna(X.median())
+    return residualize(X, cov) if cov is not None else X
+
+
+def embed(X, n_pcs=N_PCS, top_var=TOP_VAR, cov=None):
+    """Unsupervised feature pipeline, fit on whatever rows are given (refit inside every bootstrap)."""
+    X = prepare(X, cov)
     X = X[X.var().sort_values(ascending=False).index[:top_var]]
     Z = StandardScaler().fit_transform(X)
     return PCA(n_components=min(n_pcs, Z.shape[0] - 1, Z.shape[1]), random_state=SEED).fit_transform(Z)
@@ -213,24 +229,54 @@ def cluster_block(name, X_feat, featurize, ids):
     return {"name": name, "k": k, "k_selection": ks, "labels": labels, "stability": stab, "per_patient": per_patient, "E": E}
 
 
+def load_estimate(cancer):
+    """RNA-based ESTIMATE composition scores (washu): StromalScore, ImmuneScore, ESTIMATEScore, TumorPurity."""
+    try:
+        import cptac
+        ds = {"ccrcc": cptac.Ccrcc, "brca": cptac.Brca}[cancer]()
+        e = ds.get_dataframe("tumor_purity", "washu").select_dtypes("number")
+        e.index = e.index.astype(str)
+        return e
+    except Exception as ex:
+        print(f"NOTE: ESTIMATE scores unavailable ({ex}); composition balance not reported")
+        return None
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--cancer", required=True, choices=sorted(COHORTS))
     ap.add_argument("--gnn-emb", help="patient embeddings (parquet/csv): patient_id + numeric columns")
-    ap.add_argument("--out", help="default data/processed/clusters/clusters_<cancer>.json")
+    ap.add_argument("--out", help="default data/processed/clusters/clusters_<cancer>[_adj-<covariates>].json")
+    ap.add_argument("--adjust", default="", help="comma list of ESTIMATE covariates to regress out, e.g. StromalScore "
+                    "or StromalScore,TumorPurity (ImmuneScore deliberately not default: immune state is biology)")
     args = ap.parse_args()
     cfg = COHORTS[args.cancer]
-    out = Path(args.out or PROC / "clusters" / f"clusters_{args.cancer}.json")
+    adj = [c for c in args.adjust.split(",") if c]
+    suffix = f"_adj-{'-'.join(adj)}" if adj else ""
+    out = Path(args.out or PROC / "clusters" / f"clusters_{args.cancer}{suffix}.json")
 
     X = load_matrix(cfg)
     ids = list(X.index)
     gene_curie, pathways = load_graph_annotations()
+    est = load_estimate(args.cancer)
+    cov = None
+    if adj:
+        if est is None or not set(adj) <= set(est.columns):
+            raise SystemExit(f"cannot adjust: ESTIMATE covariates {adj} unavailable ({None if est is None else list(est.columns)})")
+        cov = est[adj]
+        print(f"adjusting for {adj} (regressed out of every protein inside each fit)")
 
-    prot = cluster_block("proteomics_pca_kmeans", X, embed, ids)
+    prot = cluster_block("proteomics_pca_kmeans" + suffix, X, lambda D: embed(D, cov=cov), ids)
     labels, k = prot["labels"], prot["k"]
     pca2 = PCA(n_components=2, random_state=SEED).fit(prot["E"])
     xy = pca2.transform(prot["E"])
-    sigs = signatures(X, labels, k, gene_curie, pathways)
+    sigs = signatures(prepare(X, cov) if adj else X, labels, k, gene_curie, pathways)
+    balance = (est.reindex(ids).groupby(labels).mean().round(3).to_dict(orient="index") if est is not None else {})
+    base_file = PROC / "clusters" / f"clusters_{args.cancer}.json"
+    vs_unadjusted = None
+    if adj and base_file.exists():
+        b = {a["patient_id"]: a["cluster"] for a in json.loads(base_file.read_text())["assignments"]}
+        vs_unadjusted = round(float(adjusted_rand_score([b.get(i, -1) for i in ids], labels)), 3)
     desc, desc_tests = descriptive(labels, ids, read(cfg["patients"] / "labels"), k)
     print(f"proteomics clustering: k={k}, sizes={np.bincount(labels).tolist()}, "
           f"ARI {prot['stability']['ari_mean']}+/-{prot['stability']['ari_sd']}, Jaccard {prot['stability']['cluster_jaccard']}")
@@ -262,13 +308,17 @@ def main():
         "cancer": args.cancer, "patient_id": None, "data_origin": "real", "execution": "cached",
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "method": {"representation": "proteomics", "pipeline": f"filter missing>{MAX_MISSING:.0%}, median impute, "
+                   + (f"regress out {adj}, " if adj else "") +
                    f"top-{TOP_VAR} variance, standardize, PCA({N_PCS}), k-means(n_init=50)", "seed": SEED,
+                   "adjusted_for": adj, "signatures_computed_on": "adjusted values" if adj else "measured values",
                    "labels_used_for_clustering": False,
                    "coordinates": f"first two PCs of the clustering space ({pca2.explained_variance_ratio_.sum():.0%} of its variance)"},
         "k": int(k), "k_selection": prot["k_selection"], "stability": prot["stability"],
         "clusters": [{"cluster": c, "size": int((labels == c).sum()), "jaccard_stability": prot["stability"]["cluster_jaccard"][c],
                       **sigs[c], "descriptive_after_clustering": desc.get(c, {})} for c in range(k)],
         "descriptive_tests_after_clustering": desc_tests,
+        "composition_by_cluster_ESTIMATE": {str(c): v for c, v in balance.items()},
+        "ari_vs_unadjusted_clustering": vs_unadjusted,
         "assignments": [{"patient_id": pid, "cluster": int(labels[i]), "x": round(float(xy[i, 0]), 3),
                          "y": round(float(xy[i, 1]), 3),
                          "co_assignment_rate": None if prot["per_patient"][i] is None else round(prot["per_patient"][i], 3)}
