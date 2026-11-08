@@ -1,0 +1,5482 @@
+{
+ "contract_version": "1",
+ "run_id": "e4_cohort_full",
+ "qid": "E4",
+ "mode": "agent",
+ "patient_id": "C3L-00183",
+ "question": "What drives this patient's predicted risk, and what would you target?",
+ "model": "nvidia/nemotron-3-ultra-550b-a55b",
+ "variant": "full",
+ "cancer": "ccrcc",
+ "tools_offered": [
+  "resolve_terms",
+  "get_patient",
+  "predict_patient",
+  "rank_for_patient",
+  "retrieve_subgraph",
+  "get_mechanism"
+ ],
+ "tool_calls": [
+  {
+   "name": "get_patient",
+   "args": {
+    "patient_id": "C3L-00183"
+   },
+   "result": {
+    "patient_id": "C3L-00183",
+    "curie": "PATIENT:C3L-00183",
+    "clinical_summary": "33-year-old female; BMI 36.4; ever smoker; comorbidities: Asthma, Obesity.",
+    "phenotypes": [
+     {
+      "curie": "HP:0002099",
+      "name": "Asthma",
+      "edge_id": "pt:C3L-00183:has_phenotype:HP:0002099"
+     },
+     {
+      "curie": "HP:0001513",
+      "name": "Obesity",
+      "edge_id": "pt:C3L-00183:has_phenotype:HP:0001513"
+     }
+    ],
+    "proteins_up": [
+     {
+      "curie": "NCBIGene:7174",
+      "symbol": "TPP2",
+      "z": 10.227,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:7174"
+     },
+     {
+      "curie": "NCBIGene:2730",
+      "symbol": "GCLM",
+      "z": 10.114,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:2730"
+     },
+     {
+      "curie": "NCBIGene:22934",
+      "symbol": "RPIA",
+      "z": 10.102,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:22934"
+     },
+     {
+      "curie": "NCBIGene:2968",
+      "symbol": "GTF2H4",
+      "z": 10.004,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:2968"
+     },
+     {
+      "curie": "NCBIGene:63897",
+      "symbol": "HEATR6",
+      "z": 9.995,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:63897"
+     },
+     {
+      "curie": "NCBIGene:9491",
+      "symbol": "PSMF1",
+      "z": 9.823,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:9491"
+     },
+     {
+      "curie": "NCBIGene:5836",
+      "symbol": "PYGL",
+      "z": 9.663,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:5836"
+     },
+     {
+      "curie": "NCBIGene:63893",
+      "symbol": "UBE2O",
+      "z": 9.616,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:63893"
+     },
+     {
+      "curie": "NCBIGene:55206",
+      "symbol": "SBNO1",
+      "z": 9.601,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:55206"
+     },
+     {
+      "curie": "NCBIGene:57553",
+      "symbol": "MICAL3",
+      "z": 9.58,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:57553"
+     },
+     {
+      "curie": "NCBIGene:91039",
+      "symbol": "DPP9",
+      "z": 9.489,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:91039"
+     },
+     {
+      "curie": "NCBIGene:79812",
+      "symbol": "MMRN2",
+      "z": 9.349,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:79812"
+     },
+     {
+      "curie": "NCBIGene:5257",
+      "symbol": "PHKB",
+      "z": 9.322,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:5257"
+     },
+     {
+      "curie": "NCBIGene:9448",
+      "symbol": "MAP4K4",
+      "z": 9.111,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:9448"
+     },
+     {
+      "curie": "NCBIGene:2997",
+      "symbol": "GYS1",
+      "z": 9.072,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:2997"
+     },
+     {
+      "curie": "NCBIGene:51478",
+      "symbol": "HSD17B7",
+      "z": 9.009,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:51478"
+     },
+     {
+      "curie": "NCBIGene:92799",
+      "symbol": "SHKBP1",
+      "z": 8.92,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:92799"
+     },
+     {
+      "curie": "NCBIGene:1730",
+      "symbol": "DIAPH2",
+      "z": 8.861,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:1730"
+     },
+     {
+      "curie": "NCBIGene:55705",
+      "symbol": "IPO9",
+      "z": 8.746,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:55705"
+     },
+     {
+      "curie": "NCBIGene:307",
+      "symbol": "ANXA4",
+      "z": 8.731,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:307"
+     },
+     {
+      "curie": "NCBIGene:54922",
+      "symbol": "RASIP1",
+      "z": 8.644,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:54922"
+     },
+     {
+      "curie": "NCBIGene:5886",
+      "symbol": "RAD23A",
+      "z": 8.585,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:5886"
+     },
+     {
+      "curie": "NCBIGene:2035",
+      "symbol": "EPB41",
+      "z": 8.576,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:2035"
+     },
+     {
+      "curie": "NCBIGene:1464",
+      "symbol": "CSPG4",
+      "z": 8.557,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:1464"
+     },
+     {
+      "curie": "NCBIGene:57095",
+      "symbol": "PITHD1",
+      "z": 8.315,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:57095"
+     },
+     {
+      "curie": "NCBIGene:97",
+      "symbol": "ACYP1",
+      "z": 8.297,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:97"
+     },
+     {
+      "curie": "NCBIGene:5901",
+      "symbol": "RAN",
+      "z": 8.17,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:5901"
+     },
+     {
+      "curie": "NCBIGene:54936",
+      "symbol": "ADPRS",
+      "z": 8.124,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:54936"
+     },
+     {
+      "curie": "NCBIGene:1956",
+      "symbol": "EGFR",
+      "z": 8.082,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:1956"
+     },
+     {
+      "curie": "NCBIGene:135293",
+      "symbol": "PM20D2",
+      "z": 8.068,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:135293"
+     },
+     {
+      "curie": "NCBIGene:57514",
+      "symbol": "ARHGAP31",
+      "z": 8.051,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:57514"
+     },
+     {
+      "curie": "NCBIGene:9732",
+      "symbol": "DOCK4",
+      "z": 8.049,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:9732"
+     },
+     {
+      "curie": "NCBIGene:9693",
+      "symbol": "RAPGEF2",
+      "z": 8.004,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:9693"
+     },
+     {
+      "curie": "NCBIGene:30001",
+      "symbol": "ERO1A",
+      "z": 7.989,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:30001"
+     },
+     {
+      "curie": "NCBIGene:158",
+      "symbol": "ADSL",
+      "z": 7.958,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:158"
+     },
+     {
+      "curie": "NCBIGene:230",
+      "symbol": "ALDOC",
+      "z": 7.942,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:230"
+     },
+     {
+      "curie": "NCBIGene:143872",
+      "symbol": "ARHGAP42",
+      "z": 7.94,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:143872"
+     },
+     {
+      "curie": "NCBIGene:1642",
+      "symbol": "DDB1",
+      "z": 7.935,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:1642"
+     },
+     {
+      "curie": "NCBIGene:10536",
+      "symbol": "P3H3",
+      "z": 7.923,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:10536"
+     },
+     {
+      "curie": "NCBIGene:119",
+      "symbol": "ADD2",
+      "z": 7.819,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:119"
+     },
+     {
+      "curie": "NCBIGene:3145",
+      "symbol": "HMBS",
+      "z": 7.813,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:3145"
+     },
+     {
+      "curie": "NCBIGene:57572",
+      "symbol": "DOCK6",
+      "z": 7.812,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:57572"
+     },
+     {
+      "curie": "NCBIGene:8291",
+      "symbol": "DYSF",
+      "z": 7.769,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:8291"
+     },
+     {
+      "curie": "NCBIGene:5128",
+      "symbol": "CDK17",
+      "z": 7.74,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:5128"
+     },
+     {
+      "curie": "NCBIGene:80381",
+      "symbol": "CD276",
+      "z": 7.704,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:80381"
+     },
+     {
+      "curie": "NCBIGene:25793",
+      "symbol": "FBXO7",
+      "z": 7.703,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:25793"
+     },
+     {
+      "curie": "NCBIGene:64856",
+      "symbol": "VWA1",
+      "z": 7.693,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:64856"
+     },
+     {
+      "curie": "NCBIGene:54555",
+      "symbol": "DDX49",
+      "z": 7.677,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:54555"
+     },
+     {
+      "curie": "NCBIGene:63891",
+      "symbol": "RNF123",
+      "z": 7.676,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:63891"
+     },
+     {
+      "curie": "NCBIGene:9097",
+      "symbol": "USP14",
+      "z": 7.627,
+      "edge_id": "pt:C3L-00183:protein_up:NCBIGene:9097"
+     }
+    ],
+    "proteins_down": [
+     {
+      "curie": "NCBIGene:23032",
+      "symbol": "USP33",
+      "z": -13.063,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:23032"
+     },
+     {
+      "curie": "NCBIGene:6302",
+      "symbol": "TSPAN31",
+      "z": -11.889,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:6302"
+     },
+     {
+      "curie": "NCBIGene:8543",
+      "symbol": "LMO4",
+      "z": -10.957,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:8543"
+     },
+     {
+      "curie": "NCBIGene:79098",
+      "symbol": "C1orf116",
+      "z": -10.223,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:79098"
+     },
+     {
+      "curie": "NCBIGene:60685",
+      "symbol": "ZFAND3",
+      "z": -10.087,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:60685"
+     },
+     {
+      "curie": "NCBIGene:79784",
+      "symbol": "MYH14",
+      "z": -9.694,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:79784"
+     },
+     {
+      "curie": "NCBIGene:347733",
+      "symbol": "TUBB2B",
+      "z": -9.228,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:347733"
+     },
+     {
+      "curie": "NCBIGene:55088",
+      "symbol": "CCDC186",
+      "z": -8.73,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:55088"
+     },
+     {
+      "curie": "NCBIGene:10063",
+      "symbol": "COX17",
+      "z": -8.714,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:10063"
+     },
+     {
+      "curie": "NCBIGene:84269",
+      "symbol": "CHCHD5",
+      "z": -8.516,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:84269"
+     },
+     {
+      "curie": "NCBIGene:6477",
+      "symbol": "SIAH1",
+      "z": -8.343,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:6477"
+     },
+     {
+      "curie": "NCBIGene:3898",
+      "symbol": "LAD1",
+      "z": -8.33,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:3898"
+     },
+     {
+      "curie": "NCBIGene:4008",
+      "symbol": "LMO7",
+      "z": -8.314,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:4008"
+     },
+     {
+      "curie": "NCBIGene:388753",
+      "symbol": "COA6",
+      "z": -8.165,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:388753"
+     },
+     {
+      "curie": "NCBIGene:146802",
+      "symbol": "SLC47A2",
+      "z": -8.144,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:146802"
+     },
+     {
+      "curie": "NCBIGene:51454",
+      "symbol": "GULP1",
+      "z": -7.982,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:51454"
+     },
+     {
+      "curie": "NCBIGene:6272",
+      "symbol": "SORT1",
+      "z": -7.95,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:6272"
+     },
+     {
+      "curie": "NCBIGene:101410538",
+      "symbol": "MMP24OS",
+      "z": -7.855,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:101410538"
+     },
+     {
+      "curie": "NCBIGene:582",
+      "symbol": "BBS1",
+      "z": -7.853,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:582"
+     },
+     {
+      "curie": "NCBIGene:222171",
+      "symbol": "PRR15",
+      "z": -7.765,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:222171"
+     },
+     {
+      "curie": "NCBIGene:64093",
+      "symbol": "SMOC1",
+      "z": -7.724,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:64093"
+     },
+     {
+      "curie": "NCBIGene:4072",
+      "symbol": "EPCAM",
+      "z": -7.71,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:4072"
+     },
+     {
+      "curie": "NCBIGene:6712",
+      "symbol": "SPTBN2",
+      "z": -7.692,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:6712"
+     },
+     {
+      "curie": "NCBIGene:84337",
+      "symbol": "ELOF1",
+      "z": -7.632,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:84337"
+     },
+     {
+      "curie": "NCBIGene:8887",
+      "symbol": "TAX1BP1",
+      "z": -7.573,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:8887"
+     },
+     {
+      "curie": "NCBIGene:219333",
+      "symbol": "USP12",
+      "z": -7.559,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:219333"
+     },
+     {
+      "curie": "NCBIGene:140735",
+      "symbol": "DYNLL2",
+      "z": -7.546,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:140735"
+     },
+     {
+      "curie": "NCBIGene:55327",
+      "symbol": "LIN7C",
+      "z": -7.523,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:55327"
+     },
+     {
+      "curie": "NCBIGene:4628",
+      "symbol": "MYH10",
+      "z": -7.511,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:4628"
+     },
+     {
+      "curie": "NCBIGene:22848",
+      "symbol": "AAK1",
+      "z": -7.468,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:22848"
+     },
+     {
+      "curie": "NCBIGene:7555",
+      "symbol": "CNBP",
+      "z": -7.447,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:7555"
+     },
+     {
+      "curie": "NCBIGene:100505385",
+      "symbol": "IQCJ-SCHIP1",
+      "z": -7.394,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:100505385"
+     },
+     {
+      "curie": "NCBIGene:2782",
+      "symbol": "GNB1",
+      "z": -7.376,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:2782"
+     },
+     {
+      "curie": "NCBIGene:56942",
+      "symbol": "CMC2",
+      "z": -7.367,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:56942"
+     },
+     {
+      "curie": "NCBIGene:84858",
+      "symbol": "ZNF503",
+      "z": -7.346,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:84858"
+     },
+     {
+      "curie": "NCBIGene:5438",
+      "symbol": "POLR2I",
+      "z": -7.286,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:5438"
+     },
+     {
+      "curie": "NCBIGene:79581",
+      "symbol": "SLC52A2",
+      "z": -7.272,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:79581"
+     },
+     {
+      "curie": "NCBIGene:7105",
+      "symbol": "TSPAN6",
+      "z": -7.213,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:7105"
+     },
+     {
+      "curie": "NCBIGene:140823",
+      "symbol": "ROMO1",
+      "z": -7.156,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:140823"
+     },
+     {
+      "curie": "NCBIGene:25930",
+      "symbol": "PTPN23",
+      "z": -7.073,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:25930"
+     },
+     {
+      "curie": "NCBIGene:10053",
+      "symbol": "AP1M2",
+      "z": -7.033,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:10053"
+     },
+     {
+      "curie": "NCBIGene:2888",
+      "symbol": "GRB14",
+      "z": -7.01,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:2888"
+     },
+     {
+      "curie": "NCBIGene:11228",
+      "symbol": "RASSF8",
+      "z": -6.898,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:11228"
+     },
+     {
+      "curie": "NCBIGene:84364",
+      "symbol": "ARFGAP2",
+      "z": -6.897,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:84364"
+     },
+     {
+      "curie": "NCBIGene:51499",
+      "symbol": "TRIAP1",
+      "z": -6.872,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:51499"
+     },
+     {
+      "curie": "NCBIGene:51719",
+      "symbol": "CAB39",
+      "z": -6.865,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:51719"
+     },
+     {
+      "curie": "NCBIGene:26049",
+      "symbol": "FAM169A",
+      "z": -6.857,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:26049"
+     },
+     {
+      "curie": "NCBIGene:2274",
+      "symbol": "FHL2",
+      "z": -6.806,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:2274"
+     },
+     {
+      "curie": "NCBIGene:7164",
+      "symbol": "TPD52L1",
+      "z": -6.802,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:7164"
+     },
+     {
+      "curie": "NCBIGene:79837",
+      "symbol": "PIP4K2C",
+      "z": -6.754,
+      "edge_id": "pt:C3L-00183:protein_down:NCBIGene:79837"
+     }
+    ],
+    "mutations": [
+     {
+      "curie": "NCBIGene:2475",
+      "symbol": "MTOR",
+      "type": "somatic",
+      "protein_change": "p.L2220F",
+      "edge_id": "pt:C3L-00183:somatic_mutation:NCBIGene:2475"
+     },
+     {
+      "curie": "NCBIGene:55193",
+      "symbol": "PBRM1",
+      "type": "somatic",
+      "protein_change": "p.E367*",
+      "edge_id": "pt:C3L-00183:somatic_mutation:NCBIGene:55193"
+     }
+    ],
+    "medications": [],
+    "note": "mutations are somatic (tumor) calls, not germline status; medications are baseline, not ccRCC treatment"
+   },
+   "ms": 10,
+   "by": "llm"
+  },
+  {
+   "name": "predict_patient",
+   "args": {
+    "patient_id": "C3L-00183"
+   },
+   "result": {
+    "patient_id": "C3L-00183",
+    "label": "y_stage",
+    "risk": 0.3569,
+    "model": "gnn",
+    "fold": 3,
+    "evidence_id": "pred:C3L-00183:gnn",
+    "top_contributing": [
+     {
+      "curie": "NCBIGene:79784",
+      "name": "MYH14",
+      "type": "gene",
+      "score": 0.043,
+      "evidence_id": "contrib:C3L-00183:NCBIGene:79784",
+      "driver": "tumor"
+     },
+     {
+      "curie": "NCBIGene:22848",
+      "name": "AAK1",
+      "type": "gene",
+      "score": 0.0357,
+      "evidence_id": "contrib:C3L-00183:NCBIGene:22848",
+      "driver": "tumor"
+     },
+     {
+      "curie": "NCBIGene:4072",
+      "name": "EPCAM",
+      "type": "gene",
+      "score": 0.0262,
+      "evidence_id": "contrib:C3L-00183:NCBIGene:4072",
+      "driver": "tumor"
+     },
+     {
+      "curie": "NCBIGene:100505385",
+      "name": "IQCJ-SCHIP1",
+      "type": "gene",
+      "score": 0.0261,
+      "evidence_id": "contrib:C3L-00183:NCBIGene:100505385",
+      "driver": "tumor"
+     },
+     {
+      "curie": "NCBIGene:51454",
+      "name": "GULP1",
+      "type": "gene",
+      "score": 0.0248,
+      "evidence_id": "contrib:C3L-00183:NCBIGene:51454",
+      "driver": "tumor"
+     },
+     {
+      "curie": "NCBIGene:51719",
+      "name": "CAB39",
+      "type": "gene",
+      "score": 0.0246,
+      "evidence_id": "contrib:C3L-00183:NCBIGene:51719",
+      "driver": "tumor"
+     },
+     {
+      "curie": "NCBIGene:3898",
+      "name": "LAD1",
+      "type": "gene",
+      "score": 0.0245,
+      "evidence_id": "contrib:C3L-00183:NCBIGene:3898",
+      "driver": "tumor"
+     },
+     {
+      "curie": "NCBIGene:2888",
+      "name": "GRB14",
+      "type": "gene",
+      "score": 0.0237,
+      "evidence_id": "contrib:C3L-00183:NCBIGene:2888",
+      "driver": "tumor"
+     },
+     {
+      "curie": "NCBIGene:23032",
+      "name": "USP33",
+      "type": "gene",
+      "score": 0.0219,
+      "evidence_id": "contrib:C3L-00183:NCBIGene:23032",
+      "driver": "tumor"
+     },
+     {
+      "curie": "NCBIGene:4628",
+      "name": "MYH10",
+      "type": "gene",
+      "score": 0.0215,
+      "evidence_id": "contrib:C3L-00183:NCBIGene:4628",
+      "driver": "tumor"
+     }
+    ],
+    "tumor_drivers": [
+     {
+      "curie": "NCBIGene:79784",
+      "name": "MYH14",
+      "type": "gene",
+      "score": 0.043,
+      "evidence_id": "contrib:C3L-00183:NCBIGene:79784",
+      "driver": "tumor"
+     },
+     {
+      "curie": "NCBIGene:22848",
+      "name": "AAK1",
+      "type": "gene",
+      "score": 0.0357,
+      "evidence_id": "contrib:C3L-00183:NCBIGene:22848",
+      "driver": "tumor"
+     },
+     {
+      "curie": "NCBIGene:4072",
+      "name": "EPCAM",
+      "type": "gene",
+      "score": 0.0262,
+      "evidence_id": "contrib:C3L-00183:NCBIGene:4072",
+      "driver": "tumor"
+     },
+     {
+      "curie": "NCBIGene:100505385",
+      "name": "IQCJ-SCHIP1",
+      "type": "gene",
+      "score": 0.0261,
+      "evidence_id": "contrib:C3L-00183:NCBIGene:100505385",
+      "driver": "tumor"
+     },
+     {
+      "curie": "NCBIGene:51454",
+      "name": "GULP1",
+      "type": "gene",
+      "score": 0.0248,
+      "evidence_id": "contrib:C3L-00183:NCBIGene:51454",
+      "driver": "tumor"
+     },
+     {
+      "curie": "NCBIGene:51719",
+      "name": "CAB39",
+      "type": "gene",
+      "score": 0.0246,
+      "evidence_id": "contrib:C3L-00183:NCBIGene:51719",
+      "driver": "tumor"
+     },
+     {
+      "curie": "NCBIGene:3898",
+      "name": "LAD1",
+      "type": "gene",
+      "score": 0.0245,
+      "evidence_id": "contrib:C3L-00183:NCBIGene:3898",
+      "driver": "tumor"
+     },
+     {
+      "curie": "NCBIGene:2888",
+      "name": "GRB14",
+      "type": "gene",
+      "score": 0.0237,
+      "evidence_id": "contrib:C3L-00183:NCBIGene:2888",
+      "driver": "tumor"
+     },
+     {
+      "curie": "NCBIGene:23032",
+      "name": "USP33",
+      "type": "gene",
+      "score": 0.0219,
+      "evidence_id": "contrib:C3L-00183:NCBIGene:23032",
+      "driver": "tumor"
+     },
+     {
+      "curie": "NCBIGene:4628",
+      "name": "MYH10",
+      "type": "gene",
+      "score": 0.0215,
+      "evidence_id": "contrib:C3L-00183:NCBIGene:4628",
+      "driver": "tumor"
+     }
+    ],
+    "clinical_drivers": [],
+    "driver_split": {
+     "tumor_share": 1.0,
+     "clinical_share": 0.0,
+     "basis": "top 10 contributors"
+    }
+   },
+   "ms": 5,
+   "by": "llm"
+  },
+  {
+   "name": "rank_for_patient",
+   "args": {
+    "patient_id": "C3L-00183",
+    "k": 10,
+    "node_type": "drug"
+   },
+   "result": {
+    "patient_id": "C3L-00183",
+    "node_type": "drug",
+    "basis": "tumor_proteins",
+    "scoring": "cohort_relative",
+    "filter": "drugs with an indication edge",
+    "note": "score = how far above the rest of the cohort this drug scores for this patient (SD units); model_score is the raw GNN score. A model suggestion, not evidence that the drug works.",
+    "items": [
+     {
+      "curie": "DRUGBANK:DB08886",
+      "name": "Asparaginase Erwinia chrysanthemi",
+      "score": 2.553,
+      "model_score": 0.0289,
+      "rank": 1,
+      "evidence_id": "rank:C3L-00183:drug:DRUGBANK:DB08886"
+     },
+     {
+      "curie": "DRUGBANK:DB01592",
+      "name": "Iron",
+      "score": 2.423,
+      "model_score": 0.0537,
+      "rank": 2,
+      "evidence_id": "rank:C3L-00183:drug:DRUGBANK:DB01592"
+     },
+     {
+      "curie": "DRUGBANK:DB00360",
+      "name": "Sapropterin",
+      "score": 1.994,
+      "model_score": 0.0287,
+      "rank": 3,
+      "evidence_id": "rank:C3L-00183:drug:DRUGBANK:DB00360"
+     },
+     {
+      "curie": "DRUGBANK:DB00128",
+      "name": "Aspartic acid",
+      "score": 1.961,
+      "model_score": 0.0338,
+      "rank": 4,
+      "evidence_id": "rank:C3L-00183:drug:DRUGBANK:DB00128"
+     },
+     {
+      "curie": "DRUGBANK:DB09125",
+      "name": "Potassium citrate",
+      "score": 1.921,
+      "model_score": 0.0168,
+      "rank": 5,
+      "evidence_id": "rank:C3L-00183:drug:DRUGBANK:DB09125"
+     },
+     {
+      "curie": "DRUGBANK:DB09042",
+      "name": "Tedizolid phosphate",
+      "score": 1.848,
+      "model_score": 0.0214,
+      "rank": 6,
+      "evidence_id": "rank:C3L-00183:drug:DRUGBANK:DB09042"
+     },
+     {
+      "curie": "DRUGBANK:DB00139",
+      "name": "Succinic acid",
+      "score": 1.834,
+      "model_score": 0.0424,
+      "rank": 7,
+      "evidence_id": "rank:C3L-00183:drug:DRUGBANK:DB00139"
+     },
+     {
+      "curie": "DRUGBANK:DB14098",
+      "name": "Cobalamin",
+      "score": 1.68,
+      "model_score": 0.0244,
+      "rank": 8,
+      "evidence_id": "rank:C3L-00183:drug:DRUGBANK:DB14098"
+     },
+     {
+      "curie": "DRUGBANK:DB00364",
+      "name": "Sucralfate",
+      "score": 1.68,
+      "model_score": 0.0234,
+      "rank": 9,
+      "evidence_id": "rank:C3L-00183:drug:DRUGBANK:DB00364"
+     },
+     {
+      "curie": "DRUGBANK:DB13873",
+      "name": "Fenofibric acid",
+      "score": 1.673,
+      "model_score": 0.0301,
+      "rank": 10,
+      "evidence_id": "rank:C3L-00183:drug:DRUGBANK:DB13873"
+     }
+    ]
+   },
+   "ms": 14,
+   "by": "llm"
+  },
+  {
+   "name": "rank_for_patient",
+   "args": {
+    "patient_id": "C3L-00183",
+    "k": 10,
+    "node_type": "gene"
+   },
+   "result": {
+    "patient_id": "C3L-00183",
+    "node_type": "gene",
+    "basis": "tumor_proteins",
+    "scoring": "model_score",
+    "items": [
+     {
+      "curie": "NCBIGene:2998",
+      "name": "GYS2",
+      "score": 0.1451,
+      "rank": 1,
+      "evidence_id": "rank:C3L-00183:gene:NCBIGene:2998"
+     },
+     {
+      "curie": "NCBIGene:10606",
+      "name": "PAICS",
+      "score": 0.1448,
+      "rank": 2,
+      "evidence_id": "rank:C3L-00183:gene:NCBIGene:10606"
+     },
+     {
+      "curie": "NCBIGene:7167",
+      "name": "TPI1",
+      "score": 0.1381,
+      "rank": 3,
+      "evidence_id": "rank:C3L-00183:gene:NCBIGene:7167"
+     },
+     {
+      "curie": "NCBIGene:4860",
+      "name": "PNP",
+      "score": 0.138,
+      "rank": 4,
+      "evidence_id": "rank:C3L-00183:gene:NCBIGene:4860"
+     },
+     {
+      "curie": "NCBIGene:4350",
+      "name": "MPG",
+      "score": 0.1373,
+      "rank": 5,
+      "evidence_id": "rank:C3L-00183:gene:NCBIGene:4350"
+     },
+     {
+      "curie": "NCBIGene:1503",
+      "name": "CTPS1",
+      "score": 0.1369,
+      "rank": 6,
+      "evidence_id": "rank:C3L-00183:gene:NCBIGene:1503"
+     },
+     {
+      "curie": "NCBIGene:2937",
+      "name": "GSS",
+      "score": 0.1322,
+      "rank": 7,
+      "evidence_id": "rank:C3L-00183:gene:NCBIGene:2937"
+     },
+     {
+      "curie": "NCBIGene:5834",
+      "name": "PYGB",
+      "score": 0.1309,
+      "rank": 8,
+      "evidence_id": "rank:C3L-00183:gene:NCBIGene:5834"
+     },
+     {
+      "curie": "NCBIGene:4351",
+      "name": "MPI",
+      "score": 0.1293,
+      "rank": 9,
+      "evidence_id": "rank:C3L-00183:gene:NCBIGene:4351"
+     },
+     {
+      "curie": "NCBIGene:353",
+      "name": "APRT",
+      "score": 0.1292,
+      "rank": 10,
+      "evidence_id": "rank:C3L-00183:gene:NCBIGene:353"
+     }
+    ]
+   },
+   "ms": 7,
+   "by": "llm"
+  },
+  {
+   "name": "get_mechanism",
+   "args": {
+    "disease_curie": "MONDO:0005005"
+   },
+   "result": {
+    "disease": "MONDO:0005005",
+    "name": "clear cell renal carcinoma",
+    "chains": [
+     {
+      "chain_id": "chain-1",
+      "steps": [
+       {
+        "mechanism": "dismech:Clear_Cell_Renal_Cell_Carcinoma#VHL_Tumor_Suppressor_Inactivation",
+        "label": "VHL Tumor Suppressor Inactivation",
+        "edge_id": "E8158972",
+        "pmids": [
+         "PMID:37085424"
+        ],
+        "quotes": [
+         "[PMID:37085424] [SUPPORT] These include somatic gene mutations such as VHL, PBRM1, SETD2, and BAP1 --- Explanation: This comprehensive review confirms VHL as the primary genomic biomarker and driver mutation in ccRCC."
+        ]
+       },
+       {
+        "mechanism": "dismech:Clear_Cell_Renal_Cell_Carcinoma#HIF_2_Stabilization",
+        "label": "HIF-2α Stabilization",
+        "edge_id": "E8158973",
+        "pmids": [],
+        "quotes": []
+       },
+       {
+        "mechanism": "dismech:Clear_Cell_Renal_Cell_Carcinoma#VEGF_Driven_Angiogenesis",
+        "label": "VEGF-Driven Angiogenesis",
+        "edge_id": "E8158975",
+        "pmids": [],
+        "quotes": []
+       }
+      ]
+     },
+     {
+      "chain_id": "chain-2",
+      "steps": [
+       {
+        "mechanism": "dismech:Clear_Cell_Renal_Cell_Carcinoma#Epigenetic_Dysregulation",
+        "label": "Epigenetic Dysregulation",
+        "edge_id": "E8158981",
+        "pmids": [
+         "PMID:37085424"
+        ],
+        "quotes": [
+         "[PMID:37085424] [SUPPORT] These include somatic gene mutations such as VHL, PBRM1, SETD2, and BAP1 --- Explanation: This review confirms PBRM1, SETD2, and BAP1 as recurrent genomic biomarkers in ccRCC contributing to epigenetic dysregulation."
+        ]
+       },
+       {
+        "mechanism": "dismech:Clear_Cell_Renal_Cell_Carcinoma#Growth_Factor_Pathway_Activation",
+        "label": "Growth Factor Pathway Activation",
+        "edge_id": "E8158982",
+        "pmids": [],
+        "quotes": []
+       }
+      ]
+     },
+     {
+      "chain_id": "chain-3",
+      "steps": [
+       {
+        "mechanism": "dismech:Clear_Cell_Renal_Cell_Carcinoma#Immune_Evasion_via_PD_L1_and_Immunosuppressive_Microenvironment",
+        "label": "Immune Evasion via PD-L1 and Immunosuppressive Microenvironment",
+        "edge_id": "E8158983",
+        "pmids": [
+         "PMID:38762484"
+        ],
+        "quotes": [
+         "[PMID:38762484] [SUPPORT] The interaction of PD-1 and PD-L1 negatively regulates adaptive immune response mainly by inhibiting the activity of effector T cells while enhancing the function of immunosuppressive regulatory T cells (Tregs), largely contributing to the maintenance of immune homeostasis that prevents dysregulated immunity and harmful immune responses. However, cancer cells exploit the PD-1/PD-L1 axis to cause immune escape in cancer development and progression. --- Explanation: Review describing how tumors including ccRCC exploit PD-1/PD-L1 signaling to suppress anti-tumor immunity, relevant to the highly immune-infiltrated ccRCC microenvironment."
+        ]
+       }
+      ]
+     },
+     {
+      "chain_id": "chain-4",
+      "steps": [
+       {
+        "mechanism": "dismech:Clear_Cell_Renal_Cell_Carcinoma#VSP_Inhibitor_Blockade_of_Systemic_Endothelial_VEGF_Signaling",
+        "label": "VSP Inhibitor Blockade of Systemic Endothelial VEGF Signaling",
+        "edge_id": "E8158984",
+        "pmids": [
+         "PMID:21527770",
+         "PMID:36621810"
+        ],
+        "quotes": [
+         "[PMID:21527770] [SUPPORT] Hypertension (HTN) is an on-target effect of the vascular endothelial growth factor pathway inhibitor, sunitinib. --- Explanation: States in the renal-cell-carcinoma setting that the blood-pressure effect of sunitinib is on-target VEGF pathway inhibition, which is exactly what this trigger node asserts for the ccRCC treatment context.|[PMID:36621810] [SUPPORT] One of the most common side effects of these drugs is hypertension, especially in patients treated with vascular endothelial growth factor inhibitors, as well as tyrosine kinase inhibitors and proteasome inhibitors. --- Explanation: Establishes VEGF pathway inhibition as the leading anticancer-drug route to hypertension, generalizing the ccRCC observation to the drug class. Evidence source is OTHER because this is a scientific statement / review."
+        ]
+       },
+       {
+        "mechanism": "dismech:Clear_Cell_Renal_Cell_Carcinoma#Treatment_Emergent_Vasoconstriction_and_Increased_Peripheral_Vascular_Resistance",
+        "label": "Treatment-Emergent Vasoconstriction and Increased Peripheral Vascular Resistance",
+        "edge_id": "E8158985",
+        "pmids": [],
+        "quotes": []
+       }
+      ]
+     },
+     {
+      "chain_id": "chain-5",
+      "steps": [
+       {
+        "mechanism": "dismech:Clear_Cell_Renal_Cell_Carcinoma#Metabolic_Reprogramming_and_Aerobic_Glycolysis",
+        "label": "Metabolic Reprogramming and Aerobic Glycolysis",
+        "edge_id": "E8158980",
+        "pmids": [
+         "PMID:23792563"
+        ],
+        "quotes": [
+         "[PMID:23792563] [SUPPORT] Aggressive cancers demonstrated evidence of a metabolic shift, involving downregulation of genes involved in the TCA cycle, decreased AMPK and PTEN protein levels, upregulation of the pentose phosphate pathway and the glutamine transporter genes, increased acetyl-CoA carboxylase protein --- Explanation: The TCGA molecular characterization of more than 400 ccRCC tumors documents a recurrent metabolic shift (TCA-cycle downregulation, pentose-phosphate-pathway and glutamine-transporter upregulation) that correlates with stage and severity, supporting aerobic-glycolysis-directed metabolic reprogramming.|[DOI:10.1186/s12967-024-04848-x] [SUPPORT] Clear cell renal cell carcinoma is a prototypical tumor characterized by metabolic reprogramming --- Explanation: Single-cell and spatial transcriptomic metabolic profiling identifies ccRCC as a prototypical metabolic-reprogramming tumor, with the tumor epicenter showing elevated glycolysis."
+        ]
+       }
+      ]
+     }
+    ],
+    "genes": [
+     "NCBIGene:55193",
+     "NCBIGene:7428",
+     "NCBIGene:8314"
+    ],
+    "drugs": [
+     "DRUGBANK:DB01268",
+     "DRUGBANK:DB06589",
+     "DRUGBANK:DB06626",
+     "DRUGBANK:DB08875",
+     "NCIT:C135627"
+    ],
+    "drug_evidence": [
+     {
+      "curie": "DRUGBANK:DB01268",
+      "name": "Sunitinib",
+      "relation": "dm_treats_or_applied_or_studied_to_treat",
+      "edge_id": "E8158958",
+      "pmids": [
+       "PMID:39196544"
+      ],
+      "quotes": [
+       "[PMID:39196544] [INDIRECT EVIDENCE] [SUPPORT] For advanced or metastatic RCC, combinations of immune checkpoint inhibitors or the combination of immune checkpoint inhibitors with tyrosine kinase inhibitors are associated with tumor response of 42% to 71% --- Explanation: Tyrosine kinase inhibitors, combined with immune checkpoint inhibitors, are a standard systemic option for advanced/metastatic RCC."
+      ]
+     },
+     {
+      "curie": "DRUGBANK:DB06589",
+      "name": "Pazopanib",
+      "relation": "dm_treats_or_applied_or_studied_to_treat",
+      "edge_id": "E8158959",
+      "pmids": [
+       "PMID:39196544"
+      ],
+      "quotes": [
+       "[PMID:39196544] [INDIRECT EVIDENCE] [SUPPORT] For advanced or metastatic RCC, combinations of immune checkpoint inhibitors or the combination of immune checkpoint inhibitors with tyrosine kinase inhibitors are associated with tumor response of 42% to 71% --- Explanation: Tyrosine kinase inhibitors, combined with immune checkpoint inhibitors, are a standard systemic option for advanced/metastatic RCC."
+      ]
+     },
+     {
+      "curie": "DRUGBANK:DB06626",
+      "name": "Axitinib",
+      "relation": "dm_treats_or_applied_or_studied_to_treat",
+      "edge_id": "E8158960",
+      "pmids": [
+       "PMID:39196544"
+      ],
+      "quotes": [
+       "[PMID:39196544] [INDIRECT EVIDENCE] [SUPPORT] For advanced or metastatic RCC, combinations of immune checkpoint inhibitors or the combination of immune checkpoint inhibitors with tyrosine kinase inhibitors are associated with tumor response of 42% to 71% --- Explanation: Tyrosine kinase inhibitors, combined with immune checkpoint inhibitors, are a standard systemic option for advanced/metastatic RCC."
+      ]
+     },
+     {
+      "curie": "DRUGBANK:DB08875",
+      "name": "Cabozantinib",
+      "relation": "dm_treats_or_applied_or_studied_to_treat",
+      "edge_id": "E8158961",
+      "pmids": [
+       "PMID:39196544"
+      ],
+      "quotes": [
+       "[PMID:39196544] [INDIRECT EVIDENCE] [SUPPORT] For advanced or metastatic RCC, combinations of immune checkpoint inhibitors or the combination of immune checkpoint inhibitors with tyrosine kinase inhibitors are associated with tumor response of 42% to 71% --- Explanation: Tyrosine kinase inhibitors, combined with immune checkpoint inhibitors, are a standard systemic option for advanced/metastatic RCC."
+      ]
+     },
+     {
+      "curie": "NCIT:C135627",
+      "name": "belzutifan",
+      "relation": "dm_treats_or_applied_or_studied_to_treat",
+      "edge_id": "E8158963",
+      "pmids": [],
+      "quotes": []
+     }
+    ]
+   },
+   "ms": 23,
+   "by": "llm"
+  },
+  {
+   "name": "retrieve_subgraph",
+   "args": {
+    "question": "What drives this patient's predicted risk and what would you target?",
+    "seeds": [
+     "PATIENT:C3L-00183",
+     "NCBIGene:2475",
+     "NCBIGene:55193",
+     "NCBIGene:79784",
+     "NCBIGene:22848",
+     "NCBIGene:4072",
+     "NCBIGene:23032",
+     "NCBIGene:3898",
+     "NCBIGene:2888",
+     "NCBIGene:4628"
+    ]
+   },
+   "result": {
+    "nodes": [
+     {
+      "curie": "NCBIGene:6272",
+      "name": "SORT1",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:1956",
+      "name": "EGFR",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:119",
+      "name": "ADD2",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:8887",
+      "name": "TAX1BP1",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:5901",
+      "name": "RAN",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:2997",
+      "name": "GYS1",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:5886",
+      "name": "RAD23A",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:4628",
+      "name": "MYH10",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:1642",
+      "name": "DDB1",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:2782",
+      "name": "GNB1",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:84858",
+      "name": "ZNF503",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:6477",
+      "name": "SIAH1",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:2274",
+      "name": "FHL2",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:2475",
+      "name": "MTOR",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:22848",
+      "name": "AAK1",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:5836",
+      "name": "PYGL",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:11228",
+      "name": "RASSF8",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:582",
+      "name": "BBS1",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:8543",
+      "name": "LMO4",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:2968",
+      "name": "GTF2H4",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:63893",
+      "name": "UBE2O",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:7164",
+      "name": "TPD52L1",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:54555",
+      "name": "DDX49",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:8291",
+      "name": "DYSF",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:57553",
+      "name": "MICAL3",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:7555",
+      "name": "CNBP",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:51478",
+      "name": "HSD17B7",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:5438",
+      "name": "POLR2I",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:54922",
+      "name": "RASIP1",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:7105",
+      "name": "TSPAN6",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:63891",
+      "name": "RNF123",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:25930",
+      "name": "PTPN23",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:64093",
+      "name": "SMOC1",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:25793",
+      "name": "FBXO7",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:2730",
+      "name": "GCLM",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:2888",
+      "name": "GRB14",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:10053",
+      "name": "AP1M2",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:158",
+      "name": "ADSL",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:7174",
+      "name": "TPP2",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:79784",
+      "name": "MYH14",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:6712",
+      "name": "SPTBN2",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:1464",
+      "name": "CSPG4",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:4008",
+      "name": "LMO7",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:10063",
+      "name": "COX17",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:23032",
+      "name": "USP33",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:307",
+      "name": "ANXA4",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:3898",
+      "name": "LAD1",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:2035",
+      "name": "EPB41",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:22934",
+      "name": "RPIA",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:80381",
+      "name": "CD276",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:51719",
+      "name": "CAB39",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:9448",
+      "name": "MAP4K4",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:57572",
+      "name": "DOCK6",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:9491",
+      "name": "PSMF1",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:51499",
+      "name": "TRIAP1",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:6302",
+      "name": "TSPAN31",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:60685",
+      "name": "ZFAND3",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:55327",
+      "name": "LIN7C",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:5257",
+      "name": "PHKB",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:1730",
+      "name": "DIAPH2",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:79837",
+      "name": "PIP4K2C",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:5128",
+      "name": "CDK17",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:140735",
+      "name": "DYNLL2",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:9097",
+      "name": "USP14",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:91039",
+      "name": "DPP9",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:10536",
+      "name": "P3H3",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:3145",
+      "name": "HMBS",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:84269",
+      "name": "CHCHD5",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:97",
+      "name": "ACYP1",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:55705",
+      "name": "IPO9",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:55193",
+      "name": "PBRM1",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:347733",
+      "name": "TUBB2B",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:9732",
+      "name": "DOCK4",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:230",
+      "name": "ALDOC",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:64856",
+      "name": "VWA1",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:30001",
+      "name": "ERO1A",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:9693",
+      "name": "RAPGEF2",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:63897",
+      "name": "HEATR6",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:56942",
+      "name": "CMC2",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:54936",
+      "name": "ADPRS",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:51454",
+      "name": "GULP1",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:4072",
+      "name": "EPCAM",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:26049",
+      "name": "FAM169A",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:219333",
+      "name": "USP12",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:135293",
+      "name": "PM20D2",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:55088",
+      "name": "CCDC186",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:143872",
+      "name": "ARHGAP42",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:79581",
+      "name": "SLC52A2",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:57095",
+      "name": "PITHD1",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:55206",
+      "name": "SBNO1",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:79812",
+      "name": "MMRN2",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:84364",
+      "name": "ARFGAP2",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:388753",
+      "name": "COA6",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:57514",
+      "name": "ARHGAP31",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:79098",
+      "name": "C1orf116",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:84337",
+      "name": "ELOF1",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:92799",
+      "name": "SHKBP1",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:140823",
+      "name": "ROMO1",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:222171",
+      "name": "PRR15",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:100505385",
+      "name": "IQCJ-SCHIP1",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:146802",
+      "name": "SLC47A2",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:101410538",
+      "name": "MMP24OS",
+      "type": "gene",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "HP:0001513",
+      "name": "Obesity",
+      "type": "phenotype",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "HP:0002099",
+      "name": "Asthma",
+      "type": "phenotype",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:84335",
+      "name": "AKT1S1",
+      "type": "gene",
+      "prize": 1.0,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB00157",
+      "name": "NADH",
+      "type": "drug",
+      "prize": 1.0,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0071451",
+      "name": "cellular response to superoxide",
+      "type": "biological_process",
+      "prize": 1.0,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0140292",
+      "name": "ADP-ribosylserine hydrolase activity",
+      "type": "molecular_function",
+      "prize": 1.0,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0043194",
+      "name": "axon initial segment",
+      "type": "cellular_component",
+      "prize": 1.0,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-110362",
+      "name": "POLB-Dependent Long Patch Base Excision Repair",
+      "type": "pathway",
+      "prize": 1.0,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:79132",
+      "name": "DHX58",
+      "type": "gene",
+      "prize": 1.0,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB09130",
+      "name": "Copper",
+      "type": "drug",
+      "prize": 1.0,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0000303",
+      "name": "response to superoxide",
+      "type": "biological_process",
+      "prize": 1.0,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005119",
+      "name": "smoothened binding",
+      "type": "molecular_function",
+      "prize": 1.0,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0097598",
+      "name": "sperm cytoplasmic droplet",
+      "type": "cellular_component",
+      "prize": 1.0,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-5659996",
+      "name": "RPIA deficiency: failed conversion of R5P to RU5P",
+      "type": "pathway",
+      "prize": 1.0,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:284119",
+      "name": "CAVIN1",
+      "type": "gene",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB06137",
+      "name": "KX-01",
+      "type": "drug",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0140290",
+      "name": "peptidyl-serine ADP-deribosylation",
+      "type": "biological_process",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0035226",
+      "name": "glutamate-cysteine ligase catalytic subunit binding",
+      "type": "molecular_function",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005739",
+      "name": "mitochondrion",
+      "type": "cellular_component",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-6791461",
+      "name": "RPIA deficiency: failed conversion of RU5P to R5P",
+      "type": "pathway",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:11107",
+      "name": "PRDM5",
+      "type": "gene",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB15305",
+      "name": "Risdiplam",
+      "type": "drug",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0016604",
+      "name": "nuclear body",
+      "type": "cellular_component",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-425366",
+      "name": "Transport of bile salts and organic acids, metal ions and amine compounds",
+      "type": "pathway",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0035733",
+      "name": "hepatic stellate cell activation",
+      "type": "biological_process",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0061463",
+      "name": "O-acetyl-ADP-ribose deacetylase activity",
+      "type": "molecular_function",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0000842",
+      "name": "Hyperinsulinemia",
+      "type": "phenotype",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB12377",
+      "name": "Relebactam",
+      "type": "drug",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0090734",
+      "name": "site of DNA damage",
+      "type": "cellular_component",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:284004",
+      "name": "HEXD",
+      "type": "gene",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0035332",
+      "name": "positive regulation of hippo signaling",
+      "type": "biological_process",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:1903136",
+      "name": "cuprous ion binding",
+      "type": "molecular_function",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-70221",
+      "name": "Glycogen breakdown (glycogenolysis)",
+      "type": "pathway",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0003416",
+      "name": "Spinal canal stenosis",
+      "type": "phenotype",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:50619",
+      "name": "DEF6",
+      "type": "gene",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB00536",
+      "name": "Guanidine",
+      "type": "drug",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0500093",
+      "name": "Food allergy",
+      "type": "phenotype",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0048471",
+      "name": "perinuclear region of cytoplasm",
+      "type": "cellular_component",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-6791465",
+      "name": "Pentose phosphate pathway disease",
+      "type": "pathway",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0090217",
+      "name": "negative regulation of 1-phosphatidylinositol-4-phosphate 5-kinase activity",
+      "type": "biological_process",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005113",
+      "name": "patched binding",
+      "type": "molecular_function",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:112770",
+      "name": "GLMP",
+      "type": "gene",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB00205",
+      "name": "Pyrimethamine",
+      "type": "drug",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0004445",
+      "name": "Elliptocytosis",
+      "type": "phenotype",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0002060",
+      "name": "purine nucleobase binding",
+      "type": "molecular_function",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005789",
+      "name": "endoplasmic reticulum membrane",
+      "type": "cellular_component",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-191273",
+      "name": "Cholesterol biosynthesis",
+      "type": "pathway",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0032014",
+      "name": "positive regulation of ARF protein signal transduction",
+      "type": "biological_process",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:27185",
+      "name": "DISC1",
+      "type": "gene",
+      "prize": 0.9997,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB00126",
+      "name": "Ascorbic acid",
+      "type": "drug",
+      "prize": 0.9997,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0000785",
+      "name": "chromatin",
+      "type": "cellular_component",
+      "prize": 0.9997,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0010260",
+      "name": "animal organ senescence",
+      "type": "biological_process",
+      "prize": 0.9997,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0070628",
+      "name": "proteasome binding",
+      "type": "molecular_function",
+      "prize": 0.9997,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-196843",
+      "name": "Vitamin B2 (riboflavin) metabolism",
+      "type": "pathway",
+      "prize": 0.9997,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:6714",
+      "name": "SRC",
+      "type": "gene",
+      "prize": 0.9997,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB14487",
+      "name": "Zinc acetate",
+      "type": "drug",
+      "prize": 0.9997,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0003119",
+      "name": "Abnormal circulating lipid concentration",
+      "type": "phenotype",
+      "prize": 0.9997,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0051409",
+      "name": "response to nitrosative stress",
+      "type": "biological_process",
+      "prize": 0.9997,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005783",
+      "name": "endoplasmic reticulum",
+      "type": "cellular_component",
+      "prize": 0.9997,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0004649",
+      "name": "poly(ADP-ribose) glycohydrolase activity",
+      "type": "molecular_function",
+      "prize": 0.9997,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-164940",
+      "name": "Nef mediated downregulation of MHC class I complex cell surface expression",
+      "type": "pathway",
+      "prize": 0.9997,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:351",
+      "name": "APP",
+      "type": "gene",
+      "prize": 0.9997,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB14533",
+      "name": "Zinc chloride",
+      "type": "drug",
+      "prize": 0.9997,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0016531",
+      "name": "copper chaperone activity",
+      "type": "molecular_function",
+      "prize": 0.9997,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0039534",
+      "name": "negative regulation of MDA-5 signaling pathway",
+      "type": "biological_process",
+      "prize": 0.9997,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005925",
+      "name": "focal adhesion",
+      "type": "cellular_component",
+      "prize": 0.9997,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-167160",
+      "name": "RNA Pol II CTD phosphorylation and interaction with CE during HIV infection",
+      "type": "pathway",
+      "prize": 0.9997,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:7316",
+      "name": "UBC",
+      "type": "gene",
+      "prize": 0.9996,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB00142",
+      "name": "Glutamic acid",
+      "type": "drug",
+      "prize": 0.9996,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005813",
+      "name": "centrosome",
+      "type": "cellular_component",
+      "prize": 0.9996,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0100582",
+      "name": "Nasal polyposis",
+      "type": "phenotype",
+      "prize": 0.9996,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:2000481",
+      "name": "positive regulation of cAMP-dependent protein kinase activity",
+      "type": "biological_process",
+      "prize": 0.9996,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0000287",
+      "name": "magnesium ion binding",
+      "type": "molecular_function",
+      "prize": 0.9996,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-77075",
+      "name": "RNA Pol II CTD phosphorylation and interaction with CE",
+      "type": "pathway",
+      "prize": 0.9996,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:1958",
+      "name": "EGR1",
+      "type": "gene",
+      "prize": 0.9996,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB14962",
+      "name": "Trastuzumab deruxtecan",
+      "type": "drug",
+      "prize": 0.9996,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005507",
+      "name": "copper ion binding",
+      "type": "molecular_function",
+      "prize": 0.9996,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005794",
+      "name": "Golgi apparatus",
+      "type": "cellular_component",
+      "prize": 0.9996,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:1903070",
+      "name": "negative regulation of ER-associated ubiquitin-dependent protein catabolic process",
+      "type": "biological_process",
+      "prize": 0.9996,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-3814836",
+      "name": "Glycogen storage disease type XV (GYG1)",
+      "type": "pathway",
+      "prize": 0.9996,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:5295",
+      "name": "PIK3R1",
+      "type": "gene",
+      "prize": 0.9996,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB00172",
+      "name": "Proline",
+      "type": "drug",
+      "prize": 0.9996,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0003779",
+      "name": "actin binding",
+      "type": "molecular_function",
+      "prize": 0.9996,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0031547",
+      "name": "brain-derived neurotrophic factor receptor signaling pathway",
+      "type": "biological_process",
+      "prize": 0.9996,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005759",
+      "name": "mitochondrial matrix",
+      "type": "cellular_component",
+      "prize": 0.9996,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-3828062",
+      "name": "Glycogen storage disease type 0 (muscle GYS1)",
+      "type": "pathway",
+      "prize": 0.9996,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:6774",
+      "name": "STAT3",
+      "type": "gene",
+      "prize": 0.9995,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB14548",
+      "name": "Zinc sulfate, unspecified form",
+      "type": "drug",
+      "prize": 0.9995,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0012393",
+      "name": "Allergy",
+      "type": "phenotype",
+      "prize": 0.9995,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0030425",
+      "name": "dendrite",
+      "type": "cellular_component",
+      "prize": 0.9995,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0022417",
+      "name": "protein maturation by protein folding",
+      "type": "biological_process",
+      "prize": 0.9995,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0030379",
+      "name": "neurotensin receptor activity, non-G protein-coupled",
+      "type": "molecular_function",
+      "prize": 0.9995,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-72086",
+      "name": "mRNA Capping",
+      "type": "pathway",
+      "prize": 0.9995,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:7314",
+      "name": "UBB",
+      "type": "gene",
+      "prize": 0.9995,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB11791",
+      "name": "Capmatinib",
+      "type": "drug",
+      "prize": 0.9995,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0000855",
+      "name": "Insulin resistance",
+      "type": "phenotype",
+      "prize": 0.9995,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0045667",
+      "name": "regulation of osteoblast differentiation",
+      "type": "biological_process",
+      "prize": 0.9995,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005874",
+      "name": "microtubule",
+      "type": "cellular_component",
+      "prize": 0.9995,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0106310",
+      "name": "protein serine kinase activity",
+      "type": "molecular_function",
+      "prize": 0.9995,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-9035034",
+      "name": "RHOF GTPase cycle",
+      "type": "pathway",
+      "prize": 0.9995,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:7157",
+      "name": "TP53",
+      "type": "gene",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB06608",
+      "name": "Tafenoquine",
+      "type": "drug",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0019901",
+      "name": "protein kinase binding",
+      "type": "molecular_function",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0045792",
+      "name": "negative regulation of cell size",
+      "type": "biological_process",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0043025",
+      "name": "neuronal cell body",
+      "type": "cellular_component",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-1268020",
+      "name": "Mitochondrial protein import",
+      "type": "pathway",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:8826",
+      "name": "IQGAP1",
+      "type": "gene",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB00139",
+      "name": "Succinic acid",
+      "type": "drug",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0001047",
+      "name": "Atopic dermatitis",
+      "type": "phenotype",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0003682",
+      "name": "chromatin binding",
+      "type": "molecular_function",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0016607",
+      "name": "nuclear speck",
+      "type": "cellular_component",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0035229",
+      "name": "positive regulation of glutamate-cysteine ligase activity",
+      "type": "biological_process",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-5578999",
+      "name": "Defective GCLC causes HAGGSD",
+      "type": "pathway",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:207",
+      "name": "AKT1",
+      "type": "gene",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB12978",
+      "name": "Pexidartinib",
+      "type": "drug",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0006536",
+      "name": "Airway obstruction",
+      "type": "phenotype",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0061136",
+      "name": "regulation of proteasomal protein catabolic process",
+      "type": "biological_process",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0000139",
+      "name": "Golgi membrane",
+      "type": "cellular_component",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005524",
+      "name": "ATP binding",
+      "type": "molecular_function",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-167158",
+      "name": "Formation of the HIV-1 Early Elongation Complex",
+      "type": "pathway",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:3091",
+      "name": "HIF1A",
+      "type": "gene",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB12001",
+      "name": "Abemaciclib",
+      "type": "drug",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0010867",
+      "name": "Dyssynergia",
+      "type": "phenotype",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0003677",
+      "name": "DNA binding",
+      "type": "molecular_function",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0031410",
+      "name": "cytoplasmic vesicle",
+      "type": "cellular_component",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0048096",
+      "name": "chromatin-mediated maintenance of transcription",
+      "type": "biological_process",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-113418",
+      "name": "Formation of the Early Elongation Complex",
+      "type": "pathway",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:1915",
+      "name": "EEF1A1",
+      "type": "gene",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB12887",
+      "name": "Tazemetostat",
+      "type": "drug",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0044752",
+      "name": "response to human chorionic gonadotropin",
+      "type": "biological_process",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005856",
+      "name": "cytoskeleton",
+      "type": "cellular_component",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-6781827",
+      "name": "Transcription-Coupled Nucleotide Excision Repair (TC-NER)",
+      "type": "pathway",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0002591",
+      "name": "Polyphagia",
+      "type": "phenotype",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005516",
+      "name": "calmodulin binding",
+      "type": "molecular_function",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:8658",
+      "name": "TNKS",
+      "type": "gene",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB12500",
+      "name": "Fedratinib",
+      "type": "drug",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:2000299",
+      "name": "negative regulation of Rho-dependent protein serine/threonine kinase activity",
+      "type": "biological_process",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0030507",
+      "name": "spectrin binding",
+      "type": "molecular_function",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005654",
+      "name": "nucleoplasm",
+      "type": "cellular_component",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-5696395",
+      "name": "Formation of Incision Complex in GG-NER",
+      "type": "pathway",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0002583",
+      "name": "Colitis",
+      "type": "phenotype",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:3315",
+      "name": "HSPB1",
+      "type": "gene",
+      "prize": 0.9992,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB12483",
+      "name": "Copanlisib",
+      "type": "drug",
+      "prize": 0.9992,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0000964",
+      "name": "Eczema",
+      "type": "phenotype",
+      "prize": 0.9992,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0019899",
+      "name": "enzyme binding",
+      "type": "molecular_function",
+      "prize": 0.9991,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0001508",
+      "name": "Failure to thrive",
+      "type": "phenotype",
+      "prize": 0.9986,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB00591",
+      "name": "Fluocinolone acetonide",
+      "type": "drug",
+      "prize": 0.9971,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:5978",
+      "name": "REST",
+      "type": "gene",
+      "prize": 0.9962,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB00788",
+      "name": "Naproxen",
+      "type": "drug",
+      "prize": 0.9953,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB00264",
+      "name": "Metoprolol",
+      "type": "drug",
+      "prize": 0.994,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005886",
+      "name": "plasma membrane",
+      "type": "cellular_component",
+      "prize": 0.9936,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB01577",
+      "name": "Metamfetamine",
+      "type": "drug",
+      "prize": 0.9923,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0110165",
+      "name": "cellular anatomical entity",
+      "type": "cellular_component",
+      "prize": 0.9915,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB00422",
+      "name": "Methylphenidate",
+      "type": "drug",
+      "prize": 0.9878,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:7040",
+      "name": "TGFB1",
+      "type": "gene",
+      "prize": 0.9863,
+      "is_seed": false
+     }
+    ],
+    "edges": [
+     {
+      "edge_id": "E8165274",
+      "src_curie": "HP:0001513",
+      "rel": "dm_causes",
+      "dst_curie": "HP:0000842",
+      "origin": "dismech",
+      "pmids": [],
+      "quote": ""
+     },
+     {
+      "edge_id": "E261278",
+      "src_curie": "NCBIGene:2475",
+      "rel": "protein_protein",
+      "dst_curie": "NCBIGene:84335",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E328863",
+      "src_curie": "DRUGBANK:DB00157",
+      "rel": "drug_protein",
+      "dst_curie": "NCBIGene:51478",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3780335",
+      "src_curie": "NCBIGene:54936",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:0071451",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3622590",
+      "src_curie": "NCBIGene:100505385",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0043194",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E291452",
+      "src_curie": "NCBIGene:84335",
+      "rel": "protein_protein",
+      "dst_curie": "NCBIGene:101410538",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3535224",
+      "src_curie": "NCBIGene:582",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0005119",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E321910",
+      "src_curie": "DRUGBANK:DB09130",
+      "rel": "drug_protein",
+      "dst_curie": "NCBIGene:10063",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E342622",
+      "src_curie": "DRUGBANK:DB09130",
+      "rel": "drug_protein",
+      "dst_curie": "NCBIGene:307",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3800409",
+      "src_curie": "NCBIGene:22934",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-5659996",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3636935",
+      "src_curie": "NCBIGene:57095",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0097598",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E56897",
+      "src_curie": "NCBIGene:1956",
+      "rel": "protein_protein",
+      "dst_curie": "NCBIGene:284119",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E238042",
+      "src_curie": "NCBIGene:2274",
+      "rel": "protein_protein",
+      "dst_curie": "NCBIGene:284119",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E5626",
+      "src_curie": "NCBIGene:63893",
+      "rel": "protein_protein",
+      "dst_curie": "NCBIGene:284119",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E45680",
+      "src_curie": "NCBIGene:25930",
+      "rel": "protein_protein",
+      "dst_curie": "NCBIGene:284119",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3587591",
+      "src_curie": "NCBIGene:25793",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005739",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3544895",
+      "src_curie": "NCBIGene:2730",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0035226",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E18175",
+      "src_curie": "NCBIGene:79784",
+      "rel": "protein_protein",
+      "dst_curie": "NCBIGene:284119",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3587705",
+      "src_curie": "NCBIGene:51499",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005739",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3587992",
+      "src_curie": "NCBIGene:84269",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005739",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E8107255",
+      "src_curie": "HP:0001513",
+      "rel": "dm_causes",
+      "dst_curie": "HP:0003416",
+      "origin": "dismech",
+      "pmids": [],
+      "quote": "[url:https://www.ncbi.nlm.nih.gov/books/NBK1152/] [SUPPORT] In adults, obesity can aggravate the morbidity associated with lumbar stenosis --- Explanation: The clinical review states that obesity worsens lumbar-stenosis morbidity; it does not claim obesity causes the stenosis."
+     },
+     {
+      "edge_id": "E8129790",
+      "src_curie": "HP:0001513",
+      "rel": "dm_causes",
+      "dst_curie": "HP:0000855",
+      "origin": "dismech",
+      "pmids": [],
+      "quote": ""
+     },
+     {
+      "edge_id": "E8129791",
+      "src_curie": "HP:0002591",
+      "rel": "dm_causes",
+      "dst_curie": "HP:0001513",
+      "origin": "dismech",
+      "pmids": [],
+      "quote": ""
+     },
+     {
+      "edge_id": "E8191900",
+      "src_curie": "HP:0001513",
+      "rel": "dm_causes",
+      "dst_curie": "HP:0003119",
+      "origin": "dismech",
+      "pmids": [],
+      "quote": ""
+     },
+     {
+      "edge_id": "E8216815",
+      "src_curie": "HP:0002583",
+      "rel": "dm_causes",
+      "dst_curie": "HP:0001508",
+      "origin": "dismech",
+      "pmids": [
+       "PMID:33598805"
+      ],
+      "quote": "[PMID:33598805] [SUPPORT] He also had symptoms of inflammatory bowel disease (IBD): diarrhea, failure to thrive, and feeding intolerance with the need for parenteral nutrition. --- Explanation: The clinical narrative explicitly identifies this finding as an inflammatory bowel symptom; CMV is retaine"
+     },
+     {
+      "edge_id": "E5025",
+      "src_curie": "NCBIGene:1958",
+      "rel": "protein_protein",
+      "dst_curie": "NCBIGene:7040",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E12218",
+      "src_curie": "NCBIGene:51478",
+      "rel": "protein_protein",
+      "dst_curie": "NCBIGene:112770",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E14647",
+      "src_curie": "NCBIGene:7316",
+      "rel": "protein_protein",
+      "dst_curie": "NCBIGene:9097",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E90168",
+      "src_curie": "NCBIGene:7316",
+      "rel": "protein_protein",
+      "dst_curie": "NCBIGene:9448",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E100556",
+      "src_curie": "NCBIGene:582",
+      "rel": "protein_protein",
+      "dst_curie": "NCBIGene:1915",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E133140",
+      "src_curie": "NCBIGene:119",
+      "rel": "protein_protein",
+      "dst_curie": "NCBIGene:50619",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E139726",
+      "src_curie": "NCBIGene:5886",
+      "rel": "protein_protein",
+      "dst_curie": "NCBIGene:7157",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E156967",
+      "src_curie": "NCBIGene:351",
+      "rel": "protein_protein",
+      "dst_curie": "NCBIGene:2035",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E157435",
+      "src_curie": "NCBIGene:7316",
+      "rel": "protein_protein",
+      "dst_curie": "NCBIGene:10053",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E180255",
+      "src_curie": "NCBIGene:7316",
+      "rel": "protein_protein",
+      "dst_curie": "NCBIGene:57095",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E187438",
+      "src_curie": "NCBIGene:5836",
+      "rel": "protein_protein",
+      "dst_curie": "NCBIGene:7316",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E204097",
+      "src_curie": "NCBIGene:1958",
+      "rel": "protein_protein",
+      "dst_curie": "NCBIGene:84337",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E212439",
+      "src_curie": "NCBIGene:207",
+      "rel": "protein_protein",
+      "dst_curie": "NCBIGene:5295",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E225790",
+      "src_curie": "NCBIGene:7316",
+      "rel": "protein_protein",
+      "dst_curie": "NCBIGene:22934",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E237435",
+      "src_curie": "NCBIGene:7157",
+      "rel": "protein_protein",
+      "dst_curie": "NCBIGene:10063",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E273360",
+      "src_curie": "NCBIGene:2997",
+      "rel": "protein_protein",
+      "dst_curie": "NCBIGene:7316",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E294120",
+      "src_curie": "NCBIGene:2968",
+      "rel": "protein_protein",
+      "dst_curie": "NCBIGene:7157",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E303445",
+      "src_curie": "NCBIGene:54936",
+      "rel": "protein_protein",
+      "dst_curie": "NCBIGene:284004",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E311483",
+      "src_curie": "NCBIGene:7316",
+      "rel": "protein_protein",
+      "dst_curie": "NCBIGene:9693",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E332111",
+      "src_curie": "DRUGBANK:DB00142",
+      "rel": "drug_protein",
+      "dst_curie": "NCBIGene:2730",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E333935",
+      "src_curie": "DRUGBANK:DB06137",
+      "rel": "drug_protein",
+      "dst_curie": "NCBIGene:6714",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E337084",
+      "src_curie": "DRUGBANK:DB00126",
+      "rel": "drug_protein",
+      "dst_curie": "NCBIGene:10536",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E337085",
+      "src_curie": "DRUGBANK:DB00172",
+      "rel": "drug_protein",
+      "dst_curie": "NCBIGene:10536",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E338001",
+      "src_curie": "DRUGBANK:DB14533",
+      "rel": "drug_protein",
+      "dst_curie": "NCBIGene:7157",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E339771",
+      "src_curie": "DRUGBANK:DB09130",
+      "rel": "drug_protein",
+      "dst_curie": "NCBIGene:1915",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E339773",
+      "src_curie": "DRUGBANK:DB14487",
+      "rel": "drug_protein",
+      "dst_curie": "NCBIGene:1915",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E339774",
+      "src_curie": "DRUGBANK:DB14533",
+      "rel": "drug_protein",
+      "dst_curie": "NCBIGene:1915",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E339775",
+      "src_curie": "DRUGBANK:DB14548",
+      "rel": "drug_protein",
+      "dst_curie": "NCBIGene:1915",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E346312",
+      "src_curie": "DRUGBANK:DB12978",
+      "rel": "drug_protein",
+      "dst_curie": "NCBIGene:146802",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E346313",
+      "src_curie": "DRUGBANK:DB14962",
+      "rel": "drug_protein",
+      "dst_curie": "NCBIGene:146802",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E473586",
+      "src_curie": "DRUGBANK:DB12978",
+      "rel": "drug_drug",
+      "dst_curie": "DRUGBANK:DB00788",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E1148525",
+      "src_curie": "DRUGBANK:DB12978",
+      "rel": "drug_drug",
+      "dst_curie": "DRUGBANK:DB00591",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E1404801",
+      "src_curie": "DRUGBANK:DB01577",
+      "rel": "drug_drug",
+      "dst_curie": "DRUGBANK:DB12500",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E1404891",
+      "src_curie": "DRUGBANK:DB06608",
+      "rel": "drug_drug",
+      "dst_curie": "DRUGBANK:DB12500",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E1405048",
+      "src_curie": "DRUGBANK:DB12001",
+      "rel": "drug_drug",
+      "dst_curie": "DRUGBANK:DB12500",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E1405068",
+      "src_curie": "DRUGBANK:DB12483",
+      "rel": "drug_drug",
+      "dst_curie": "DRUGBANK:DB12500",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E1581601",
+      "src_curie": "DRUGBANK:DB00142",
+      "rel": "drug_drug",
+      "dst_curie": "DRUGBANK:DB01577",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E1702071",
+      "src_curie": "DRUGBANK:DB12978",
+      "rel": "drug_drug",
+      "dst_curie": "DRUGBANK:DB00264",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E1726281",
+      "src_curie": "DRUGBANK:DB00536",
+      "rel": "drug_drug",
+      "dst_curie": "DRUGBANK:DB12887",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E1726701",
+      "src_curie": "DRUGBANK:DB11791",
+      "rel": "drug_drug",
+      "dst_curie": "DRUGBANK:DB12887",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E1726722",
+      "src_curie": "DRUGBANK:DB12001",
+      "rel": "drug_drug",
+      "dst_curie": "DRUGBANK:DB12887",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E1726752",
+      "src_curie": "DRUGBANK:DB12978",
+      "rel": "drug_drug",
+      "dst_curie": "DRUGBANK:DB12887",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3004498",
+      "src_curie": "DRUGBANK:DB00536",
+      "rel": "drug_drug",
+      "dst_curie": "DRUGBANK:DB00205",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3004868",
+      "src_curie": "DRUGBANK:DB00139",
+      "rel": "drug_drug",
+      "dst_curie": "DRUGBANK:DB00536",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3005008",
+      "src_curie": "DRUGBANK:DB15305",
+      "rel": "drug_drug",
+      "dst_curie": "DRUGBANK:DB00536",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3015690",
+      "src_curie": "DRUGBANK:DB15305",
+      "rel": "drug_drug",
+      "dst_curie": "DRUGBANK:DB12377",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3062282",
+      "src_curie": "NCBIGene:54936",
+      "rel": "phenotype_protein",
+      "dst_curie": "HP:0010867",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3062402",
+      "src_curie": "NCBIGene:7040",
+      "rel": "phenotype_protein",
+      "dst_curie": "HP:0012393",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3062527",
+      "src_curie": "NCBIGene:5295",
+      "rel": "phenotype_protein",
+      "dst_curie": "HP:0000855",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3064770",
+      "src_curie": "NCBIGene:2035",
+      "rel": "phenotype_protein",
+      "dst_curie": "HP:0004445",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3065968",
+      "src_curie": "HP:0000964",
+      "rel": "phenotype_phenotype",
+      "dst_curie": "HP:0001047",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3083592",
+      "src_curie": "HP:0012393",
+      "rel": "phenotype_phenotype",
+      "dst_curie": "HP:0500093",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3350594",
+      "src_curie": "DRUGBANK:DB00788",
+      "rel": "drug_effect",
+      "dst_curie": "HP:0100582",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3365063",
+      "src_curie": "DRUGBANK:DB00591",
+      "rel": "drug_effect",
+      "dst_curie": "HP:0000964",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3373932",
+      "src_curie": "DRUGBANK:DB00422",
+      "rel": "drug_effect",
+      "dst_curie": "HP:0100582",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3373978",
+      "src_curie": "DRUGBANK:DB00422",
+      "rel": "drug_effect",
+      "dst_curie": "HP:0001508",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3374446",
+      "src_curie": "DRUGBANK:DB00264",
+      "rel": "drug_effect",
+      "dst_curie": "HP:0006536",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3462286",
+      "src_curie": "GO:0000303",
+      "rel": "bioprocess_bioprocess",
+      "dst_curie": "GO:0071451",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3474149",
+      "src_curie": "GO:0019899",
+      "rel": "molfunc_molfunc",
+      "dst_curie": "GO:0035226",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3478067",
+      "src_curie": "GO:0005507",
+      "rel": "molfunc_molfunc",
+      "dst_curie": "GO:1903136",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3479427",
+      "src_curie": "GO:0110165",
+      "rel": "cellcomp_cellcomp",
+      "dst_curie": "GO:0005654",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3479622",
+      "src_curie": "GO:0110165",
+      "rel": "cellcomp_cellcomp",
+      "dst_curie": "GO:0043194",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3483634",
+      "src_curie": "GO:0016604",
+      "rel": "cellcomp_cellcomp",
+      "dst_curie": "GO:0016607",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3484472",
+      "src_curie": "NCBIGene:7157",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0019899",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3498075",
+      "src_curie": "NCBIGene:6774",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0003677",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3498123",
+      "src_curie": "NCBIGene:7157",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0003677",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3498498",
+      "src_curie": "NCBIGene:79132",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0003677",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3501217",
+      "src_curie": "NCBIGene:79132",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0005524",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3510329",
+      "src_curie": "NCBIGene:5901",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0000287",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3511678",
+      "src_curie": "NCBIGene:7157",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0005507",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3514736",
+      "src_curie": "NCBIGene:8826",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0019901",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3515424",
+      "src_curie": "NCBIGene:119",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0003779",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3516651",
+      "src_curie": "NCBIGene:7157",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0003682",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3518885",
+      "src_curie": "NCBIGene:207",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0005516",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3519011",
+      "src_curie": "NCBIGene:8826",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0005516",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3520211",
+      "src_curie": "NCBIGene:119",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0030507",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3526495",
+      "src_curie": "NCBIGene:207",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0106310",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3534252",
+      "src_curie": "NCBIGene:10063",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0016531",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3535216",
+      "src_curie": "NCBIGene:582",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0005113",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3545958",
+      "src_curie": "NCBIGene:5886",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0070628",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3547731",
+      "src_curie": "NCBIGene:5836",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0002060",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3549787",
+      "src_curie": "NCBIGene:6272",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0030379",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3551161",
+      "src_curie": "NCBIGene:54936",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0004649",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3553106",
+      "src_curie": "NCBIGene:54936",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0061463",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3553108",
+      "src_curie": "NCBIGene:54936",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0140292",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3571604",
+      "src_curie": "NCBIGene:7314",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005789",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3577283",
+      "src_curie": "NCBIGene:1915",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005886",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3580237",
+      "src_curie": "NCBIGene:79581",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005886",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3586443",
+      "src_curie": "NCBIGene:6272",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0048471",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3586709",
+      "src_curie": "NCBIGene:27185",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0048471",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3586752",
+      "src_curie": "NCBIGene:54922",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0048471",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3588163",
+      "src_curie": "NCBIGene:284119",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005739",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3590506",
+      "src_curie": "NCBIGene:7157",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005759",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3593773",
+      "src_curie": "NCBIGene:351",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005794",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3594088",
+      "src_curie": "NCBIGene:8658",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005794",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3595982",
+      "src_curie": "NCBIGene:6272",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0031410",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3597828",
+      "src_curie": "NCBIGene:1958",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005654",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3597988",
+      "src_curie": "NCBIGene:3091",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005654",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3598543",
+      "src_curie": "NCBIGene:5978",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005654",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3598724",
+      "src_curie": "NCBIGene:6774",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005654",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3598837",
+      "src_curie": "NCBIGene:7316",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005654",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3599078",
+      "src_curie": "NCBIGene:8658",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005654",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3599574",
+      "src_curie": "NCBIGene:11107",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005654",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3600018",
+      "src_curie": "NCBIGene:50619",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005654",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3600245",
+      "src_curie": "NCBIGene:54936",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005654",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3600881",
+      "src_curie": "NCBIGene:84335",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005654",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3601263",
+      "src_curie": "NCBIGene:284119",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005654",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3601944",
+      "src_curie": "NCBIGene:7157",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005783",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3602088",
+      "src_curie": "NCBIGene:10536",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005783",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3602228",
+      "src_curie": "NCBIGene:30001",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005783",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3602267",
+      "src_curie": "NCBIGene:51478",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005783",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3602427",
+      "src_curie": "NCBIGene:79837",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005783",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3603203",
+      "src_curie": "NCBIGene:6272",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0030425",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3604219",
+      "src_curie": "NCBIGene:8658",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0016604",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3604711",
+      "src_curie": "NCBIGene:7314",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0043025",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3606976",
+      "src_curie": "NCBIGene:8658",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0000139",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3609049",
+      "src_curie": "NCBIGene:7157",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005813",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3609204",
+      "src_curie": "NCBIGene:27185",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005813",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3611814",
+      "src_curie": "NCBIGene:5901",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0000785",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3611930",
+      "src_curie": "NCBIGene:7157",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0000785",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3613055",
+      "src_curie": "NCBIGene:3315",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005856",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3613257",
+      "src_curie": "NCBIGene:50619",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005856",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3613646",
+      "src_curie": "NCBIGene:6714",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005925",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3613686",
+      "src_curie": "NCBIGene:8826",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005925",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3618689",
+      "src_curie": "NCBIGene:54936",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0090734",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3624171",
+      "src_curie": "NCBIGene:8826",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005874",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3684330",
+      "src_curie": "NCBIGene:2730",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:0051409",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3690661",
+      "src_curie": "NCBIGene:9693",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:2000481",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3702305",
+      "src_curie": "NCBIGene:207",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:0045792",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3702314",
+      "src_curie": "NCBIGene:84335",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:0045792",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3715653",
+      "src_curie": "NCBIGene:7314",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:0061136",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3723040",
+      "src_curie": "NCBIGene:5978",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:0045667",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3730880",
+      "src_curie": "NCBIGene:9693",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:0031547",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3737236",
+      "src_curie": "NCBIGene:79132",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:0039534",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3739135",
+      "src_curie": "NCBIGene:30001",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:0022417",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3746954",
+      "src_curie": "NCBIGene:84337",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:0048096",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3749202",
+      "src_curie": "NCBIGene:30001",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:0010260",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3762127",
+      "src_curie": "NCBIGene:2730",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:0044752",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3762175",
+      "src_curie": "NCBIGene:2730",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:0035229",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3762176",
+      "src_curie": "NCBIGene:2730",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:0035733",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3772258",
+      "src_curie": "NCBIGene:79837",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:0090217",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3774581",
+      "src_curie": "NCBIGene:9097",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:1903070",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3775586",
+      "src_curie": "NCBIGene:100505385",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:0035332",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3778226",
+      "src_curie": "NCBIGene:9448",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:0032014",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3780067",
+      "src_curie": "NCBIGene:54922",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:2000299",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3780660",
+      "src_curie": "NCBIGene:54936",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:0140290",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3791067",
+      "src_curie": "REACT:R-HSA-6791465",
+      "rel": "pathway_pathway",
+      "dst_curie": "REACT:R-HSA-5659996",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3791069",
+      "src_curie": "REACT:R-HSA-6791465",
+      "rel": "pathway_pathway",
+      "dst_curie": "REACT:R-HSA-6791461",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3792086",
+      "src_curie": "NCBIGene:10053",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-164940",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3792131",
+      "src_curie": "NCBIGene:10063",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-1268020",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3796974",
+      "src_curie": "NCBIGene:146802",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-425366",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3803134",
+      "src_curie": "NCBIGene:2730",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-5578999",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3804693",
+      "src_curie": "NCBIGene:2968",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-113418",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3804695",
+      "src_curie": "NCBIGene:2968",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-167158",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3804696",
+      "src_curie": "NCBIGene:2968",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-167160",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3804711",
+      "src_curie": "NCBIGene:2968",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-72086",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3804720",
+      "src_curie": "NCBIGene:2968",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-77075",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3804878",
+      "src_curie": "NCBIGene:2997",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-3814836",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3804879",
+      "src_curie": "NCBIGene:2997",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-3828062",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3811665",
+      "src_curie": "NCBIGene:51478",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-191273",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3812408",
+      "src_curie": "NCBIGene:5295",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-9035034",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3813961",
+      "src_curie": "NCBIGene:54936",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-110362",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3818843",
+      "src_curie": "NCBIGene:5836",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-70221",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3825115",
+      "src_curie": "NCBIGene:7314",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-5696395",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3825119",
+      "src_curie": "NCBIGene:7314",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-6781827",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3825291",
+      "src_curie": "NCBIGene:7316",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-5696395",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3826555",
+      "src_curie": "NCBIGene:79581",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-196843",
+      "origin": "primekg"
+     }
+    ],
+    "edge_ids": [
+     "E8165274",
+     "E261278",
+     "E328863",
+     "E3780335",
+     "E3622590",
+     "E291452",
+     "E3535224",
+     "E321910",
+     "E342622",
+     "E3800409",
+     "E3636935",
+     "E56897",
+     "E238042",
+     "E5626",
+     "E45680",
+     "E3587591",
+     "E3544895",
+     "E18175",
+     "E3587705",
+     "E3587992",
+     "E8107255",
+     "E8129790",
+     "E8129791",
+     "E8191900",
+     "E8216815",
+     "E5025",
+     "E12218",
+     "E14647",
+     "E90168",
+     "E100556",
+     "E133140",
+     "E139726",
+     "E156967",
+     "E157435",
+     "E180255",
+     "E187438",
+     "E204097",
+     "E212439",
+     "E225790",
+     "E237435",
+     "E273360",
+     "E294120",
+     "E303445",
+     "E311483",
+     "E332111",
+     "E333935",
+     "E337084",
+     "E337085",
+     "E338001",
+     "E339771",
+     "E339773",
+     "E339774",
+     "E339775",
+     "E346312",
+     "E346313",
+     "E473586",
+     "E1148525",
+     "E1404801",
+     "E1404891",
+     "E1405048",
+     "E1405068",
+     "E1581601",
+     "E1702071",
+     "E1726281",
+     "E1726701",
+     "E1726722",
+     "E1726752",
+     "E3004498",
+     "E3004868",
+     "E3005008",
+     "E3015690",
+     "E3062282",
+     "E3062402",
+     "E3062527",
+     "E3064770",
+     "E3065968",
+     "E3083592",
+     "E3350594",
+     "E3365063",
+     "E3373932",
+     "E3373978",
+     "E3374446",
+     "E3462286",
+     "E3474149",
+     "E3478067",
+     "E3479427",
+     "E3479622",
+     "E3483634",
+     "E3484472",
+     "E3498075",
+     "E3498123",
+     "E3498498",
+     "E3501217",
+     "E3510329",
+     "E3511678",
+     "E3514736",
+     "E3515424",
+     "E3516651",
+     "E3518885",
+     "E3519011",
+     "E3520211",
+     "E3526495",
+     "E3534252",
+     "E3535216",
+     "E3545958",
+     "E3547731",
+     "E3549787",
+     "E3551161",
+     "E3553106",
+     "E3553108",
+     "E3571604",
+     "E3577283",
+     "E3580237",
+     "E3586443",
+     "E3586709",
+     "E3586752",
+     "E3588163",
+     "E3590506",
+     "E3593773",
+     "E3594088",
+     "E3595982",
+     "E3597828",
+     "E3597988",
+     "E3598543",
+     "E3598724",
+     "E3598837",
+     "E3599078",
+     "E3599574",
+     "E3600018",
+     "E3600245",
+     "E3600881",
+     "E3601263",
+     "E3601944",
+     "E3602088",
+     "E3602228",
+     "E3602267",
+     "E3602427",
+     "E3603203",
+     "E3604219",
+     "E3604711",
+     "E3606976",
+     "E3609049",
+     "E3609204",
+     "E3611814",
+     "E3611930",
+     "E3613055",
+     "E3613257",
+     "E3613646",
+     "E3613686",
+     "E3618689",
+     "E3624171",
+     "E3684330",
+     "E3690661",
+     "E3702305",
+     "E3702314",
+     "E3715653",
+     "E3723040",
+     "E3730880",
+     "E3737236",
+     "E3739135",
+     "E3746954",
+     "E3749202",
+     "E3762127",
+     "E3762175",
+     "E3762176",
+     "E3772258",
+     "E3774581",
+     "E3775586",
+     "E3778226",
+     "E3780067",
+     "E3780660",
+     "E3791067",
+     "E3791069",
+     "E3792086",
+     "E3792131",
+     "E3796974",
+     "E3803134",
+     "E3804693",
+     "E3804695",
+     "E3804696",
+     "E3804711",
+     "E3804720",
+     "E3804878",
+     "E3804879",
+     "E3811665",
+     "E3812408",
+     "E3813961",
+     "E3818843",
+     "E3825115",
+     "E3825119",
+     "E3825291",
+     "E3826555"
+    ],
+    "triples_text": "[E8165274] Obesity (phenotype) --dm_causes--> Hyperinsulinemia (phenotype)\n[E261278] MTOR (gene) --protein_protein--> AKT1S1 (gene)\n[E328863] NADH (drug) --drug_protein--> HSD17B7 (gene)\n[E3780335] ADPRS (gene) --bioprocess_protein--> cellular response to superoxide (biological_process)\n[E3622590] IQCJ-SCHIP1 (gene) --cellcomp_protein--> axon initial segment (cellular_component)\n[E291452] AKT1S1 (gene) --protein_protein--> MMP24OS (gene)\n[E3535224] BBS1 (gene) --molfunc_protein--> smoothened binding (molecular_function)\n[E321910] Copper (drug) --drug_protein--> COX17 (gene)\n[E342622] Copper (drug) --drug_protein--> ANXA4 (gene)\n[E3800409] RPIA (gene) --pathway_protein--> RPIA deficiency: failed conversion of R5P to RU5P (pathway)\n[E3636935] PITHD1 (gene) --cellcomp_protein--> sperm cytoplasmic droplet (cellular_component)\n[E56897] EGFR (gene) --protein_protein--> CAVIN1 (gene)\n[E238042] FHL2 (gene) --protein_protein--> CAVIN1 (gene)\n[E5626] UBE2O (gene) --protein_protein--> CAVIN1 (gene)\n[E45680] PTPN23 (gene) --protein_protein--> CAVIN1 (gene)\n[E3587591] FBXO7 (gene) --cellcomp_protein--> mitochondrion (cellular_component)\n[E3544895] GCLM (gene) --molfunc_protein--> glutamate-cysteine ligase catalytic subunit binding (molecular_function)\n[E18175] MYH14 (gene) --protein_protein--> CAVIN1 (gene)\n[E3587705] TRIAP1 (gene) --cellcomp_protein--> mitochondrion (cellular_component)\n[E3587992] CHCHD5 (gene) --cellcomp_protein--> mitochondrion (cellular_component)\n[E8107255] Obesity (phenotype) --dm_causes--> Spinal canal stenosis (phenotype)\n[E8129790] Obesity (phenotype) --dm_causes--> Insulin resistance (phenotype)\n[E8129791] Polyphagia (phenotype) --dm_causes--> Obesity (phenotype)\n[E8191900] Obesity (phenotype) --dm_causes--> Abnormal circulating lipid concentration (phenotype)\n[E8216815] Colitis (phenotype) --dm_causes--> Failure to thrive (phenotype)\n[E5025] EGR1 (gene) --protein_protein--> TGFB1 (gene)\n[E12218] HSD17B7 (gene) --protein_protein--> GLMP (gene)\n[E14647] UBC (gene) --protein_protein--> USP14 (gene)\n[E90168] UBC (gene) --protein_protein--> MAP4K4 (gene)\n[E100556] BBS1 (gene) --protein_protein--> EEF1A1 (gene)\n[E133140] ADD2 (gene) --protein_protein--> DEF6 (gene)\n[E139726] RAD23A (gene) --protein_protein--> TP53 (gene)\n[E156967] APP (gene) --protein_protein--> EPB41 (gene)\n[E157435] UBC (gene) --protein_protein--> AP1M2 (gene)\n[E180255] UBC (gene) --protein_protein--> PITHD1 (gene)\n[E187438] PYGL (gene) --protein_protein--> UBC (gene)\n[E204097] EGR1 (gene) --protein_protein--> ELOF1 (gene)\n[E212439] AKT1 (gene) --protein_protein--> PIK3R1 (gene)\n[E225790] UBC (gene) --protein_protein--> RPIA (gene)\n[E237435] TP53 (gene) --protein_protein--> COX17 (gene)\n[E273360] GYS1 (gene) --protein_protein--> UBC (gene)\n[E294120] GTF2H4 (gene) --protein_protein--> TP53 (gene)\n[E303445] ADPRS (gene) --protein_protein--> HEXD (gene)\n[E311483] UBC (gene) --protein_protein--> RAPGEF2 (gene)\n[E332111] Glutamic acid (drug) --drug_protein--> GCLM (gene)\n[E333935] KX-01 (drug) --drug_protein--> SRC (gene)\n[E337084] Ascorbic acid (drug) --drug_protein--> P3H3 (gene)\n[E337085] Proline (drug) --drug_protein--> P3H3 (gene)\n[E338001] Zinc chloride (drug) --drug_protein--> TP53 (gene)\n[E339771] Copper (drug) --drug_protein--> EEF1A1 (gene)\n[E339773] Zinc acetate (drug) --drug_protein--> EEF1A1 (gene)\n[E339774] Zinc chloride (drug) --drug_protein--> EEF1A1 (gene)\n[E339775] Zinc sulfate, unspecified form (drug) --drug_protein--> EEF1A1 (gene)\n[E346312] Pexidartinib (drug) --drug_protein--> SLC47A2 (gene)\n[E346313] Trastuzumab deruxtecan (drug) --drug_protein--> SLC47A2 (gene)\n[E473586] Pexidartinib (drug) --drug_drug--> Naproxen (drug)\n[E1148525] Pexidartinib (drug) --drug_drug--> Fluocinolone acetonide (drug)\n[E1404801] Metamfetamine (drug) --drug_drug--> Fedratinib (drug)\n[E1404891] Tafenoquine (drug) --drug_drug--> Fedratinib (drug)\n[E1405048] Abemaciclib (drug) --drug_drug--> Fedratinib (drug)\n[E1405068] Copanlisib (drug) --drug_drug--> Fedratinib (drug)\n[E1581601] Glutamic acid (drug) --drug_drug--> Metamfetamine (drug)\n[E1702071] Pexidartinib (drug) --drug_drug--> Metoprolol (drug)\n[E1726281] Guanidine (drug) --drug_drug--> Tazemetostat (drug)\n[E1726701] Capmatinib (drug) --drug_drug--> Tazemetostat (drug)\n[E1726722] Abemaciclib (drug) --drug_drug--> Tazemetostat (drug)\n[E1726752] Pexidartinib (drug) --drug_drug--> Tazemetostat (drug)\n[E3004498] Guanidine (drug) --drug_drug--> Pyrimethamine (drug)\n[E3004868] Succinic acid (drug) --drug_drug--> Guanidine (drug)\n[E3005008] Risdiplam (drug) --drug_drug--> Guanidine (drug)\n[E3015690] Risdiplam (drug) --drug_drug--> Relebactam (drug)\n[E3062282] ADPRS (gene) --phenotype_protein--> Dyssynergia (phenotype)\n[E3062402] TGFB1 (gene) --phenotype_protein--> Allergy (phenotype)\n[E3062527] PIK3R1 (gene) --phenotype_protein--> Insulin resistance (phenotype)\n[E3064770] EPB41 (gene) --phenotype_protein--> Elliptocytosis (phenotype)\n[E3065968] Eczema (phenotype) --phenotype_phenotype--> Atopic dermatitis (phenotype)\n[E3083592] Allergy (phenotype) --phenotype_phenotype--> Food allergy (phenotype)\n[E3350594] Naproxen (drug) --drug_effect--> Nasal polyposis (phenotype)\n[E3365063] Fluocinolone acetonide (drug) --drug_effect--> Eczema (phenotype)\n[E3373932] Methylphenidate (drug) --drug_effect--> Nasal polyposis (phenotype)\n[E3373978] Methylphenidate (drug) --drug_effect--> Failure to thrive (phenotype)\n[E3374446] Metoprolol (drug) --drug_effect--> Airway obstruction (phenotype)\n[E3462286] response to superoxide (biological_process) --bioprocess_bioprocess--> cellular response to superoxide (biological_process)\n[E3474149] enzyme binding (molecular_function) --molfunc_molfunc--> glutamate-cysteine ligase catalytic subunit binding (molecular_function)\n[E3478067] copper ion binding (molecular_function) --molfunc_molfunc--> cuprous ion binding (molecular_function)\n[E3479427] cellular anatomical entity (cellular_component) --cellcomp_cellcomp--> nucleoplasm (cellular_component)\n[E3479622] cellular anatomical entity (cellular_component) --cellcomp_cellcomp--> axon initial segment (cellular_component)\n[E3483634] nuclear body (cellular_component) --cellcomp_cellcomp--> nuclear speck (cellular_component)\n[E3484472] TP53 (gene) --molfunc_protein--> enzyme binding (molecular_function)\n[E3498075] STAT3 (gene) --molfunc_protein--> DNA binding (molecular_function)\n[E3498123] TP53 (gene) --molfunc_protein--> DNA binding (molecular_function)\n[E3498498] DHX58 (gene) --molfunc_protein--> DNA binding (molecular_function)\n[E3501217] DHX58 (gene) --molfunc_protein--> ATP binding (molecular_function)\n[E3510329] RAN (gene) --molfunc_protein--> magnesium ion binding (molecular_function)\n[E3511678] TP53 (gene) --molfunc_protein--> copper ion binding (molecular_function)\n[E3514736] IQGAP1 (gene) --molfunc_protein--> protein kinase binding (molecular_function)\n[E3515424] ADD2 (gene) --molfunc_protein--> actin binding (molecular_function)\n[E3516651] TP53 (gene) --molfunc_protein--> chromatin binding (molecular_function)\n[E3518885] AKT1 (gene) --molfunc_protein--> calmodulin binding (molecular_function)\n[E3519011] IQGAP1 (gene) --molfunc_protein--> calmodulin binding (molecular_function)\n[E3520211] ADD2 (gene) --molfunc_protein--> spectrin binding (molecular_function)\n[E3526495] AKT1 (gene) --molfunc_protein--> protein serine kinase activity (molecular_function)\n[E3534252] COX17 (gene) --molfunc_protein--> copper chaperone activity (molecular_function)\n[E3535216] BBS1 (gene) --molfunc_protein--> patched binding (molecular_function)\n[E3545958] RAD23A (gene) --molfunc_protein--> proteasome binding (molecular_function)\n[E3547731] PYGL (gene) --molfunc_protein--> purine nucleobase binding (molecular_function)\n[E3549787] SORT1 (gene) --molfunc_protein--> neurotensin receptor activity, non-G protein-coupled (molecular_function)\n[E3551161] ADPRS (gene) --molfunc_protein--> poly(ADP-ribose) glycohydrolase activity (molecular_function)\n[E3553106] ADPRS (gene) --molfunc_protein--> O-acetyl-ADP-ribose deacetylase activity (molecular_function)\n[E3553108] ADPRS (gene) --molfunc_protein--> ADP-ribosylserine hydrolase activity (molecular_function)\n[E3571604] UBB (gene) --cellcomp_protein--> endoplasmic reticulum membrane (cellular_component)\n[E3577283] EEF1A1 (gene) --cellcomp_protein--> plasma membrane (cellular_component)\n[E3580237] SLC52A2 (gene) --cellcomp_protein--> plasma membrane (cellular_component)\n[E3586443] SORT1 (gene) --cellcomp_protein--> perinuclear region of cytoplasm (cellular_component)\n[E3586709] DISC1 (gene) --cellcomp_protein--> perinuclear region of cytoplasm (cellular_component)\n[E3586752] RASIP1 (gene) --cellcomp_protein--> perinuclear region of cytoplasm (cellular_component)\n[E3588163] CAVIN1 (gene) --cellcomp_protein--> mitochondrion (cellular_component)\n[E3590506] TP53 (gene) --cellcomp_protein--> mitochondrial matrix (cellular_component)\n[E3593773] APP (gene) --cellcomp_protein--> Golgi apparatus (cellular_component)\n[E3594088] TNKS (gene) --cellcomp_protein--> Golgi apparatus (cellular_component)\n[E3595982] SORT1 (gene) --cellcomp_protein--> cytoplasmic vesicle (cellular_component)\n[E3597828] EGR1 (gene) --cellcomp_protein--> nucleoplasm (cellular_component)\n[E3597988] HIF1A (gene) --cellcomp_protein--> nucleoplasm (cellular_component)\n[E3598543] REST (gene) --cellcomp_protein--> nucleoplasm (cellular_component)\n[E3598724] STAT3 (gene) --cellcomp_protein--> nucleoplasm (cellular_component)\n[E3598837] UBC (gene) --cellcomp_protein--> nucleoplasm (cellular_component)\n[E3599078] TNKS (gene) --cellcomp_protein--> nucleoplasm (cellular_component)\n[E3599574] PRDM5 (gene) --cellcomp_protein--> nucleoplasm (cellular_component)\n[E3600018] DEF6 (gene) --cellcomp_protein--> nucleoplasm (cellular_component)\n[E3600245] ADPRS (gene) --cellcomp_protein--> nucleoplasm (cellular_component)\n[E3600881] AKT1S1 (gene) --cellcomp_protein--> nucleoplasm (cellular_component)\n[E3601263] CAVIN1 (gene) --cellcomp_protein--> nucleoplasm (cellular_component)\n[E3601944] TP53 (gene) --cellcomp_protein--> endoplasmic reticulum (cellular_component)\n[E3602088] P3H3 (gene) --cellcomp_protein--> endoplasmic reticulum (cellular_component)\n[E3602228] ERO1A (gene) --cellcomp_protein--> endoplasmic reticulum (cellular_component)\n[E3602267] HSD17B7 (gene) --cellcomp_protein--> endoplasmic reticulum (cellular_component)\n[E3602427] PIP4K2C (gene) --cellcomp_protein--> endoplasmic reticulum (cellular_component)\n[E3603203] SORT1 (gene) --cellcomp_protein--> dendrite (cellular_component)\n[E3604219] TNKS (gene) --cellcomp_protein--> nuclear body (cellular_component)\n[E3604711] UBB (gene) --cellcomp_protein--> neuronal cell body (cellular_component)\n[E3606976] TNKS (gene) --cellcomp_protein--> Golgi membrane (cellular_component)\n[E3609049] TP53 (gene) --cellcomp_protein--> centrosome (cellular_component)\n[E3609204] DISC1 (gene) --cellcomp_protein--> centrosome (cellular_component)\n[E3611814] RAN (gene) --cellcomp_protein--> chromatin (cellular_component)\n[E3611930] TP53 (gene) --cellcomp_protein--> chromatin (cellular_component)\n[E3613055] HSPB1 (gene) --cellcomp_protein--> cytoskeleton (cellular_component)\n[E3613257] DEF6 (gene) --cellcomp_protein--> cytoskeleton (cellular_component)\n[E3613646] SRC (gene) --cellcomp_protein--> focal adhesion (cellular_component)\n[E3613686] IQGAP1 (gene) --cellcomp_protein--> focal adhesion (cellular_component)\n[E3618689] ADPRS (gene) --cellcomp_protein--> site of DNA damage (cellular_component)\n[E3624171] IQGAP1 (gene) --cellcomp_protein--> microtubule (cellular_component)\n[E3684330] GCLM (gene) --bioprocess_protein--> response to nitrosative stress (biological_process)\n[E3690661] RAPGEF2 (gene) --bioprocess_protein--> positive regulation of cAMP-dependent protein kinase activity (biological_process)\n[E3702305] AKT1 (gene) --bioprocess_protein--> negative regulation of cell size (biological_process)\n[E3702314] AKT1S1 (gene) --bioprocess_protein--> negative regulation of cell size (biological_process)\n[E3715653] UBB (gene) --bioprocess_protein--> regulation of proteasomal protein catabolic process (biological_process)\n[E3723040] REST (gene) --bioprocess_protein--> regulation of osteoblast differentiation (biological_process)\n[E3730880] RAPGEF2 (gene) --bioprocess_protein--> brain-derived neurotrophic factor receptor signaling pathway (biological_process)\n[E3737236] DHX58 (gene) --bioprocess_protein--> negative regulation of MDA-5 signaling pathway (biological_process)\n[E3739135] ERO1A (gene) --bioprocess_protein--> protein maturation by protein folding (biological_process)\n[E3746954] ELOF1 (gene) --bioprocess_protein--> chromatin-mediated maintenance of transcription (biological_process)\n[E3749202] ERO1A (gene) --bioprocess_protein--> animal organ senescence (biological_process)\n[E3762127] GCLM (gene) --bioprocess_protein--> response to human chorionic gonadotropin (biological_process)\n[E3762175] GCLM (gene) --bioprocess_protein--> positive regulation of glutamate-cysteine ligase activity (biological_process)\n[E3762176] GCLM (gene) --bioprocess_protein--> hepatic stellate cell activation (biological_process)\n[E3772258] PIP4K2C (gene) --bioprocess_protein--> negative regulation of 1-phosphatidylinositol-4-phosphate 5-kinase activity (biological_process)\n[E3774581] USP14 (gene) --bioprocess_protein--> negative regulation of ER-associated ubiquitin-dependent protein catabolic process (biological_process)\n[E3775586] IQCJ-SCHIP1 (gene) --bioprocess_protein--> positive regulation of hippo signaling (biological_process)\n[E3778226] MAP4K4 (gene) --bioprocess_protein--> positive regulation of ARF protein signal transduction (biological_process)\n[E3780067] RASIP1 (gene) --bioprocess_protein--> negative regulation of Rho-dependent protein serine/threonine kinase activity (biological_process)\n[E3780660] ADPRS (gene) --bioprocess_protein--> peptidyl-serine ADP-deribosylation (biological_process)\n[E3791067] Pentose phosphate pathway disease (pathway) --pathway_pathway--> RPIA deficiency: failed conversion of R5P to RU5P (pathway)\n[E3791069] Pentose phosphate pathway disease (pathway) --pathway_pathway--> RPIA deficiency: failed conversion of RU5P to R5P (pathway)\n[E3792086] AP1M2 (gene) --pathway_protein--> Nef mediated downregulation of MHC class I complex cell surface expression (pathway)\n[E3792131] COX17 (gene) --pathway_protein--> Mitochondrial protein import (pathway)\n[E3796974] SLC47A2 (gene) --pathway_protein--> Transport of bile salts and organic acids, metal ions and amine compounds (pathway)\n[E3803134] GCLM (gene) --pathway_protein--> Defective GCLC causes HAGGSD (pathway)\n[E3804693] GTF2H4 (gene) --pathway_protein--> Formation of the Early Elongation Complex (pathway)\n[E3804695] GTF2H4 (gene) --pathway_protein--> Formation of the HIV-1 Early Elongation Complex (pathway)\n[E3804696] GTF2H4 (gene) --pathway_protein--> RNA Pol II CTD phosphorylation and interaction with CE during HIV infection (pathway)\n[E3804711] GTF2H4 (gene) --pathway_protein--> mRNA Capping (pathway)\n[E3804720] GTF2H4 (gene) --pathway_protein--> RNA Pol II CTD phosphorylation and interaction with CE (pathway)\n[E3804878] GYS1 (gene) --pathway_protein--> Glycogen storage disease type XV (GYG1) (pathway)\n[E3804879] GYS1 (gene) --pathway_protein--> Glycogen storage disease type 0 (muscle GYS1) (pathway)\n[E3811665] HSD17B7 (gene) --pathway_protein--> Cholesterol biosynthesis (pathway)\n[E3812408] PIK3R1 (gene) --pathway_protein--> RHOF GTPase cycle (pathway)\n[E3813961] ADPRS (gene) --pathway_protein--> POLB-Dependent Long Patch Base Excision Repair (pathway)\n[E3818843] PYGL (gene) --pathway_protein--> Glycogen breakdown (glycogenolysis) (pathway)\n[E3825115] UBB (gene) --pathway_protein--> Formation of Incision Complex in GG-NER (pathway)\n[E3825119] UBB (gene) --pathway_protein--> Transcription-Coupled Nucleotide Excision Repair (TC-NER) (pathway)\n[E3825291] UBC (gene) --pathway_protein--> Formation of Incision Complex in GG-NER (pathway)\n[E3826555] SLC52A2 (gene) --pathway_protein--> Vitamin B2 (riboflavin) metabolism (pathway)",
+    "meta": {
+     "retriever": "gnn_pcst",
+     "variant": "full",
+     "budget": 500,
+     "gnn_a_tag": "main",
+     "target_types": [
+      "gene",
+      "biological_process",
+      "molecular_function",
+      "cellular_component",
+      "drug",
+      "phenotype",
+      "pathway"
+     ],
+     "per_type": true,
+     "missing_seeds": [],
+     "seed_notes": [
+      "PATIENT:C3L-00183: 102 neighbours"
+     ],
+     "n_candidates": 66290,
+     "alpha": 0.0,
+     "beta": 0.25,
+     "ppr": 1.0,
+     "hub": 0.25,
+     "lift": true,
+     "direct_go": true,
+     "anchor_edges": 20,
+     "adaptive_budget": true,
+     "budget_ceiling": 500,
+     "n_nonseed": 153
+    }
+   },
+   "ms": 1674,
+   "by": "llm"
+  }
+ ],
+ "evidence": {
+  "edge_ids": [
+   "pt:C3L-00183:has_phenotype:HP:0002099",
+   "pt:C3L-00183:has_phenotype:HP:0001513",
+   "pt:C3L-00183:protein_up:NCBIGene:7174",
+   "pt:C3L-00183:protein_up:NCBIGene:2730",
+   "pt:C3L-00183:protein_up:NCBIGene:22934",
+   "pt:C3L-00183:protein_up:NCBIGene:2968",
+   "pt:C3L-00183:protein_up:NCBIGene:63897",
+   "pt:C3L-00183:protein_up:NCBIGene:9491",
+   "pt:C3L-00183:protein_up:NCBIGene:5836",
+   "pt:C3L-00183:protein_up:NCBIGene:63893",
+   "pt:C3L-00183:protein_up:NCBIGene:55206",
+   "pt:C3L-00183:protein_up:NCBIGene:57553",
+   "pt:C3L-00183:protein_up:NCBIGene:91039",
+   "pt:C3L-00183:protein_up:NCBIGene:79812",
+   "pt:C3L-00183:protein_up:NCBIGene:5257",
+   "pt:C3L-00183:protein_up:NCBIGene:9448",
+   "pt:C3L-00183:protein_up:NCBIGene:2997",
+   "pt:C3L-00183:protein_up:NCBIGene:51478",
+   "pt:C3L-00183:protein_up:NCBIGene:92799",
+   "pt:C3L-00183:protein_up:NCBIGene:1730",
+   "pt:C3L-00183:protein_up:NCBIGene:55705",
+   "pt:C3L-00183:protein_up:NCBIGene:307",
+   "pt:C3L-00183:protein_up:NCBIGene:54922",
+   "pt:C3L-00183:protein_up:NCBIGene:5886",
+   "pt:C3L-00183:protein_up:NCBIGene:2035",
+   "pt:C3L-00183:protein_up:NCBIGene:1464",
+   "pt:C3L-00183:protein_up:NCBIGene:57095",
+   "pt:C3L-00183:protein_up:NCBIGene:97",
+   "pt:C3L-00183:protein_up:NCBIGene:5901",
+   "pt:C3L-00183:protein_up:NCBIGene:54936",
+   "pt:C3L-00183:protein_up:NCBIGene:1956",
+   "pt:C3L-00183:protein_up:NCBIGene:135293",
+   "pt:C3L-00183:protein_up:NCBIGene:57514",
+   "pt:C3L-00183:protein_up:NCBIGene:9732",
+   "pt:C3L-00183:protein_up:NCBIGene:9693",
+   "pt:C3L-00183:protein_up:NCBIGene:30001",
+   "pt:C3L-00183:protein_up:NCBIGene:158",
+   "pt:C3L-00183:protein_up:NCBIGene:230",
+   "pt:C3L-00183:protein_up:NCBIGene:143872",
+   "pt:C3L-00183:protein_up:NCBIGene:1642",
+   "pt:C3L-00183:protein_up:NCBIGene:10536",
+   "pt:C3L-00183:protein_up:NCBIGene:119",
+   "pt:C3L-00183:protein_up:NCBIGene:3145",
+   "pt:C3L-00183:protein_up:NCBIGene:57572",
+   "pt:C3L-00183:protein_up:NCBIGene:8291",
+   "pt:C3L-00183:protein_up:NCBIGene:5128",
+   "pt:C3L-00183:protein_up:NCBIGene:80381",
+   "pt:C3L-00183:protein_up:NCBIGene:25793",
+   "pt:C3L-00183:protein_up:NCBIGene:64856",
+   "pt:C3L-00183:protein_up:NCBIGene:54555",
+   "pt:C3L-00183:protein_up:NCBIGene:63891",
+   "pt:C3L-00183:protein_up:NCBIGene:9097",
+   "pt:C3L-00183:protein_down:NCBIGene:23032",
+   "pt:C3L-00183:protein_down:NCBIGene:6302",
+   "pt:C3L-00183:protein_down:NCBIGene:8543",
+   "pt:C3L-00183:protein_down:NCBIGene:79098",
+   "pt:C3L-00183:protein_down:NCBIGene:60685",
+   "pt:C3L-00183:protein_down:NCBIGene:79784",
+   "pt:C3L-00183:protein_down:NCBIGene:347733",
+   "pt:C3L-00183:protein_down:NCBIGene:55088",
+   "pt:C3L-00183:protein_down:NCBIGene:10063",
+   "pt:C3L-00183:protein_down:NCBIGene:84269",
+   "pt:C3L-00183:protein_down:NCBIGene:6477",
+   "pt:C3L-00183:protein_down:NCBIGene:3898",
+   "pt:C3L-00183:protein_down:NCBIGene:4008",
+   "pt:C3L-00183:protein_down:NCBIGene:388753",
+   "pt:C3L-00183:protein_down:NCBIGene:146802",
+   "pt:C3L-00183:protein_down:NCBIGene:51454",
+   "pt:C3L-00183:protein_down:NCBIGene:6272",
+   "pt:C3L-00183:protein_down:NCBIGene:101410538",
+   "pt:C3L-00183:protein_down:NCBIGene:582",
+   "pt:C3L-00183:protein_down:NCBIGene:222171",
+   "pt:C3L-00183:protein_down:NCBIGene:64093",
+   "pt:C3L-00183:protein_down:NCBIGene:4072",
+   "pt:C3L-00183:protein_down:NCBIGene:6712",
+   "pt:C3L-00183:protein_down:NCBIGene:84337",
+   "pt:C3L-00183:protein_down:NCBIGene:8887",
+   "pt:C3L-00183:protein_down:NCBIGene:219333",
+   "pt:C3L-00183:protein_down:NCBIGene:140735",
+   "pt:C3L-00183:protein_down:NCBIGene:55327",
+   "pt:C3L-00183:protein_down:NCBIGene:4628",
+   "pt:C3L-00183:protein_down:NCBIGene:22848",
+   "pt:C3L-00183:protein_down:NCBIGene:7555",
+   "pt:C3L-00183:protein_down:NCBIGene:100505385",
+   "pt:C3L-00183:protein_down:NCBIGene:2782",
+   "pt:C3L-00183:protein_down:NCBIGene:56942",
+   "pt:C3L-00183:protein_down:NCBIGene:84858",
+   "pt:C3L-00183:protein_down:NCBIGene:5438",
+   "pt:C3L-00183:protein_down:NCBIGene:79581",
+   "pt:C3L-00183:protein_down:NCBIGene:7105",
+   "pt:C3L-00183:protein_down:NCBIGene:140823",
+   "pt:C3L-00183:protein_down:NCBIGene:25930",
+   "pt:C3L-00183:protein_down:NCBIGene:10053",
+   "pt:C3L-00183:protein_down:NCBIGene:2888",
+   "pt:C3L-00183:protein_down:NCBIGene:11228",
+   "pt:C3L-00183:protein_down:NCBIGene:84364",
+   "pt:C3L-00183:protein_down:NCBIGene:51499",
+   "pt:C3L-00183:protein_down:NCBIGene:51719",
+   "pt:C3L-00183:protein_down:NCBIGene:26049",
+   "pt:C3L-00183:protein_down:NCBIGene:2274",
+   "pt:C3L-00183:protein_down:NCBIGene:7164",
+   "pt:C3L-00183:protein_down:NCBIGene:79837",
+   "pt:C3L-00183:somatic_mutation:NCBIGene:2475",
+   "pt:C3L-00183:somatic_mutation:NCBIGene:55193",
+   "pred:C3L-00183:gnn",
+   "contrib:C3L-00183:NCBIGene:79784",
+   "contrib:C3L-00183:NCBIGene:22848",
+   "contrib:C3L-00183:NCBIGene:4072",
+   "contrib:C3L-00183:NCBIGene:100505385",
+   "contrib:C3L-00183:NCBIGene:51454",
+   "contrib:C3L-00183:NCBIGene:51719",
+   "contrib:C3L-00183:NCBIGene:3898",
+   "contrib:C3L-00183:NCBIGene:2888",
+   "contrib:C3L-00183:NCBIGene:23032",
+   "contrib:C3L-00183:NCBIGene:4628",
+   "rank:C3L-00183:drug:DRUGBANK:DB08886",
+   "rank:C3L-00183:drug:DRUGBANK:DB01592",
+   "rank:C3L-00183:drug:DRUGBANK:DB00360",
+   "rank:C3L-00183:drug:DRUGBANK:DB00128",
+   "rank:C3L-00183:drug:DRUGBANK:DB09125",
+   "rank:C3L-00183:drug:DRUGBANK:DB09042",
+   "rank:C3L-00183:drug:DRUGBANK:DB00139",
+   "rank:C3L-00183:drug:DRUGBANK:DB14098",
+   "rank:C3L-00183:drug:DRUGBANK:DB00364",
+   "rank:C3L-00183:drug:DRUGBANK:DB13873",
+   "rank:C3L-00183:gene:NCBIGene:2998",
+   "rank:C3L-00183:gene:NCBIGene:10606",
+   "rank:C3L-00183:gene:NCBIGene:7167",
+   "rank:C3L-00183:gene:NCBIGene:4860",
+   "rank:C3L-00183:gene:NCBIGene:4350",
+   "rank:C3L-00183:gene:NCBIGene:1503",
+   "rank:C3L-00183:gene:NCBIGene:2937",
+   "rank:C3L-00183:gene:NCBIGene:5834",
+   "rank:C3L-00183:gene:NCBIGene:4351",
+   "rank:C3L-00183:gene:NCBIGene:353",
+   "E8158972",
+   "E8158973",
+   "E8158975",
+   "E8158981",
+   "E8158982",
+   "E8158983",
+   "E8158984",
+   "E8158985",
+   "E8158980",
+   "E8158958",
+   "E8158959",
+   "E8158960",
+   "E8158961",
+   "E8158963",
+   "E8165274",
+   "E261278",
+   "E328863",
+   "E3780335",
+   "E3622590",
+   "E291452",
+   "E3535224",
+   "E321910",
+   "E342622",
+   "E3800409",
+   "E3636935",
+   "E56897",
+   "E238042",
+   "E5626",
+   "E45680",
+   "E3587591",
+   "E3544895",
+   "E18175",
+   "E3587705",
+   "E3587992",
+   "E8107255",
+   "E8129790",
+   "E8129791",
+   "E8191900",
+   "E8216815",
+   "E5025",
+   "E12218",
+   "E14647",
+   "E90168",
+   "E100556",
+   "E133140",
+   "E139726",
+   "E156967",
+   "E157435",
+   "E180255",
+   "E187438",
+   "E204097",
+   "E212439",
+   "E225790",
+   "E237435",
+   "E273360",
+   "E294120",
+   "E303445",
+   "E311483",
+   "E332111",
+   "E333935",
+   "E337084",
+   "E337085",
+   "E338001",
+   "E339771",
+   "E339773",
+   "E339774",
+   "E339775",
+   "E346312",
+   "E346313",
+   "E473586",
+   "E1148525",
+   "E1404801",
+   "E1404891",
+   "E1405048",
+   "E1405068",
+   "E1581601",
+   "E1702071",
+   "E1726281",
+   "E1726701",
+   "E1726722",
+   "E1726752",
+   "E3004498",
+   "E3004868",
+   "E3005008",
+   "E3015690",
+   "E3062282",
+   "E3062402",
+   "E3062527",
+   "E3064770",
+   "E3065968",
+   "E3083592",
+   "E3350594",
+   "E3365063",
+   "E3373932",
+   "E3373978",
+   "E3374446",
+   "E3462286",
+   "E3474149",
+   "E3478067",
+   "E3479427",
+   "E3479622",
+   "E3483634",
+   "E3484472",
+   "E3498075",
+   "E3498123",
+   "E3498498",
+   "E3501217",
+   "E3510329",
+   "E3511678",
+   "E3514736",
+   "E3515424",
+   "E3516651",
+   "E3518885",
+   "E3519011",
+   "E3520211",
+   "E3526495",
+   "E3534252",
+   "E3535216",
+   "E3545958",
+   "E3547731",
+   "E3549787",
+   "E3551161",
+   "E3553106",
+   "E3553108",
+   "E3571604",
+   "E3577283",
+   "E3580237",
+   "E3586443",
+   "E3586709",
+   "E3586752",
+   "E3588163",
+   "E3590506",
+   "E3593773",
+   "E3594088",
+   "E3595982",
+   "E3597828",
+   "E3597988",
+   "E3598543",
+   "E3598724",
+   "E3598837",
+   "E3599078",
+   "E3599574",
+   "E3600018",
+   "E3600245",
+   "E3600881",
+   "E3601263",
+   "E3601944",
+   "E3602088",
+   "E3602228",
+   "E3602267",
+   "E3602427",
+   "E3603203",
+   "E3604219",
+   "E3604711",
+   "E3606976",
+   "E3609049",
+   "E3609204",
+   "E3611814",
+   "E3611930",
+   "E3613055",
+   "E3613257",
+   "E3613646",
+   "E3613686",
+   "E3618689",
+   "E3624171",
+   "E3684330",
+   "E3690661",
+   "E3702305",
+   "E3702314",
+   "E3715653",
+   "E3723040",
+   "E3730880",
+   "E3737236",
+   "E3739135",
+   "E3746954",
+   "E3749202",
+   "E3762127",
+   "E3762175",
+   "E3762176",
+   "E3772258",
+   "E3774581",
+   "E3775586",
+   "E3778226",
+   "E3780067",
+   "E3780660",
+   "E3791067",
+   "E3791069",
+   "E3792086",
+   "E3792131",
+   "E3796974",
+   "E3803134",
+   "E3804693",
+   "E3804695",
+   "E3804696",
+   "E3804711",
+   "E3804720",
+   "E3804878",
+   "E3804879",
+   "E3811665",
+   "E3812408",
+   "E3813961",
+   "E3818843",
+   "E3825115",
+   "E3825119",
+   "E3825291",
+   "E3826555"
+  ],
+  "pmids": [
+   "PMID:37085424",
+   "PMID:38762484",
+   "PMID:21527770",
+   "PMID:36621810",
+   "PMID:23792563",
+   "PMID:39196544"
+  ]
+ },
+ "draft": "**Summary**  \nThe GNN-A model estimates a 35.7% risk of stage III–IV disease for patient C3L-00183, driven entirely by tumor-protein features (tumor_share=1.0) [pred:C3L-00183:gnn]. The top tumor drivers are strongly down-regulated cytoskeletal and ubiquitin-related proteins (MYH14, USP33, LAD1) and signaling adaptors (AAK1, GRB14) [contrib:C3L-00183:NCBIGene:79784][contrib:C3L-00183:NCBIGene:23032][contrib:C3L-00183:NCBIGene:3898][contrib:C3L-00183:NCBIGene:22848][contrib:C3L-00183:NCBIGene:2888]. The tumor carries somatic MTOR p.L2220F and PBRM1 p.E367* mutations [pt:C3L-00183:somatic_mutation:NCBIGene:2475][pt:C3L-00183:somatic_mutation:NCBIGene:55193]. Model-ranked drugs highlight metabolic/supportive agents (asparaginase, iron, sapropterin) rather than approved ccRCC VEGF/immune therapies [rank:C3L-00183:drug:DRUGBANK:DB08886][rank:C3L-00183:drug:DRUGBANK:DB01592][rank:C3L-00183:drug:DRUGBANK:DB00360].\n\n**Evidence paths**  \n- Somatic MTOR mutation → MTOR–AKT1S1 protein interaction [E261278] links to PI3K/AKT/mTOR axis.  \n- Somatic PBRM1 mutation → PBRM1 is a known ccRCC epigenetic-dysregulation gene in dismech chain-2 [E8158981].  \n- Down-regulated MYH14 protein interacts with CAVIN1 [E18175], a membrane-curvature protein implicated in vesicle trafficking.  \n- Down-regulated USP33 (deubiquitinase) and LAD1 (adhesion) are top negative contributors to risk [contrib:C3L-00183:NCBIGene:23032][contrib:C3L-00183:NCBIGene:3898].  \n- Obesity phenotype → hyperinsulinemia/insulin resistance [E8165274][E8129790] may amplify PI3K/AKT signaling (non-tumor clinical context).\n\n**Mechanism**  \nccRCC pathogenesis in the knowledge graph follows: (1) VHL inactivation → HIF-2α stabilization → VEGF-driven angiogenesis [E8158972][E8158973][E8158975]; (2) Epigenetic dysregulation (PBRM1, SETD2, BAP1) → growth-factor pathway activation [E8158981][E8158982]; (3) Immune evasion via PD-L1 and immunosuppressive microenvironment [E8158983]; (4) Metabolic reprogramming toward aerobic glycolysis [E8158980]. Approved ccRCC drugs (sunitinib, pazopanib, axitinib, cabozantinib, belzutifan) target VEGF/HIF-2α axes [E8158958][E8158959][E8158960][E8158961][E8158963].\n\n**Targets / drugs**  \n*Curated disease-linked drugs* (from dismech): Sunitinib, Pazopanib, Axitinib, Cabozantinib, Belzutifan – VEGF/HIF-2α inhibitors with ccRCC indications [E8158958][E8158959][E8158960][E8158961][E8158963].  \n*Model-ranked drugs* (cohort-relative, tumor-protein basis):  \n1. Asparaginase Erwinia chrysanthemi (score 2.55) [rank:C3L-00183:drug:DRUGBANK:DB08886]  \n2. Iron (2.42) [rank:C3L-00183:drug:DRUGBANK:DB01592]  \n3. Sapropterin (1.99) [rank:C3L-00183:drug:DRUGBANK:DB00360]  \n4. Aspartic acid (1.96) [rank:C3L-00183:drug:DRUGBANK:DB00128]  \n5. Potassium citrate (1.92) [rank:C3L-00183:drug:DRUGBANK:DB09125]  \n*Model-ranked genes* (tumor-protein basis): GYS2, PAICS, TPI1, PNP, MPG, CTPS1, GSS, PYGB, MPI, APRT – enriched for nucleotide/glycogen metabolism [rank:C3L-00183:gene:NCBIGene:2998][rank:C3L-00183:gene:NCBIGene:10606][rank:C3L-00183:gene:NCBIGene:7167][rank:C3L-00183:gene:NCBIGene:4860][rank:C3L-00183:gene:NCBIGene:4350].\n\n**Testable hypothesis**  \nHypothesis: The combined loss of PBRM1 (chromatin remodeling) and MTOR activation (p.L2220F) in this tumor drives a metabolic-angiogenic program that is further amplified by obesity-associated hyperinsulinemia, making dual HIF-2α/MTOR inhibition more effective than VEGF blockade alone.  \nExperiment: Treat PBRM1-knockout/MTOR-mutant ccRCC xenografts with belzutifan ± everolimus under high-insulin conditions; measure tumor growth, HIF-2α targets, and phospho-S6.\n\n**Caveats**  \n- GNN risk is an out-of-fold estimate, not a clinical staging; no stage/grade/outcome data are available.  \n- Model-ranked drugs are cohort-relative suggestions from tumor proteomics, not evidence of efficacy in ccRCC; they include metabolic supplements rather than approved oncology agents.  \n- Somatic mutations are tumor-only; germline status unknown.  \n- Obesity/insulin-resistance edges are phenotype-level associations, not proven tumor-intrinsic mechanisms in this patient.  \n- Subgraph does not contain direct MTOR–HIF or PBRM1–VHL edges; mechanistic links are inferred from literature-curated dismech chains.",
+ "claims": [
+  {
+   "claim_id": "c1",
+   "text": "The GNN-A model estimates a 35.7% risk of stage III–IV disease for patient C3L-00183, driven entirely by tumor-protein features (tumor_share=1.0).",
+   "support": {
+    "edge_ids": [
+     "pred:C3L-00183:gnn"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "The GNN-A model estimates a 35.7% risk of stage III–IV disease for patient C3L-00183, driven entirely by tumor-protein features (tumor_share=1.0) [pred:C3L-00183:gnn].",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": true
+  },
+  {
+   "claim_id": "c2",
+   "text": "The top tumor drivers are strongly down-regulated cytoskeletal and ubiquitin-related proteins (MYH14, USP33, LAD1) and signaling adaptors (AAK1, GRB14).",
+   "support": {
+    "edge_ids": [
+     "contrib:C3L-00183:NCBIGene:79784",
+     "contrib:C3L-00183:NCBIGene:23032",
+     "contrib:C3L-00183:NCBIGene:3898",
+     "contrib:C3L-00183:NCBIGene:22848",
+     "contrib:C3L-00183:NCBIGene:2888"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "The top tumor drivers are strongly down-regulated cytoskeletal and ubiquitin-related proteins (MYH14, USP33, LAD1) and signaling adaptors (AAK1, GRB14) [contrib:C3L-00183:NCBIGene:79784][contrib:C3L-00183:NCBIGene:23032][contrib:C3L-00183:NCBIGene:3898][contrib:C3L-00183:NCBIGene:22848][contrib:C3L-00183:NCBIGene:2888].",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": true
+  },
+  {
+   "claim_id": "c3",
+   "text": "The tumor carries somatic MTOR p.L2220F and PBRM1 p.E367* mutations.",
+   "support": {
+    "edge_ids": [
+     "pt:C3L-00183:somatic_mutation:NCBIGene:2475",
+     "pt:C3L-00183:somatic_mutation:NCBIGene:55193"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "The tumor carries somatic MTOR p.L2220F and PBRM1 p.E367* mutations [pt:C3L-00183:somatic_mutation:NCBIGene:2475][pt:C3L-00183:somatic_mutation:NCBIGene:55193].",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c4",
+   "text": "Model-ranked drugs highlight metabolic/supportive agents (asparaginase, iron, sapropterin) rather than approved ccRCC VEGF/immune therapies.",
+   "support": {
+    "edge_ids": [
+     "rank:C3L-00183:drug:DRUGBANK:DB08886",
+     "rank:C3L-00183:drug:DRUGBANK:DB01592",
+     "rank:C3L-00183:drug:DRUGBANK:DB00360"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "Model-ranked drugs highlight metabolic/supportive agents (asparaginase, iron, sapropterin) rather than approved ccRCC VEGF/immune therapies [rank:C3L-00183:drug:DRUGBANK:DB08886][rank:C3L-00183:drug:DRUGBANK:DB01592][rank:C3L-00183:drug:DRUGBANK:DB00360].",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": true
+  },
+  {
+   "claim_id": "c5",
+   "text": "Somatic MTOR mutation → MTOR–AKT1S1 protein interaction links to PI3K/AKT/mTOR axis.",
+   "support": {
+    "edge_ids": [
+     "E261278"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "Somatic MTOR mutation → MTOR–AKT1S1 protein interaction [E261278] links to PI3K/AKT/mTOR axis.",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c6",
+   "text": "Somatic PBRM1 mutation → PBRM1 is a known ccRCC epigenetic-dysregulation gene in dismech chain-2.",
+   "support": {
+    "edge_ids": [
+     "E8158981"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "Somatic PBRM1 mutation → PBRM1 is a known ccRCC epigenetic-dysregulation gene in dismech chain-2 [E8158981].",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c7",
+   "text": "Down-regulated MYH14 protein interacts with CAVIN1, a membrane-curvature protein implicated in vesicle trafficking.",
+   "support": {
+    "edge_ids": [
+     "E18175"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "Down-regulated MYH14 protein interacts with CAVIN1 [E18175], a membrane-curvature protein implicated in vesicle trafficking.",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c8",
+   "text": "Down-regulated USP33 (deubiquitinase) and LAD1 (adhesion) are top negative contributors to risk.",
+   "support": {
+    "edge_ids": [
+     "contrib:C3L-00183:NCBIGene:23032",
+     "contrib:C3L-00183:NCBIGene:3898"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "Down-regulated USP33 (deubiquitinase) and LAD1 (adhesion) are top negative contributors to risk [contrib:C3L-00183:NCBIGene:23032][contrib:C3L-00183:NCBIGene:3898].",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": true
+  },
+  {
+   "claim_id": "c9",
+   "text": "Obesity phenotype → hyperinsulinemia/insulin resistance may amplify PI3K/AKT signaling (non-tumor clinical context).",
+   "support": {
+    "edge_ids": [
+     "E8165274",
+     "E8129790"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "Obesity phenotype → hyperinsulinemia/insulin resistance [E8165274][E8129790] may amplify PI3K/AKT signaling (non-tumor clinical context).",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c10",
+   "text": "ccRCC pathogenesis in the knowledge graph follows: (1) VHL inactivation → HIF-2α stabilization → VEGF-driven angiogenesis; (2) Epigenetic dysregulation (PBRM1, SETD2, BAP1) → growth-factor pathway activation; (3) Immune evasion via PD-L1 and immunosuppressive microenvironment; (4) Metabolic reprogramming toward aerobic glycolysis.",
+   "support": {
+    "edge_ids": [
+     "E8158972",
+     "E8158973",
+     "E8158975",
+     "E8158981",
+     "E8158982",
+     "E8158983",
+     "E8158980"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "ccRCC pathogenesis in the knowledge graph follows: (1) VHL inactivation → HIF-2α stabilization → VEGF-driven angiogenesis [E8158972][E8158973][E8158975]; (2) Epigenetic dysregulation (PBRM1, SETD2, BAP1) → growth-factor pathway activation [E8158981][E8158982]; (3) Immune evasion via PD-L1 and immunosuppressive microenvironment [E8158983]; (4) Metabolic reprogramming toward aerobic glycolysis [E8158980].",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c11",
+   "text": "Approved ccRCC drugs (sunitinib, pazopanib, axitinib, cabozantinib, belzutifan) target VEGF/HIF-2α axes.",
+   "support": {
+    "edge_ids": [
+     "E8158958",
+     "E8158959",
+     "E8158960",
+     "E8158961",
+     "E8158963"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "Approved ccRCC drugs (sunitinib, pazopanib, axitinib, cabozantinib, belzutifan) target VEGF/HIF-2α axes [E8158958][E8158959][E8158960][E8158961][E8158963].",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c12",
+   "text": "Curated disease-linked drugs* (from dismech): Sunitinib, Pazopanib, Axitinib, Cabozantinib, Belzutifan – VEGF/HIF-2α inhibitors with ccRCC indications.",
+   "support": {
+    "edge_ids": [
+     "E8158958",
+     "E8158959",
+     "E8158960",
+     "E8158961",
+     "E8158963"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "Curated disease-linked drugs* (from dismech): Sunitinib, Pazopanib, Axitinib, Cabozantinib, Belzutifan – VEGF/HIF-2α inhibitors with ccRCC indications [E8158958][E8158959][E8158960][E8158961][E8158963].",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c13",
+   "text": "Model-ranked drugs* (cohort-relative, tumor-protein basis):",
+   "support": {
+    "edge_ids": [],
+    "pmids": []
+   },
+   "status": "removed",
+   "quote": "Model-ranked drugs* (cohort-relative, tumor-protein basis):",
+   "unmatched_ids": [],
+   "entity_match": false,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c14",
+   "text": "Asparaginase Erwinia chrysanthemi (score 2.55)",
+   "support": {
+    "edge_ids": [
+     "rank:C3L-00183:drug:DRUGBANK:DB08886"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "Asparaginase Erwinia chrysanthemi (score 2.55) [rank:C3L-00183:drug:DRUGBANK:DB08886]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": true
+  },
+  {
+   "claim_id": "c15",
+   "text": "Iron (2.42)",
+   "support": {
+    "edge_ids": [
+     "rank:C3L-00183:drug:DRUGBANK:DB01592"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "Iron (2.42) [rank:C3L-00183:drug:DRUGBANK:DB01592]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": true
+  },
+  {
+   "claim_id": "c16",
+   "text": "Sapropterin (1.99)",
+   "support": {
+    "edge_ids": [
+     "rank:C3L-00183:drug:DRUGBANK:DB00360"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "Sapropterin (1.99) [rank:C3L-00183:drug:DRUGBANK:DB00360]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": true
+  },
+  {
+   "claim_id": "c17",
+   "text": "Aspartic acid (1.96)",
+   "support": {
+    "edge_ids": [
+     "rank:C3L-00183:drug:DRUGBANK:DB00128"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "Aspartic acid (1.96) [rank:C3L-00183:drug:DRUGBANK:DB00128]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": true
+  },
+  {
+   "claim_id": "c18",
+   "text": "Potassium citrate (1.92)",
+   "support": {
+    "edge_ids": [
+     "rank:C3L-00183:drug:DRUGBANK:DB09125"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "Potassium citrate (1.92) [rank:C3L-00183:drug:DRUGBANK:DB09125]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": true
+  },
+  {
+   "claim_id": "c19",
+   "text": "Model-ranked genes* (tumor-protein basis): GYS2, PAICS, TPI1, PNP, MPG, CTPS1, GSS, PYGB, MPI, APRT – enriched for nucleotide/glycogen metabolism.",
+   "support": {
+    "edge_ids": [
+     "rank:C3L-00183:gene:NCBIGene:2998",
+     "rank:C3L-00183:gene:NCBIGene:10606",
+     "rank:C3L-00183:gene:NCBIGene:7167",
+     "rank:C3L-00183:gene:NCBIGene:4860",
+     "rank:C3L-00183:gene:NCBIGene:4350"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "Model-ranked genes* (tumor-protein basis): GYS2, PAICS, TPI1, PNP, MPG, CTPS1, GSS, PYGB, MPI, APRT – enriched for nucleotide/glycogen metabolism [rank:C3L-00183:gene:NCBIGene:2998][rank:C3L-00183:gene:NCBIGene:10606][rank:C3L-00183:gene:NCBIGene:7167][rank:C3L-00183:gene:NCBIGene:4860][rank:C3L-00183:gene:NCBIGene:4350].",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": true
+  },
+  {
+   "claim_id": "c20",
+   "text": "Hypothesis: The combined loss of PBRM1 (chromatin remodeling) and MTOR activation (p.L2220F) in this tumor drives a metabolic-angiogenic program that is further amplified by obesity-associated hyperinsulinemia, making dual HIF-2α/MTOR inhibition more effective than VEGF blockade alone.",
+   "support": {
+    "edge_ids": [],
+    "pmids": []
+   },
+   "status": "hypothesis",
+   "quote": "Hypothesis: The combined loss of PBRM1 (chromatin remodeling) and MTOR activation (p.L2220F) in this tumor drives a metabolic-angiogenic program that is further amplified by obesity-associated hyperinsulinemia, making dual HIF-2α/MTOR inhibition more effective than VEGF blockade alone.",
+   "unmatched_ids": [],
+   "entity_match": false,
+   "mismatched_ids": [],
+   "model_output_only": false
+  }
+ ],
+ "answer": "**Summary**\nThe GNN-A model estimates a 35.7% risk of stage III–IV disease for patient C3L-00183, driven entirely by tumor-protein features (tumor_share=1.0) [pred:C3L-00183:gnn]. The top tumor drivers are strongly down-regulated cytoskeletal and ubiquitin-related proteins (MYH14, USP33, LAD1) and signaling adaptors (AAK1, GRB14) [contrib:C3L-00183:NCBIGene:79784][contrib:C3L-00183:NCBIGene:23032][contrib:C3L-00183:NCBIGene:3898][contrib:C3L-00183:NCBIGene:22848][contrib:C3L-00183:NCBIGene:2888]. The tumor carries somatic MTOR p.L2220F and PBRM1 p.E367* mutations [pt:C3L-00183:somatic_mutation:NCBIGene:2475][pt:C3L-00183:somatic_mutation:NCBIGene:55193]. Model-ranked drugs highlight metabolic/supportive agents (asparaginase, iron, sapropterin) rather than approved ccRCC VEGF/immune therapies [rank:C3L-00183:drug:DRUGBANK:DB08886][rank:C3L-00183:drug:DRUGBANK:DB01592][rank:C3L-00183:drug:DRUGBANK:DB00360].\n\n**Evidence paths**\n- Somatic MTOR mutation → MTOR–AKT1S1 protein interaction [E261278] links to PI3K/AKT/mTOR axis.\n- Somatic PBRM1 mutation → PBRM1 is a known ccRCC epigenetic-dysregulation gene in dismech chain-2 [E8158981].\n- Down-regulated MYH14 protein interacts with CAVIN1 [E18175], a membrane-curvature protein implicated in vesicle trafficking.\n- Down-regulated USP33 (deubiquitinase) and LAD1 (adhesion) are top negative contributors to risk [contrib:C3L-00183:NCBIGene:23032][contrib:C3L-00183:NCBIGene:3898].\n- Obesity phenotype → hyperinsulinemia/insulin resistance [E8165274][E8129790] may amplify PI3K/AKT signaling (non-tumor clinical context).\n\n**Mechanism**\nccRCC pathogenesis in the knowledge graph follows: (1) VHL inactivation → HIF-2α stabilization → VEGF-driven angiogenesis [E8158972][E8158973][E8158975]; (2) Epigenetic dysregulation (PBRM1, SETD2, BAP1) → growth-factor pathway activation [E8158981][E8158982]; (3) Immune evasion via PD-L1 and immunosuppressive microenvironment [E8158983]; (4) Metabolic reprogramming toward aerobic glycolysis [E8158980]. Approved ccRCC drugs (sunitinib, pazopanib, axitinib, cabozantinib, belzutifan) target VEGF/HIF-2α axes [E8158958][E8158959][E8158960][E8158961][E8158963].\n\n**Targets / drugs**\n*Curated disease-linked drugs* (from dismech): Sunitinib, Pazopanib, Axitinib, Cabozantinib, Belzutifan – VEGF/HIF-2α inhibitors with ccRCC indications [E8158958][E8158959][E8158960][E8158961][E8158963].\n1. Asparaginase Erwinia chrysanthemi (score 2.55) [rank:C3L-00183:drug:DRUGBANK:DB08886]\n2. Iron (2.42) [rank:C3L-00183:drug:DRUGBANK:DB01592]\n3. Sapropterin (1.99) [rank:C3L-00183:drug:DRUGBANK:DB00360]\n4. Aspartic acid (1.96) [rank:C3L-00183:drug:DRUGBANK:DB00128]\n5. Potassium citrate (1.92) [rank:C3L-00183:drug:DRUGBANK:DB09125]\n*Model-ranked genes* (tumor-protein basis): GYS2, PAICS, TPI1, PNP, MPG, CTPS1, GSS, PYGB, MPI, APRT – enriched for nucleotide/glycogen metabolism [rank:C3L-00183:gene:NCBIGene:2998][rank:C3L-00183:gene:NCBIGene:10606][rank:C3L-00183:gene:NCBIGene:7167][rank:C3L-00183:gene:NCBIGene:4860][rank:C3L-00183:gene:NCBIGene:4350].\n\n**Testable hypothesis**\nHypothesis: The combined loss of PBRM1 (chromatin remodeling) and MTOR activation (p.L2220F) in this tumor drives a metabolic-angiogenic program that is further amplified by obesity-associated hyperinsulinemia, making dual HIF-2α/MTOR inhibition more effective than VEGF blockade alone.\nExperiment: Treat PBRM1-knockout/MTOR-mutant ccRCC xenografts with belzutifan ± everolimus under high-insulin conditions; measure tumor growth, HIF-2α targets, and phospho-S6.\n\n**Caveats**\n- GNN risk is an out-of-fold estimate, not a clinical staging; no stage/grade/outcome data are available.\n- Model-ranked drugs are cohort-relative suggestions from tumor proteomics, not evidence of efficacy in ccRCC; they include metabolic supplements rather than approved oncology agents.\n- Somatic mutations are tumor-only; germline status unknown.\n- Obesity/insulin-resistance edges are phenotype-level associations, not proven tumor-intrinsic mechanisms in this patient.\n- Subgraph does not contain direct MTOR–HIF or PBRM1–VHL edges; mechanistic links are inferred from literature-curated dismech chains.\n\n_Verifier: removed 1 claim(s) that had no supporting edge or PMID._",
+ "verifier": {
+  "n_claims": 20,
+  "n_supported": 18,
+  "n_hypothesis": 1,
+  "n_removed": 1,
+  "n_supported_entity_match": 18,
+  "n_supported_model": 10,
+  "n_claims_mismatched": 0,
+  "n_non_claims": 6,
+  "non_claims": [
+   {
+    "text": "Experiment: Treat PBRM1-knockout/MTOR-mutant ccRCC xenografts with belzutifan ± everolimus under high-insulin conditions; measure tumor growth, HIF-2α targets, and phospho-S6.",
+    "reason": "experiment",
+    "quote": "Experiment: Treat PBRM1-knockout/MTOR-mutant ccRCC xenografts with belzutifan ± everolimus under high-insulin conditions; measure tumor growth, HIF-2α targets, and phospho-S6."
+   },
+   {
+    "text": "GNN risk is an out-of-fold estimate, not a clinical staging; no stage/grade/outcome data are available.",
+    "reason": "caveat",
+    "quote": "GNN risk is an out-of-fold estimate, not a clinical staging; no stage/grade/outcome data are available."
+   },
+   {
+    "text": "Model-ranked drugs are cohort-relative suggestions from tumor proteomics, not evidence of efficacy in ccRCC; they include metabolic supplements rather than approved oncology agents.",
+    "reason": "caveat",
+    "quote": "Model-ranked drugs are cohort-relative suggestions from tumor proteomics, not evidence of efficacy in ccRCC; they include metabolic supplements rather than approved oncology agents."
+   },
+   {
+    "text": "Somatic mutations are tumor-only; germline status unknown.",
+    "reason": "caveat",
+    "quote": "Somatic mutations are tumor-only; germline status unknown."
+   },
+   {
+    "text": "Obesity/insulin-resistance edges are phenotype-level associations, not proven tumor-intrinsic mechanisms in this patient.",
+    "reason": "caveat",
+    "quote": "Obesity/insulin-resistance edges are phenotype-level associations, not proven tumor-intrinsic mechanisms in this patient."
+   },
+   {
+    "text": "Subgraph does not contain direct MTOR–HIF or PBRM1–VHL edges; mechanistic links are inferred from literature-curated dismech chains.",
+    "reason": "caveat",
+    "quote": "Subgraph does not contain direct MTOR–HIF or PBRM1–VHL edges; mechanistic links are inferred from literature-curated dismech chains."
+   }
+  ],
+  "n_non_claims_bad_citations": 0,
+  "n_range_citations_rejected": 0,
+  "strict": true
+ },
+ "verifier_splitter": "deterministic",
+ "notes": [],
+ "elapsed_s": 34.64,
+ "llm_calls": [
+  {
+   "purpose": "agent",
+   "s": 0.0,
+   "cached": true,
+   "finish_reason": "tool_calls",
+   "completion_tokens": 145
+  },
+  {
+   "purpose": "agent",
+   "s": 0.0,
+   "cached": true,
+   "finish_reason": "tool_calls",
+   "completion_tokens": 57
+  },
+  {
+   "purpose": "agent",
+   "s": 0.0,
+   "cached": true,
+   "finish_reason": "tool_calls",
+   "completion_tokens": 140
+  },
+  {
+   "purpose": "agent",
+   "s": 0.0,
+   "cached": true,
+   "finish_reason": "tool_calls",
+   "completion_tokens": 79
+  },
+  {
+   "purpose": "agent",
+   "s": 0.0,
+   "cached": true,
+   "finish_reason": "tool_calls",
+   "completion_tokens": 82
+  },
+  {
+   "purpose": "agent",
+   "s": 3.64,
+   "cached": false,
+   "attempt": 1,
+   "finish_reason": "tool_calls",
+   "prompt_tokens": 6987,
+   "completion_tokens": 228,
+   "reasoning_tokens": 63
+  },
+  {
+   "purpose": "agent",
+   "s": 29.22,
+   "cached": false,
+   "attempt": 1,
+   "finish_reason": "stop",
+   "prompt_tokens": 13446,
+   "completion_tokens": 2089,
+   "reasoning_tokens": 425
+  }
+ ],
+ "subgraph_sizes": [
+  {
+   "by": "llm",
+   "requested_budget": null,
+   "budget": 500,
+   "adaptive": true,
+   "n_nodes": 257,
+   "n_edges": 192
+  }
+ ],
+ "e4_cohort": {
+  "group": "no_vhl_mutation",
+  "plan_sha": "cbcad03b0c45f765"
+ },
+ "reverified": {
+  "from": "e4_cohort_full/C3L-00183.json",
+  "at": "2026-11-08T06:21:33+00:00",
+  "git_commit": "3567e41",
+  "verifier_sha": "2bb0a0e25d86a889",
+  "previous_verifier": {
+   "n_claims": 20,
+   "n_supported": 18,
+   "n_hypothesis": 1,
+   "n_removed": 1,
+   "n_supported_entity_match": 18,
+   "n_supported_model": 10,
+   "n_claims_mismatched": 0,
+   "n_non_claims": 6,
+   "n_non_claims_bad_citations": 0,
+   "n_range_citations_rejected": 0,
+   "strict": true
+  }
+ }
+}

@@ -1,0 +1,1191 @@
+{
+ "eval": "e4_cohort",
+ "trace_dir": "C:\\dev\\GitHub\\patient-in-the-graph\\eval\\traces\\e4_cohort_hub0_rv",
+ "plan_sha": "cbcad03b0c45f765",
+ "plan_rule": "From patients with GNN-A predictions (gnn_a/predictions.parquet, model == 'gnn'): sort IDs, then with random.Random(2026) draw 15 without replacement from those with a somatic VHL mutation (NCBIGene:7428 in patients/patient_mutations.parquet), then 5 from those that have mutation data but no VHL mutation. Patients with no mutation data are excluded from the second group.",
+ "seed": 2026,
+ "answer_key_sha256": "487c6672002f3ade",
+ "run_manifest": null,
+ "n_planned": 20,
+ "n_traces": 20,
+ "missing": [],
+ "n_valid": 20,
+ "n_invalid": 0,
+ "n_leaky": 0,
+ "invalid": [],
+ "overall": {
+  "n": 20,
+  "step_recovery": {
+   "VHL Tumor Suppressor Inactivation": 0.15,
+   "HIF-2alpha Stabilization": 0.1,
+   "VEGF-Driven Angiogenesis": 0.2,
+   "Growth Factor Pathway Activation": 0.1,
+   "Metabolic Reprogramming and Aerobic Glycolysis": 0.2
+  },
+  "step_recovery_kg": {
+   "VHL Tumor Suppressor Inactivation": 0.15,
+   "HIF-2alpha Stabilization": 0.05,
+   "VEGF-Driven Angiogenesis": 0.2,
+   "Growth Factor Pathway Activation": 0.1,
+   "Metabolic Reprogramming and Aerobic Glycolysis": 0.2
+  },
+  "mean_steps_recovered": 0.75,
+  "mean_drugs_surfaced": 0.0,
+  "patients_with_any_extra_drug": 0
+ },
+ "by_group": {
+  "vhl_mutated": {
+   "n": 15,
+   "step_recovery": {
+    "VHL Tumor Suppressor Inactivation": 0.2,
+    "HIF-2alpha Stabilization": 0.133,
+    "VEGF-Driven Angiogenesis": 0.2,
+    "Growth Factor Pathway Activation": 0.133,
+    "Metabolic Reprogramming and Aerobic Glycolysis": 0.2
+   },
+   "step_recovery_kg": {
+    "VHL Tumor Suppressor Inactivation": 0.2,
+    "HIF-2alpha Stabilization": 0.067,
+    "VEGF-Driven Angiogenesis": 0.2,
+    "Growth Factor Pathway Activation": 0.133,
+    "Metabolic Reprogramming and Aerobic Glycolysis": 0.2
+   },
+   "mean_steps_recovered": 0.87,
+   "mean_drugs_surfaced": 0.0,
+   "patients_with_any_extra_drug": 0
+  },
+  "no_vhl_mutation": {
+   "n": 5,
+   "step_recovery": {
+    "VHL Tumor Suppressor Inactivation": 0.0,
+    "HIF-2alpha Stabilization": 0.0,
+    "VEGF-Driven Angiogenesis": 0.2,
+    "Growth Factor Pathway Activation": 0.0,
+    "Metabolic Reprogramming and Aerobic Glycolysis": 0.2
+   },
+   "step_recovery_kg": {
+    "VHL Tumor Suppressor Inactivation": 0.0,
+    "HIF-2alpha Stabilization": 0.0,
+    "VEGF-Driven Angiogenesis": 0.2,
+    "Growth Factor Pathway Activation": 0.0,
+    "Metabolic Reprogramming and Aerobic Glycolysis": 0.2
+   },
+   "mean_steps_recovered": 0.4,
+   "mean_drugs_surfaced": 0.0,
+   "patients_with_any_extra_drug": 0
+  }
+ },
+ "scoring_rules": "- A step (each core_chain step and each downstream_of_hif2 item) is recovered iff a verifier-SUPPORTED claim mentions\n  one of the step's accept_terms or its label, AND cites >= 1 ID present in that trace's observed evidence (evidence\n  rebuilt from the tool results by e4_case_study.supported_claims). `recovered_kg` additionally requires one of those\n  IDs to be a graph edge (E...) or PMID, not only a patient or model ID; it is reported alongside, not instead.\n- drugs_surfaced: supported claims naming sunitinib, pazopanib, axitinib or cabozantinib (belzutifan's only links\n  are masked on e4). e4_case_study.EXTRA_DRUGS are reported separately as a bonus.\n- A trace that fails the leak audit (leak_check or audit_graph) is invalid: it is listed with its reason and left\n  out of the rates, never dropped silently. Other validation failures are reported the same way.\n- Added after the full-graph ceiling run (Nov 8, ~00:00), a parser fix, not a rule change: citations written in\n  parentheses, e.g. \"(PMID:37085424)\", count like [brackets], as they do in the verifier (bracket_paren_citations).\n  It made 11 of 20 ceiling traces invalid and changes no masked-run result.\n- Added Nov 8 (~01:20), a matching fix, not a rule change: a hyphen between two letters reads as a space when a\n  claim is matched to a step or drug (mentions), so \"Growth-factor pathway activation\" mentions \"growth factor\".\n  e4_case_study's matcher missed these. Pre-registered masked result unchanged; ceiling growth factor 25% -> 80%.",
+ "scored_utc": "2026-11-08T06:23:24+00:00",
+ "patients": [
+  {
+   "patient_id": "C3L-00581",
+   "group": "vhl_mutated",
+   "variant": "e4",
+   "valid": true,
+   "leak": false,
+   "invalid_reason": "",
+   "step:VHL Tumor Suppressor Inactivation": false,
+   "step_kg:VHL Tumor Suppressor Inactivation": false,
+   "step:HIF-2alpha Stabilization": false,
+   "step_kg:HIF-2alpha Stabilization": false,
+   "step:VEGF-Driven Angiogenesis": false,
+   "step_kg:VEGF-Driven Angiogenesis": false,
+   "step:Growth Factor Pathway Activation": false,
+   "step_kg:Growth Factor Pathway Activation": false,
+   "step:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "step_kg:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "n_steps_recovered": 0,
+   "n_steps_recovered_kg": 0,
+   "drugs_surfaced": [],
+   "n_drugs_surfaced": 0,
+   "extra_drugs": [],
+   "n_supported_claims": 15,
+   "trace": "C:\\dev\\GitHub\\patient-in-the-graph\\eval\\traces\\e4_cohort_hub0_rv\\C3L-00581.json"
+  },
+  {
+   "patient_id": "C3L-01560",
+   "group": "vhl_mutated",
+   "variant": "e4",
+   "valid": true,
+   "leak": false,
+   "invalid_reason": "",
+   "step:VHL Tumor Suppressor Inactivation": true,
+   "step_kg:VHL Tumor Suppressor Inactivation": true,
+   "step:HIF-2alpha Stabilization": false,
+   "step_kg:HIF-2alpha Stabilization": false,
+   "step:VEGF-Driven Angiogenesis": false,
+   "step_kg:VEGF-Driven Angiogenesis": false,
+   "step:Growth Factor Pathway Activation": false,
+   "step_kg:Growth Factor Pathway Activation": false,
+   "step:Metabolic Reprogramming and Aerobic Glycolysis": true,
+   "step_kg:Metabolic Reprogramming and Aerobic Glycolysis": true,
+   "n_steps_recovered": 2,
+   "n_steps_recovered_kg": 2,
+   "drugs_surfaced": [],
+   "n_drugs_surfaced": 0,
+   "extra_drugs": [],
+   "n_supported_claims": 20,
+   "trace": "C:\\dev\\GitHub\\patient-in-the-graph\\eval\\traces\\e4_cohort_hub0_rv\\C3L-01560.json"
+  },
+  {
+   "patient_id": "C3N-00491",
+   "group": "vhl_mutated",
+   "variant": "e4",
+   "valid": true,
+   "leak": false,
+   "invalid_reason": "",
+   "step:VHL Tumor Suppressor Inactivation": false,
+   "step_kg:VHL Tumor Suppressor Inactivation": false,
+   "step:HIF-2alpha Stabilization": false,
+   "step_kg:HIF-2alpha Stabilization": false,
+   "step:VEGF-Driven Angiogenesis": false,
+   "step_kg:VEGF-Driven Angiogenesis": false,
+   "step:Growth Factor Pathway Activation": true,
+   "step_kg:Growth Factor Pathway Activation": true,
+   "step:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "step_kg:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "n_steps_recovered": 1,
+   "n_steps_recovered_kg": 1,
+   "drugs_surfaced": [],
+   "n_drugs_surfaced": 0,
+   "extra_drugs": [],
+   "n_supported_claims": 10,
+   "trace": "C:\\dev\\GitHub\\patient-in-the-graph\\eval\\traces\\e4_cohort_hub0_rv\\C3N-00491.json"
+  },
+  {
+   "patient_id": "C3N-00494",
+   "group": "vhl_mutated",
+   "variant": "e4",
+   "valid": true,
+   "leak": false,
+   "invalid_reason": "",
+   "step:VHL Tumor Suppressor Inactivation": false,
+   "step_kg:VHL Tumor Suppressor Inactivation": false,
+   "step:HIF-2alpha Stabilization": false,
+   "step_kg:HIF-2alpha Stabilization": false,
+   "step:VEGF-Driven Angiogenesis": true,
+   "step_kg:VEGF-Driven Angiogenesis": true,
+   "step:Growth Factor Pathway Activation": true,
+   "step_kg:Growth Factor Pathway Activation": true,
+   "step:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "step_kg:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "n_steps_recovered": 2,
+   "n_steps_recovered_kg": 2,
+   "drugs_surfaced": [],
+   "n_drugs_surfaced": 0,
+   "extra_drugs": [],
+   "n_supported_claims": 25,
+   "trace": "C:\\dev\\GitHub\\patient-in-the-graph\\eval\\traces\\e4_cohort_hub0_rv\\C3N-00494.json"
+  },
+  {
+   "patient_id": "C3L-00448",
+   "group": "vhl_mutated",
+   "variant": "e4",
+   "valid": true,
+   "leak": false,
+   "invalid_reason": "",
+   "step:VHL Tumor Suppressor Inactivation": false,
+   "step_kg:VHL Tumor Suppressor Inactivation": false,
+   "step:HIF-2alpha Stabilization": false,
+   "step_kg:HIF-2alpha Stabilization": false,
+   "step:VEGF-Driven Angiogenesis": false,
+   "step_kg:VEGF-Driven Angiogenesis": false,
+   "step:Growth Factor Pathway Activation": false,
+   "step_kg:Growth Factor Pathway Activation": false,
+   "step:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "step_kg:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "n_steps_recovered": 0,
+   "n_steps_recovered_kg": 0,
+   "drugs_surfaced": [],
+   "n_drugs_surfaced": 0,
+   "extra_drugs": [],
+   "n_supported_claims": 18,
+   "trace": "C:\\dev\\GitHub\\patient-in-the-graph\\eval\\traces\\e4_cohort_hub0_rv\\C3L-00448.json"
+  },
+  {
+   "patient_id": "C3L-00902",
+   "group": "vhl_mutated",
+   "variant": "e4",
+   "valid": true,
+   "leak": false,
+   "invalid_reason": "",
+   "step:VHL Tumor Suppressor Inactivation": false,
+   "step_kg:VHL Tumor Suppressor Inactivation": false,
+   "step:HIF-2alpha Stabilization": false,
+   "step_kg:HIF-2alpha Stabilization": false,
+   "step:VEGF-Driven Angiogenesis": false,
+   "step_kg:VEGF-Driven Angiogenesis": false,
+   "step:Growth Factor Pathway Activation": false,
+   "step_kg:Growth Factor Pathway Activation": false,
+   "step:Metabolic Reprogramming and Aerobic Glycolysis": true,
+   "step_kg:Metabolic Reprogramming and Aerobic Glycolysis": true,
+   "n_steps_recovered": 1,
+   "n_steps_recovered_kg": 1,
+   "drugs_surfaced": [],
+   "n_drugs_surfaced": 0,
+   "extra_drugs": [],
+   "n_supported_claims": 13,
+   "trace": "C:\\dev\\GitHub\\patient-in-the-graph\\eval\\traces\\e4_cohort_hub0_rv\\C3L-00902.json"
+  },
+  {
+   "patient_id": "C3N-00953",
+   "group": "vhl_mutated",
+   "variant": "e4",
+   "valid": true,
+   "leak": false,
+   "invalid_reason": "",
+   "step:VHL Tumor Suppressor Inactivation": false,
+   "step_kg:VHL Tumor Suppressor Inactivation": false,
+   "step:HIF-2alpha Stabilization": false,
+   "step_kg:HIF-2alpha Stabilization": false,
+   "step:VEGF-Driven Angiogenesis": false,
+   "step_kg:VEGF-Driven Angiogenesis": false,
+   "step:Growth Factor Pathway Activation": false,
+   "step_kg:Growth Factor Pathway Activation": false,
+   "step:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "step_kg:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "n_steps_recovered": 0,
+   "n_steps_recovered_kg": 0,
+   "drugs_surfaced": [],
+   "n_drugs_surfaced": 0,
+   "extra_drugs": [],
+   "n_supported_claims": 16,
+   "trace": "C:\\dev\\GitHub\\patient-in-the-graph\\eval\\traces\\e4_cohort_hub0_rv\\C3N-00953.json"
+  },
+  {
+   "patient_id": "C3N-00244",
+   "group": "vhl_mutated",
+   "variant": "e4",
+   "valid": true,
+   "leak": false,
+   "invalid_reason": "",
+   "step:VHL Tumor Suppressor Inactivation": false,
+   "step_kg:VHL Tumor Suppressor Inactivation": false,
+   "step:HIF-2alpha Stabilization": true,
+   "step_kg:HIF-2alpha Stabilization": false,
+   "step:VEGF-Driven Angiogenesis": false,
+   "step_kg:VEGF-Driven Angiogenesis": false,
+   "step:Growth Factor Pathway Activation": false,
+   "step_kg:Growth Factor Pathway Activation": false,
+   "step:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "step_kg:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "n_steps_recovered": 1,
+   "n_steps_recovered_kg": 0,
+   "drugs_surfaced": [],
+   "n_drugs_surfaced": 0,
+   "extra_drugs": [],
+   "n_supported_claims": 16,
+   "trace": "C:\\dev\\GitHub\\patient-in-the-graph\\eval\\traces\\e4_cohort_hub0_rv\\C3N-00244.json"
+  },
+  {
+   "patient_id": "C3N-01178",
+   "group": "vhl_mutated",
+   "variant": "e4",
+   "valid": true,
+   "leak": false,
+   "invalid_reason": "",
+   "step:VHL Tumor Suppressor Inactivation": false,
+   "step_kg:VHL Tumor Suppressor Inactivation": false,
+   "step:HIF-2alpha Stabilization": false,
+   "step_kg:HIF-2alpha Stabilization": false,
+   "step:VEGF-Driven Angiogenesis": false,
+   "step_kg:VEGF-Driven Angiogenesis": false,
+   "step:Growth Factor Pathway Activation": false,
+   "step_kg:Growth Factor Pathway Activation": false,
+   "step:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "step_kg:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "n_steps_recovered": 0,
+   "n_steps_recovered_kg": 0,
+   "drugs_surfaced": [],
+   "n_drugs_surfaced": 0,
+   "extra_drugs": [],
+   "n_supported_claims": 10,
+   "trace": "C:\\dev\\GitHub\\patient-in-the-graph\\eval\\traces\\e4_cohort_hub0_rv\\C3N-01178.json"
+  },
+  {
+   "patient_id": "C3N-00852",
+   "group": "vhl_mutated",
+   "variant": "e4",
+   "valid": true,
+   "leak": false,
+   "invalid_reason": "",
+   "step:VHL Tumor Suppressor Inactivation": false,
+   "step_kg:VHL Tumor Suppressor Inactivation": false,
+   "step:HIF-2alpha Stabilization": true,
+   "step_kg:HIF-2alpha Stabilization": true,
+   "step:VEGF-Driven Angiogenesis": false,
+   "step_kg:VEGF-Driven Angiogenesis": false,
+   "step:Growth Factor Pathway Activation": false,
+   "step_kg:Growth Factor Pathway Activation": false,
+   "step:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "step_kg:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "n_steps_recovered": 1,
+   "n_steps_recovered_kg": 1,
+   "drugs_surfaced": [],
+   "n_drugs_surfaced": 0,
+   "extra_drugs": [],
+   "n_supported_claims": 17,
+   "trace": "C:\\dev\\GitHub\\patient-in-the-graph\\eval\\traces\\e4_cohort_hub0_rv\\C3N-00852.json"
+  },
+  {
+   "patient_id": "C3N-00390",
+   "group": "vhl_mutated",
+   "variant": "e4",
+   "valid": true,
+   "leak": false,
+   "invalid_reason": "",
+   "step:VHL Tumor Suppressor Inactivation": true,
+   "step_kg:VHL Tumor Suppressor Inactivation": true,
+   "step:HIF-2alpha Stabilization": false,
+   "step_kg:HIF-2alpha Stabilization": false,
+   "step:VEGF-Driven Angiogenesis": true,
+   "step_kg:VEGF-Driven Angiogenesis": true,
+   "step:Growth Factor Pathway Activation": false,
+   "step_kg:Growth Factor Pathway Activation": false,
+   "step:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "step_kg:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "n_steps_recovered": 2,
+   "n_steps_recovered_kg": 2,
+   "drugs_surfaced": [],
+   "n_drugs_surfaced": 0,
+   "extra_drugs": [],
+   "n_supported_claims": 23,
+   "trace": "C:\\dev\\GitHub\\patient-in-the-graph\\eval\\traces\\e4_cohort_hub0_rv\\C3N-00390.json"
+  },
+  {
+   "patient_id": "C3N-00310",
+   "group": "vhl_mutated",
+   "variant": "e4",
+   "valid": true,
+   "leak": false,
+   "invalid_reason": "",
+   "step:VHL Tumor Suppressor Inactivation": false,
+   "step_kg:VHL Tumor Suppressor Inactivation": false,
+   "step:HIF-2alpha Stabilization": false,
+   "step_kg:HIF-2alpha Stabilization": false,
+   "step:VEGF-Driven Angiogenesis": false,
+   "step_kg:VEGF-Driven Angiogenesis": false,
+   "step:Growth Factor Pathway Activation": false,
+   "step_kg:Growth Factor Pathway Activation": false,
+   "step:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "step_kg:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "n_steps_recovered": 0,
+   "n_steps_recovered_kg": 0,
+   "drugs_surfaced": [],
+   "n_drugs_surfaced": 0,
+   "extra_drugs": [],
+   "n_supported_claims": 10,
+   "trace": "C:\\dev\\GitHub\\patient-in-the-graph\\eval\\traces\\e4_cohort_hub0_rv\\C3N-00310.json"
+  },
+  {
+   "patient_id": "C3L-00908",
+   "group": "vhl_mutated",
+   "variant": "e4",
+   "valid": true,
+   "leak": false,
+   "invalid_reason": "",
+   "step:VHL Tumor Suppressor Inactivation": true,
+   "step_kg:VHL Tumor Suppressor Inactivation": true,
+   "step:HIF-2alpha Stabilization": false,
+   "step_kg:HIF-2alpha Stabilization": false,
+   "step:VEGF-Driven Angiogenesis": false,
+   "step_kg:VEGF-Driven Angiogenesis": false,
+   "step:Growth Factor Pathway Activation": false,
+   "step_kg:Growth Factor Pathway Activation": false,
+   "step:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "step_kg:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "n_steps_recovered": 1,
+   "n_steps_recovered_kg": 1,
+   "drugs_surfaced": [],
+   "n_drugs_surfaced": 0,
+   "extra_drugs": [],
+   "n_supported_claims": 14,
+   "trace": "C:\\dev\\GitHub\\patient-in-the-graph\\eval\\traces\\e4_cohort_hub0_rv\\C3L-00908.json"
+  },
+  {
+   "patient_id": "C3L-00004",
+   "group": "vhl_mutated",
+   "variant": "e4",
+   "valid": true,
+   "leak": false,
+   "invalid_reason": "",
+   "step:VHL Tumor Suppressor Inactivation": false,
+   "step_kg:VHL Tumor Suppressor Inactivation": false,
+   "step:HIF-2alpha Stabilization": false,
+   "step_kg:HIF-2alpha Stabilization": false,
+   "step:VEGF-Driven Angiogenesis": true,
+   "step_kg:VEGF-Driven Angiogenesis": true,
+   "step:Growth Factor Pathway Activation": false,
+   "step_kg:Growth Factor Pathway Activation": false,
+   "step:Metabolic Reprogramming and Aerobic Glycolysis": true,
+   "step_kg:Metabolic Reprogramming and Aerobic Glycolysis": true,
+   "n_steps_recovered": 2,
+   "n_steps_recovered_kg": 2,
+   "drugs_surfaced": [],
+   "n_drugs_surfaced": 0,
+   "extra_drugs": [],
+   "n_supported_claims": 24,
+   "trace": "C:\\dev\\GitHub\\patient-in-the-graph\\eval\\traces\\e4_cohort_hub0_rv\\C3L-00004.json"
+  },
+  {
+   "patient_id": "C3L-00369",
+   "group": "vhl_mutated",
+   "variant": "e4",
+   "valid": true,
+   "leak": false,
+   "invalid_reason": "",
+   "step:VHL Tumor Suppressor Inactivation": false,
+   "step_kg:VHL Tumor Suppressor Inactivation": false,
+   "step:HIF-2alpha Stabilization": false,
+   "step_kg:HIF-2alpha Stabilization": false,
+   "step:VEGF-Driven Angiogenesis": false,
+   "step_kg:VEGF-Driven Angiogenesis": false,
+   "step:Growth Factor Pathway Activation": false,
+   "step_kg:Growth Factor Pathway Activation": false,
+   "step:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "step_kg:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "n_steps_recovered": 0,
+   "n_steps_recovered_kg": 0,
+   "drugs_surfaced": [],
+   "n_drugs_surfaced": 0,
+   "extra_drugs": [],
+   "n_supported_claims": 11,
+   "trace": "C:\\dev\\GitHub\\patient-in-the-graph\\eval\\traces\\e4_cohort_hub0_rv\\C3L-00369.json"
+  },
+  {
+   "patient_id": "C3L-00607",
+   "group": "no_vhl_mutation",
+   "variant": "e4",
+   "valid": true,
+   "leak": false,
+   "invalid_reason": "",
+   "step:VHL Tumor Suppressor Inactivation": false,
+   "step_kg:VHL Tumor Suppressor Inactivation": false,
+   "step:HIF-2alpha Stabilization": false,
+   "step_kg:HIF-2alpha Stabilization": false,
+   "step:VEGF-Driven Angiogenesis": false,
+   "step_kg:VEGF-Driven Angiogenesis": false,
+   "step:Growth Factor Pathway Activation": false,
+   "step_kg:Growth Factor Pathway Activation": false,
+   "step:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "step_kg:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "n_steps_recovered": 0,
+   "n_steps_recovered_kg": 0,
+   "drugs_surfaced": [],
+   "n_drugs_surfaced": 0,
+   "extra_drugs": [],
+   "n_supported_claims": 16,
+   "trace": "C:\\dev\\GitHub\\patient-in-the-graph\\eval\\traces\\e4_cohort_hub0_rv\\C3L-00607.json"
+  },
+  {
+   "patient_id": "C3N-00150",
+   "group": "no_vhl_mutation",
+   "variant": "e4",
+   "valid": true,
+   "leak": false,
+   "invalid_reason": "",
+   "step:VHL Tumor Suppressor Inactivation": false,
+   "step_kg:VHL Tumor Suppressor Inactivation": false,
+   "step:HIF-2alpha Stabilization": false,
+   "step_kg:HIF-2alpha Stabilization": false,
+   "step:VEGF-Driven Angiogenesis": true,
+   "step_kg:VEGF-Driven Angiogenesis": true,
+   "step:Growth Factor Pathway Activation": false,
+   "step_kg:Growth Factor Pathway Activation": false,
+   "step:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "step_kg:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "n_steps_recovered": 1,
+   "n_steps_recovered_kg": 1,
+   "drugs_surfaced": [],
+   "n_drugs_surfaced": 0,
+   "extra_drugs": [],
+   "n_supported_claims": 18,
+   "trace": "C:\\dev\\GitHub\\patient-in-the-graph\\eval\\traces\\e4_cohort_hub0_rv\\C3N-00150.json"
+  },
+  {
+   "patient_id": "C3N-00577",
+   "group": "no_vhl_mutation",
+   "variant": "e4",
+   "valid": true,
+   "leak": false,
+   "invalid_reason": "",
+   "step:VHL Tumor Suppressor Inactivation": false,
+   "step_kg:VHL Tumor Suppressor Inactivation": false,
+   "step:HIF-2alpha Stabilization": false,
+   "step_kg:HIF-2alpha Stabilization": false,
+   "step:VEGF-Driven Angiogenesis": false,
+   "step_kg:VEGF-Driven Angiogenesis": false,
+   "step:Growth Factor Pathway Activation": false,
+   "step_kg:Growth Factor Pathway Activation": false,
+   "step:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "step_kg:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "n_steps_recovered": 0,
+   "n_steps_recovered_kg": 0,
+   "drugs_surfaced": [],
+   "n_drugs_surfaced": 0,
+   "extra_drugs": [],
+   "n_supported_claims": 14,
+   "trace": "C:\\dev\\GitHub\\patient-in-the-graph\\eval\\traces\\e4_cohort_hub0_rv\\C3N-00577.json"
+  },
+  {
+   "patient_id": "C3L-00183",
+   "group": "no_vhl_mutation",
+   "variant": "e4",
+   "valid": true,
+   "leak": false,
+   "invalid_reason": "",
+   "step:VHL Tumor Suppressor Inactivation": false,
+   "step_kg:VHL Tumor Suppressor Inactivation": false,
+   "step:HIF-2alpha Stabilization": false,
+   "step_kg:HIF-2alpha Stabilization": false,
+   "step:VEGF-Driven Angiogenesis": false,
+   "step_kg:VEGF-Driven Angiogenesis": false,
+   "step:Growth Factor Pathway Activation": false,
+   "step_kg:Growth Factor Pathway Activation": false,
+   "step:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "step_kg:Metabolic Reprogramming and Aerobic Glycolysis": false,
+   "n_steps_recovered": 0,
+   "n_steps_recovered_kg": 0,
+   "drugs_surfaced": [],
+   "n_drugs_surfaced": 0,
+   "extra_drugs": [],
+   "n_supported_claims": 16,
+   "trace": "C:\\dev\\GitHub\\patient-in-the-graph\\eval\\traces\\e4_cohort_hub0_rv\\C3L-00183.json"
+  },
+  {
+   "patient_id": "C3N-01646",
+   "group": "no_vhl_mutation",
+   "variant": "e4",
+   "valid": true,
+   "leak": false,
+   "invalid_reason": "",
+   "step:VHL Tumor Suppressor Inactivation": false,
+   "step_kg:VHL Tumor Suppressor Inactivation": false,
+   "step:HIF-2alpha Stabilization": false,
+   "step_kg:HIF-2alpha Stabilization": false,
+   "step:VEGF-Driven Angiogenesis": false,
+   "step_kg:VEGF-Driven Angiogenesis": false,
+   "step:Growth Factor Pathway Activation": false,
+   "step_kg:Growth Factor Pathway Activation": false,
+   "step:Metabolic Reprogramming and Aerobic Glycolysis": true,
+   "step_kg:Metabolic Reprogramming and Aerobic Glycolysis": true,
+   "n_steps_recovered": 1,
+   "n_steps_recovered_kg": 1,
+   "drugs_surfaced": [],
+   "n_drugs_surfaced": 0,
+   "extra_drugs": [],
+   "n_supported_claims": 19,
+   "trace": "C:\\dev\\GitHub\\patient-in-the-graph\\eval\\traces\\e4_cohort_hub0_rv\\C3N-01646.json"
+  }
+ ],
+ "step_matches": {
+  "C3L-00581": [
+   {
+    "step": "VHL Tumor Suppressor Inactivation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "HIF-2alpha Stabilization",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "VEGF-Driven Angiogenesis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Growth Factor Pathway Activation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Metabolic Reprogramming and Aerobic Glycolysis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   }
+  ],
+  "C3L-01560": [
+   {
+    "step": "VHL Tumor Suppressor Inactivation",
+    "claim_ids": [
+     "c17"
+    ],
+    "kg_claim_ids": [
+     "c17"
+    ]
+   },
+   {
+    "step": "HIF-2alpha Stabilization",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "VEGF-Driven Angiogenesis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Growth Factor Pathway Activation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Metabolic Reprogramming and Aerobic Glycolysis",
+    "claim_ids": [
+     "c17"
+    ],
+    "kg_claim_ids": [
+     "c17"
+    ]
+   }
+  ],
+  "C3N-00491": [
+   {
+    "step": "VHL Tumor Suppressor Inactivation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "HIF-2alpha Stabilization",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "VEGF-Driven Angiogenesis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Growth Factor Pathway Activation",
+    "claim_ids": [
+     "c12"
+    ],
+    "kg_claim_ids": [
+     "c12"
+    ]
+   },
+   {
+    "step": "Metabolic Reprogramming and Aerobic Glycolysis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   }
+  ],
+  "C3N-00494": [
+   {
+    "step": "VHL Tumor Suppressor Inactivation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "HIF-2alpha Stabilization",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "VEGF-Driven Angiogenesis",
+    "claim_ids": [
+     "c11",
+     "c22",
+     "c24",
+     "c26"
+    ],
+    "kg_claim_ids": [
+     "c11",
+     "c22",
+     "c24",
+     "c26"
+    ]
+   },
+   {
+    "step": "Growth Factor Pathway Activation",
+    "claim_ids": [
+     "c27"
+    ],
+    "kg_claim_ids": [
+     "c27"
+    ]
+   },
+   {
+    "step": "Metabolic Reprogramming and Aerobic Glycolysis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   }
+  ],
+  "C3L-00448": [
+   {
+    "step": "VHL Tumor Suppressor Inactivation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "HIF-2alpha Stabilization",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "VEGF-Driven Angiogenesis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Growth Factor Pathway Activation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Metabolic Reprogramming and Aerobic Glycolysis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   }
+  ],
+  "C3L-00902": [
+   {
+    "step": "VHL Tumor Suppressor Inactivation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "HIF-2alpha Stabilization",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "VEGF-Driven Angiogenesis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Growth Factor Pathway Activation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Metabolic Reprogramming and Aerobic Glycolysis",
+    "claim_ids": [
+     "c8",
+     "c12"
+    ],
+    "kg_claim_ids": [
+     "c8",
+     "c12"
+    ]
+   }
+  ],
+  "C3N-00953": [
+   {
+    "step": "VHL Tumor Suppressor Inactivation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "HIF-2alpha Stabilization",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "VEGF-Driven Angiogenesis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Growth Factor Pathway Activation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Metabolic Reprogramming and Aerobic Glycolysis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   }
+  ],
+  "C3N-00244": [
+   {
+    "step": "VHL Tumor Suppressor Inactivation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "HIF-2alpha Stabilization",
+    "claim_ids": [
+     "c4"
+    ],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "VEGF-Driven Angiogenesis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Growth Factor Pathway Activation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Metabolic Reprogramming and Aerobic Glycolysis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   }
+  ],
+  "C3N-01178": [
+   {
+    "step": "VHL Tumor Suppressor Inactivation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "HIF-2alpha Stabilization",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "VEGF-Driven Angiogenesis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Growth Factor Pathway Activation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Metabolic Reprogramming and Aerobic Glycolysis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   }
+  ],
+  "C3N-00852": [
+   {
+    "step": "VHL Tumor Suppressor Inactivation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "HIF-2alpha Stabilization",
+    "claim_ids": [
+     "c5"
+    ],
+    "kg_claim_ids": [
+     "c5"
+    ]
+   },
+   {
+    "step": "VEGF-Driven Angiogenesis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Growth Factor Pathway Activation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Metabolic Reprogramming and Aerobic Glycolysis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   }
+  ],
+  "C3N-00390": [
+   {
+    "step": "VHL Tumor Suppressor Inactivation",
+    "claim_ids": [
+     "c24"
+    ],
+    "kg_claim_ids": [
+     "c24"
+    ]
+   },
+   {
+    "step": "HIF-2alpha Stabilization",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "VEGF-Driven Angiogenesis",
+    "claim_ids": [
+     "c24"
+    ],
+    "kg_claim_ids": [
+     "c24"
+    ]
+   },
+   {
+    "step": "Growth Factor Pathway Activation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Metabolic Reprogramming and Aerobic Glycolysis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   }
+  ],
+  "C3N-00310": [
+   {
+    "step": "VHL Tumor Suppressor Inactivation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "HIF-2alpha Stabilization",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "VEGF-Driven Angiogenesis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Growth Factor Pathway Activation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Metabolic Reprogramming and Aerobic Glycolysis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   }
+  ],
+  "C3L-00908": [
+   {
+    "step": "VHL Tumor Suppressor Inactivation",
+    "claim_ids": [
+     "c12"
+    ],
+    "kg_claim_ids": [
+     "c12"
+    ]
+   },
+   {
+    "step": "HIF-2alpha Stabilization",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "VEGF-Driven Angiogenesis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Growth Factor Pathway Activation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Metabolic Reprogramming and Aerobic Glycolysis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   }
+  ],
+  "C3L-00004": [
+   {
+    "step": "VHL Tumor Suppressor Inactivation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "HIF-2alpha Stabilization",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "VEGF-Driven Angiogenesis",
+    "claim_ids": [
+     "c9"
+    ],
+    "kg_claim_ids": [
+     "c9"
+    ]
+   },
+   {
+    "step": "Growth Factor Pathway Activation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Metabolic Reprogramming and Aerobic Glycolysis",
+    "claim_ids": [
+     "c11"
+    ],
+    "kg_claim_ids": [
+     "c11"
+    ]
+   }
+  ],
+  "C3L-00369": [
+   {
+    "step": "VHL Tumor Suppressor Inactivation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "HIF-2alpha Stabilization",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "VEGF-Driven Angiogenesis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Growth Factor Pathway Activation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Metabolic Reprogramming and Aerobic Glycolysis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   }
+  ],
+  "C3L-00607": [
+   {
+    "step": "VHL Tumor Suppressor Inactivation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "HIF-2alpha Stabilization",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "VEGF-Driven Angiogenesis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Growth Factor Pathway Activation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Metabolic Reprogramming and Aerobic Glycolysis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   }
+  ],
+  "C3N-00150": [
+   {
+    "step": "VHL Tumor Suppressor Inactivation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "HIF-2alpha Stabilization",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "VEGF-Driven Angiogenesis",
+    "claim_ids": [
+     "c6",
+     "c22"
+    ],
+    "kg_claim_ids": [
+     "c6"
+    ]
+   },
+   {
+    "step": "Growth Factor Pathway Activation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Metabolic Reprogramming and Aerobic Glycolysis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   }
+  ],
+  "C3N-00577": [
+   {
+    "step": "VHL Tumor Suppressor Inactivation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "HIF-2alpha Stabilization",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "VEGF-Driven Angiogenesis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Growth Factor Pathway Activation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Metabolic Reprogramming and Aerobic Glycolysis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   }
+  ],
+  "C3L-00183": [
+   {
+    "step": "VHL Tumor Suppressor Inactivation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "HIF-2alpha Stabilization",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "VEGF-Driven Angiogenesis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Growth Factor Pathway Activation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Metabolic Reprogramming and Aerobic Glycolysis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   }
+  ],
+  "C3N-01646": [
+   {
+    "step": "VHL Tumor Suppressor Inactivation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "HIF-2alpha Stabilization",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "VEGF-Driven Angiogenesis",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Growth Factor Pathway Activation",
+    "claim_ids": [],
+    "kg_claim_ids": []
+   },
+   {
+    "step": "Metabolic Reprogramming and Aerobic Glycolysis",
+    "claim_ids": [
+     "c13"
+    ],
+    "kg_claim_ids": [
+     "c13"
+    ]
+   }
+  ]
+ }
+}
