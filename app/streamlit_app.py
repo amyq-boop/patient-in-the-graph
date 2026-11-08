@@ -120,6 +120,7 @@ div.stButton > button:focus-visible { outline: 2px solid var(--eosin); outline-o
 :root { --hl:#ece7fb; }
 .cmap { display:block; background:#fff; border:1px solid var(--rule); border-radius:8px; }
 .cmap .dot { transition: opacity .15s, r .15s; cursor:default; } .cmap .dot:hover { r:8; }
+.mine { font-size:.9rem; color:var(--body); margin:.5rem 0 0; } .mine.weak { color:#a3304f; font-weight:600; }
 .ic.drv { box-shadow: inset 0 0 0 1.5px #a3304f; font-weight:600; }
 .clegend { display:flex; flex-wrap:wrap; gap:1.2rem; margin:.6rem 0 0; font-size:.9rem; color:var(--body); }
 .clegend .cl { cursor:default; display:flex; align-items:center; gap:.4rem; }

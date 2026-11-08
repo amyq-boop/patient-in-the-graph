@@ -80,7 +80,7 @@ def _trace_index() -> list[tuple[str, str, str]]:
 
 REAL_CLUSTERS = ROOT / "data" / "processed" / "clusters"  # Anikat: clusters_<cancer>.json (models/stratify.py)
 REAL_BRIEFS = ROOT / "data" / "processed" / "briefs"  # Anikat: <patient_id>.json (graph/patients/make_briefs.py)
-DEMO_FIRST = ["C3L-00416", "C3N-00244", "C3L-00790", "11BR060", "11BR028"]  # demo patients, listed first
+DEMO_FIRST = ["C3L-00448", "C3L-00416", "C3N-01649", "11BR060", "11BR028"]  # demo patients, listed first
 
 
 def _json(f: Path):
@@ -121,7 +121,7 @@ def _norm_clusters(d: dict) -> dict:
                  "q": s.get("q")} for s in c.get("signature_proteins_down", [])[:4]]
         pw = [{"name": p["name"], "curie": p.get("curie"), "edge_ids": p.get("edge_ids", []), "q": p.get("q"),
                "overlap": p.get("overlap"), "pathway_size": p.get("pathway_size")} for p in c.get("signature_pathways", [])]
-        cl.append({"cluster": c["cluster"] + 1, "name": f"Subgroup {c['cluster'] + 1}", "n": c.get("size"),
+        cl.append({"cluster": c["cluster"] + 1, "name": c.get("name") or f"Subgroup {c['cluster'] + 1}", "n": c.get("size"),
                    "jaccard": c.get("jaccard_stability"), "signature_proteins": sig, "pathways": pw})
     stab = d.get("stability") or {}
     comp = d.get("comparison_proteomics_vs_gnn") or {}
@@ -129,7 +129,8 @@ def _norm_clusters(d: dict) -> dict:
             "method": meth.get("pipeline", meth) if isinstance(meth, dict) else meth,
             "features": meth.get("representation", "") if isinstance(meth, dict) else "", "k": d.get("k"),
             "stability_ari": stab.get("ari_mean"), "stability_sd": stab.get("ari_sd"), "silhouette": k_sel.get(d.get("k")),
-            "patients": [{"patient_id": a["patient_id"], "cluster": a["cluster"] + 1, "x": a["x"], "y": a["y"]}
+            "patients": [{"patient_id": a["patient_id"], "cluster": a["cluster"] + 1, "x": a["x"], "y": a["y"],
+                          "co_assignment": a.get("co_assignment_rate")}
                          for a in d.get("assignments", [])],
             "clusters": cl, "comparison": comp if "status" not in comp else {"status": comp["status"]},
             "post_hoc": d.get("descriptive_tests_after_clustering"), "coordinates": meth.get("coordinates", "")

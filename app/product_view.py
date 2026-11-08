@@ -12,6 +12,7 @@ from app.run_view import DRUG_RELS, strip_ids, why_removed
 # subgroup hues, validated for colour-blind separation on the page surface (dataviz validator, light mode);
 # kept apart from the evidence colours (eosin = observed, violet = known biology, amber = drug)
 CLUSTER = ["#0e8f82", "#3567c9", "#d07a1f", "#8b5fb3"]
+UNSTABLE = 0.6  # per-patient co-assignment below this is flagged as unstable (same bar as the team plan)
 
 
 def esc(s):
@@ -117,8 +118,13 @@ def subgroup_html(cl, pid):
     post = (f" Checked after clustering: stage differs between subgroups (χ² p = {ph['y_stage']['chi2_p']:.2g}), "
             "but stage was never used to build them." if isinstance(ph, dict) and num((ph.get("y_stage") or {}).get("chi2_p"))
             else " Stage and grade were not used to build them.")
+    me = next((p for p in cl.get("patients", []) if p["patient_id"] == pid), {})
+    co = me.get("co_assignment")
+    mine = (f"<div class='mine{' weak' if co < UNSTABLE else ''}'>{esc(pid)} lands in this subgroup in {co:.0%} of reruns"
+            + (": an unstable assignment, so treat its subgroup as uncertain." if co < UNSTABLE else ".") + "</div>"
+            if num(co) else "")
     return (f"<div class='sgcard' style='--cc:{ccolor(c)}'><div class='k'>Subgroup</div><div class='sgname'>{esc(info.get('name', c))}"
-            f"</div><div class='gcap'>{info.get('n', '?')} of {len(cl.get('patients', []))} patients</div>"
+            f"</div><div class='gcap'>{info.get('n', '?')} of {len(cl.get('patients', []))} patients</div>{mine}"
             f"<div class='k'>Distinguishing proteins (mean difference vs the rest)</div><div>{sig or 'none listed'}</div>"
             f"<div class='k'>{'Pathways, linked by graph edges' if has_edges else 'Enriched pathways (Reactome, FDR q)'}</div>"
             f"<ul class='sources'>{pws or '<li>none listed</li>'}</ul>"
