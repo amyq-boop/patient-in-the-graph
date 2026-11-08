@@ -120,6 +120,7 @@ div.stButton > button:focus-visible { outline: 2px solid var(--eosin); outline-o
 :root { --hl:#ece7fb; }
 .cmap { display:block; background:#fff; border:1px solid var(--rule); border-radius:8px; }
 .cmap .dot { transition: opacity .15s, r .15s; cursor:default; } .cmap .dot:hover { r:8; }
+.ic.drv { box-shadow: inset 0 0 0 1.5px #a3304f; font-weight:600; }
 .clegend { display:flex; flex-wrap:wrap; gap:1.2rem; margin:.6rem 0 0; font-size:.9rem; color:var(--body); }
 .clegend .cl { cursor:default; display:flex; align-items:center; gap:.4rem; }
 .clegend i { width:12px; height:12px; border-radius:50%; display:inline-block; }
@@ -510,8 +511,9 @@ def ask(text, v):
 with left:
     if not t:
         st.markdown("<p class='q' style='color:#5d596b'>" + ("There's no verified run for this step and patient yet."
-                    if qid else "Pick a question above to run the agent on this patient.") + "</p>",
-                    unsafe_allow_html=True)
+                    if qid else "Pick a question above to run the agent on this patient." if qlist else
+                    "No verified agent run for this patient yet. The brief and subgroup above are real; cached runs "
+                    "appear here as they land.") + "</p>", unsafe_allow_html=True)
     else:
         demo = "<span class='demo'>Demo data: placeholder IDs and citations</span>" if src == "mock" else ""
         st.markdown(f"<div id='runtop'></div>{demo}<div class='q'>{esc(t['question'])}</div>", unsafe_allow_html=True)

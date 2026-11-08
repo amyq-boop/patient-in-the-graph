@@ -84,22 +84,45 @@ def subgroup_html(cl, pid):
     sig = "".join(f"<span class='sg'>{esc(s['symbol'])} {'↑' if s.get('direction') == 'up' else '↓'}"
                   + (f"<small>{s['effect']:+.1f}</small>" if isinstance(s.get("effect"), (int, float)) else "")
                   + "</span>" for s in info.get("signature_proteins", [])[:8])
-    pws = "".join(f"<li>{esc(p['name'])} <span class='kind'>({', '.join(esc(e) for e in p.get('edge_ids', [])) or 'no edge yet'}"
-                  + (f", q = {p['q']:.3g}" if isinstance(p.get("q"), (int, float)) else "") + ")</span></li>"
-                  for p in info.get("pathways", [])[:5])
+    def pw_line(p):
+        bits = []
+        if p.get("edge_ids"):
+            bits.append(", ".join(esc(e) for e in p["edge_ids"]))
+        if isinstance(p.get("overlap"), int) and isinstance(p.get("pathway_size"), int):
+            bits.append(f"{p['overlap']} of {p['pathway_size']} genes")
+        if isinstance(p.get("q"), (int, float)):
+            bits.append(f"q = {p['q']:.2g}")
+        return f"<li>{esc(p['name'])} <span class='kind'>({'; '.join(bits) or 'no test result'})</span></li>"
+    pws = "".join(pw_line(p) for p in info.get("pathways", [])[:4])
+    has_edges = any(p.get("edge_ids") for p in info.get("pathways", []))
     comp = cl.get("comparison") or {}
     pr, gn = comp.get("proteomics") or {}, comp.get("gnn_embedding") or {}
-    stab = (f"Stability {cl['stability_ari']:.2f} (bootstrap ARI), silhouette {cl['silhouette']:.2f}, "
-            f"k = {cl.get('k')} from {esc(cl.get('features', ''))}." if isinstance(cl.get("stability_ari"), (int, float))
-            and isinstance(cl.get("silhouette"), (int, float)) else "")
-    vs = (f" Proteomics-only clusters: {pr['stability_ari']:.2f}. GNN-embedding clusters: {gn['stability_ari']:.2f}."
-          if isinstance(pr.get("stability_ari"), (int, float)) and isinstance(gn.get("stability_ari"), (int, float)) else "")
+    num = lambda x: isinstance(x, (int, float))  # noqa: E731
+    stab = []
+    if num(cl.get("stability_ari")):
+        stab.append(f"Bootstrap stability ARI {cl['stability_ari']:.2f}"
+                    + (f" ± {cl['stability_sd']:.2f}" if num(cl.get("stability_sd")) else ""))
+    if num(info.get("jaccard")):
+        stab.append(f"this subgroup reproduces at Jaccard {info['jaccard']:.2f}")
+    if num(cl.get("silhouette")):
+        stab.append(f"silhouette {cl['silhouette']:.2f}")
+    stab = (", ".join(stab) + f". k = {cl.get('k')} from {esc(cl.get('features') or 'proteomics')}.") if stab else ""
+    if num(pr.get("stability_ari")) and num(gn.get("stability_ari")):
+        vs = f" Proteomics-only clusters {pr['stability_ari']:.2f}, GNN-embedding clusters {gn['stability_ari']:.2f}."
+    elif comp.get("status"):
+        vs = " GNN-embedding comparison: pending."
+    else:
+        vs = ""
+    ph = cl.get("post_hoc") or {}
+    post = (f" Checked after clustering: stage differs between subgroups (χ² p = {ph['y_stage']['chi2_p']:.2g}), "
+            "but stage was never used to build them." if isinstance(ph, dict) and num((ph.get("y_stage") or {}).get("chi2_p"))
+            else " Stage and grade were not used to build them.")
     return (f"<div class='sgcard' style='--cc:{ccolor(c)}'><div class='k'>Subgroup</div><div class='sgname'>{esc(info.get('name', c))}"
             f"</div><div class='gcap'>{info.get('n', '?')} of {len(cl.get('patients', []))} patients</div>"
-            f"<div class='k'>Distinguishing proteins (effect vs the other subgroups)</div><div>{sig or 'none listed'}</div>"
-            f"<div class='k'>Pathways, linked by graph edges</div><ul class='sources'>{pws or '<li>none listed</li>'}</ul>"
-            f"<div class='sgfoot'>{stab}{vs} Exploratory molecular subgroups, not clinical subtypes. Stage and grade were "
-            "not used to build them.</div></div>")
+            f"<div class='k'>Distinguishing proteins (mean difference vs the rest)</div><div>{sig or 'none listed'}</div>"
+            f"<div class='k'>{'Pathways, linked by graph edges' if has_edges else 'Enriched pathways (Reactome, FDR q)'}</div>"
+            f"<ul class='sources'>{pws or '<li>none listed</li>'}</ul>"
+            f"<div class='sgfoot'>{stab}{vs}{post} Exploratory molecular subgroups, not clinical subtypes.</div></div>")
 
 
 def brief_html(brief, info, pid):
@@ -117,12 +140,16 @@ def brief_html(brief, info, pid):
     finds = b.get("findings") or info.get("phenotypes", [])
     missing = b.get("missing") or []
     summary = b.get("summary") or info.get("clinical_summary", "")
+    ref = {"normal": "matched normal tissue", "cohort": "the rest of the cohort"}.get(b.get("reference"), "reference")
+    mchips = "".join(f"<span class='ic obs{' drv' if m.get('known_driver') else ''}' title='{esc(m.get('id') or m.get('edge_id', ''))}'>"
+                     f"{esc(m.get('symbol'))}<small>{esc(m.get('protein_changes') or '')}</small></span>"
+                     for m in muts[:8]) or "<span class='gcap'>none</span>"
     miss = ("<ul class='miss'>" + "".join(f"<li>{esc(m)}</li>" for m in missing) + "</ul>") if missing else \
         "<span class='gcap'>none listed</span>"
     return (f"<div class='intake brief'><div><div class='k'>Patient</div><div class='pid'>{esc(pid)}</div>"
             f"<div class='sum'>{esc(summary)}</div></div>"
-            f"<div><div class='k'>Tumor proteins vs reference (z-score)</div>{chips(up, '↑')}{chips(down, '↓') if down else ''}"
-            f"<div class='k' style='margin-top:.6rem'>Somatic mutations</div>{chips(muts)}</div>"
+            f"<div><div class='k'>Tumor proteins vs {ref} (z-score)</div>{chips(up, '↑')}{chips(down, '↓') if down else ''}"
+            f"<div class='k' style='margin-top:.6rem'>Somatic mutations</div>{mchips}</div>"
             f"<div><div class='k'>On record</div>{chips(finds)}<div class='k' style='margin-top:.6rem'>Missing</div>{miss}</div>"
             "</div>")
 
