@@ -108,7 +108,7 @@ def test_drug_targets_brca(tiny):
     names = _edge_names(calls)
     assert names["E0"][:2] == ["Trastuzumab", "ERBB2"] and names["E6"][:2] == ["Trastuzumab", "breast carcinoma"]
     view = _llm_view("get_drug_targets", r)
-    assert "[E0] Trastuzumab (drug) --drug_protein--> ERBB2" in view and "[E1] Alpelisib (drug (no indication edge" in view
+    assert "[E0] Trastuzumab (drug) --drug_protein--> ERBB2" in view and "[E1] Alpelisib (drug (no indication or treatment edge" in view
 
 
 def test_drug_targets_ccrcc_patient_uses_ccrcc_indications(tiny):
@@ -119,3 +119,21 @@ def test_drug_targets_ccrcc_patient_uses_ccrcc_indications(tiny):
 
 def test_unknown_patient_errors(tiny):
     assert "error" in T.dispatch("get_drug_targets", {"patient_id": "nobody"})
+
+
+def test_dismech_treatment_edge_counts_as_indication(tiny):
+    """A DisMech treats-or-studied edge to the cancer lifts a drug PrimeKG has no indication for (alpelisib)."""
+    e = pd.read_parquet(tiny / "edges.parquet")
+    extra = pd.DataFrame({"edge_row": [9, 10], "src": [5, 5], "dst": [9, 10],
+                          "rel": ["dm_treats_or_applied_or_studied_to_treat"] * 2, "origin": "dismech", "dm_row": [0, 1],
+                          "src_type": "drug", "dst_type": "disease", "hub": False, "e1_holdout": False,
+                          "e4_dismech": False, "e4_full": False})
+    pd.concat([e, extra], ignore_index=True).to_parquet(tiny / "edges.parquet")
+    r = T.dispatch("get_drug_targets", {"patient_id": "11BR1"})
+    a = next(d for d in r["items"] if d["name"] == "Alpelisib")
+    assert a["indicated_for_cancer"] and a["indication"] == [
+        {"disease": "breast carcinoma", "edge_id": "E9", "source": "dismech_treats_or_studied"}]  # renal edge E10 ignored
+    assert r["items"][0]["name"] == "Alpelisib"  # mutated target (weight 5) outranks a z=4 protein, both indicated
+    assert r["other_drugs_on_mutated_genes"] == []
+    assert T.dispatch("get_drug_targets", {"patient_id": "11BR1"})["items"][1]["indication"][0]["source"] == "indication"
+    assert "[E9] Alpelisib (drug) --treats_or_studied_to_treat--> breast carcinoma" in _llm_view("get_drug_targets", r)

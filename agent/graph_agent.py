@@ -76,7 +76,7 @@ def _patient_view(res, n_up=25, n_down=15):
 def _drug_target_lines(res):
     """One citable line per drug-target link, plus the patient edge for the target and any cancer indication."""
     lines = []
-    for group, label in (("items", ""), ("other_drugs_on_mutated_genes", " (no indication edge in PrimeKG)")):
+    for group, label in (("items", ""), ("other_drugs_on_mutated_genes", " (no indication or treatment edge for this cancer)")):
         for d in res.get(group, []):
             for t in d.get("targets", []):
                 what = (f"somatic mutation {t.get('protein_change', '')}".strip() if t["basis"] == "somatic_mutation"
@@ -84,7 +84,8 @@ def _drug_target_lines(res):
                 lines.append(f"[{t['drug_target_edge_id']}] {d['name']} (drug{label}) --drug_protein--> {t['symbol']} "
                              f"(gene); patient: [{t['patient_edge_id']}] {t['symbol']} {what}")
             for ind in d.get("indication", []):
-                lines.append(f"[{ind['edge_id']}] {d['name']} (drug) --indication--> {ind['disease']} (disease)")
+                rel = "treats_or_studied_to_treat" if ind.get("source") == "dismech_treats_or_studied" else "indication"
+                lines.append(f"[{ind['edge_id']}] {d['name']} (drug) --{rel}--> {ind['disease']} (disease)")
     return "\n".join(lines)
 
 

@@ -432,7 +432,14 @@ def _cancer_indications(variant, cancer):
     for row, drug, dis in e.itertuples(index=False):
         name = str(df.name.at[dis])
         if kw.search(name):
-            out[drug].append((edge_id(row), name))
+            out[drug].append((edge_id(row), name, "indication"))
+    # DisMech's curated treatment edges (drug -> treats or studied to treat -> disease). These carry approvals that
+    # PrimeKG's 2022 indication data predates (alpelisib, PARP inhibitors, elacestrant for breast carcinoma). Only
+    # get_drug_targets reads this function, so rank_for_patient's approved-drug filter is unchanged.
+    for row, drug, dis in _drug_edges("dm_treats_or_applied_or_studied_to_treat", variant).itertuples(index=False):
+        name = str(df.name.at[dis])
+        if kw.search(name) and str(df.type.at[dis]) == "disease":
+            out[drug].append((edge_id(row), name, "dismech_treats_or_studied"))
     return dict(out)
 
 
@@ -485,8 +492,8 @@ def get_drug_targets(patient_id, k=15):
         tot = int(n_total.get(drug, len(set(grp.dst))))
         ind = indic.get(drug, [])
         drugs.append({"curie": str(df.curie.at[drug]), "name": str(df.name.at[drug]),
-                      "indicated_for_cancer": bool(ind), "has_indication_edge": drug in approved,
-                      "indication": [{"disease": n, "edge_id": e} for e, n in ind[:2]],
+                      "indicated_for_cancer": bool(ind), "has_indication_edge": drug in approved or bool(ind),
+                      "indication": [{"disease": n, "edge_id": e, "source": src} for e, n, src in ind[:2]],
                       "n_patient_targets": len(set(grp.dst)), "n_targets_total": tot,
                       "score": round(raw / tot ** 0.5, 2),  # specific drugs first: 1 hit of 1 target beats 3 of 300
                       "targets": [h for _, h in hits[:5]]})
@@ -501,15 +508,16 @@ def get_drug_targets(patient_id, k=15):
     return {"patient_id": pid, "cancer": cancer,
             "basis": "the patient's top up-regulated tumor proteins and somatically mutated genes "
                      "(down-regulated proteins are not used)",
-            "filter": "items: drugs with an indication edge (our approval proxy). other_drugs_on_mutated_genes: drugs "
-                      "without one that target a mutated gene (PrimeKG 2022 lacks some newer approvals, e.g. alpelisib). "
+            "filter": "items: drugs with an indication edge (our approval proxy) or a DisMech treatment edge to this "
+                      "cancer. other_drugs_on_mutated_genes: drugs with neither that target a mutated gene. "
                       "Drug-handling genes (CYP, UGT, ABC, SLC, ...) are not counted as targets.",
             "n_patient_targets_in_graph": len(targets), "n_drugs": len(main),
             "items": main[: int(k)],
             "other_drugs_on_mutated_genes": extra,
             "note": "drug_protein edges are PrimeKG drug-target links. A shared target is a rationale to investigate, "
-                    "not evidence that the drug works for this patient. indicated_for_cancer = an indication edge to a "
-                    "disease of this cancer type exists; score = summed target weight / sqrt(the drug's target count)."}
+                    "not evidence that the drug works for this patient. indicated_for_cancer = an indication edge (PrimeKG) or a "
+                    "treats-or-studied-to-treat edge (DisMech; may be a trial, not an approval) to a disease of this "
+                    "cancer type exists (see indication[].source); score = summed target weight / sqrt(the drug's target count)."}
 
 
 @lru_cache(maxsize=1)

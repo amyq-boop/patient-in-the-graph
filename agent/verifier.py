@@ -6,12 +6,18 @@
    or a PMID it cites is in evidence.pmids (what get_mechanism returned). Only IDs written in
    the claim's own sentence count, so the splitter can't add any.
    Citations count in [brackets] or (parentheses); a group naming a PMID makes its bare numbers PMIDs too.
+   A range like [E12–E15] stands for every ID in it (at most RANGE_MAX), and it supports a claim only if all of
+   them are in evidence; otherwise none of it counts (edge rows are not ordered by mechanism chain, so a range
+   over a chain's first and last edge usually spans edges the agent never saw).
 3. Unsupported claims become "hypothesis" if the draft framed them that way, else "removed".
 4. The answer is the draft with removed claims cut out and unverified hypotheses labelled.
 
 Not every sentence is a claim: section headers are skipped, and caveats (anything under a Caveats
 header), statements that something cannot be determined, and proposed experiments are kept in the
 answer but not scored. They're returned in stats["non_claims"] so the hand-check can see them.
+Their citations are still checked: an ID that isn't in evidence, a failed range, or (strict mode) a KG edge that
+names nothing the sentence mentions is replaced by "citation removed" in the answer and listed in that
+non-claim's "bad_ids". Model outputs (pred:/contrib:/rank:) are exempt from the naming check here.
 Model outputs (pred:/contrib:/rank: IDs from predict_patient and rank_for_patient) count as
 evidence; claims backed only by them are counted in stats["n_supported_model"].
 
@@ -27,6 +33,9 @@ import re
 from agent.prompts import CLAIMS_SYSTEM
 
 ID_TOKEN = re.compile(r"\bE\d+\b|\b(?:pt|pred|contrib|rank):[^\s,;\]\)]+|\bPMID:\s*\d+", re.I)
+RANGE = re.compile(r"\bE(\d+)\s*[\u2010-\u2015-]\s*E?(\d+)\b", re.I)  # E12-E15, E12–E15, E12 – 15
+CITE_TOKEN = re.compile(f"{RANGE.pattern}|{ID_TOKEN.pattern}", re.I)
+RANGE_MAX = 10  # a longer range is never a list of edges the agent actually read
 MODEL_PREFIXES = ("pred:", "contrib:", "rank:")
 HEADER = re.compile(r"^\s*(?:#{1,6}\s+\S.*|\*\*[^*\n]{1,60}\*\*:?(?:\s*\([^)\n]{0,120}\))?|[A-Z][A-Za-z /&-]{1,40}:)\s*$")
 ABSTAIN = re.compile(
@@ -95,15 +104,62 @@ def _citation_groups(text):
     return groups
 
 
+def _parse_citations(text):
+    """(IDs cited one by one, ranges) in citation order. A range is {"range": "E12–E15", "ids": [E12..E15]};
+    "ids" is empty when the range is longer than RANGE_MAX."""
+    singles, ranges = [], []
+    for inner in _citation_groups(text):
+        for m in CITE_TOKEN.finditer(inner):
+            if m.group(1) is not None:
+                lo, hi = sorted((int(m.group(1)), int(m.group(2))))
+                ranges.append({"range": m.group(0), "ids": [f"E{i}" for i in range(lo, hi + 1)]
+                               if hi - lo + 1 <= RANGE_MAX else []})
+            else:
+                singles.append(norm_id(m.group(0)))
+        if re.search(r"(?i)\bPMID:", inner):
+            singles += [f"PMID:{n}" for n in BARE_PMID.findall(inner)]
+    return list(dict.fromkeys(singles)), ranges
+
+
 def cited_ids(text):
     """Edge IDs and PMIDs cited in [brackets] or (parentheses), e.g. [E12, E7], (E12), [PMID:123, 456] or
-    [pt:C3L-1:protein_up:NCBIGene:7]. In a group that names a PMID, the bare numbers after it are PMIDs too."""
-    ids = []
-    for inner in _citation_groups(text):
-        ids += [norm_id(t) for t in ID_TOKEN.findall(inner)]
-        if re.search(r"(?i)\bPMID:", inner):
-            ids += [f"PMID:{n}" for n in BARE_PMID.findall(inner)]
-    return list(dict.fromkeys(ids))
+    [pt:C3L-1:protein_up:NCBIGene:7]. In a group that names a PMID, the bare numbers after it are PMIDs too.
+    A range [E12–E14] is expanded to E12, E13, E14 (see _check_ranges for when it counts)."""
+    singles, ranges = _parse_citations(text)
+    return list(dict.fromkeys(singles + [x for r in ranges for x in r["ids"]]))
+
+
+def _check_ranges(text, ev_edges):
+    """Ranges cited in `text`, each marked ok iff every ID in it is in evidence, and the IDs to drop: members of
+    failed ranges that the text doesn't also cite on their own."""
+    singles, ranges = _parse_citations(text)
+    out, drop = [], set()
+    for r in ranges:
+        ok = bool(r["ids"]) and all(x in ev_edges for x in r["ids"])
+        out.append({**r, "ok": ok})
+        if not ok:
+            drop |= set(r["ids"]) - set(singles)
+    return out, drop
+
+
+def _drop_ids(text, bad):
+    """`text` with the cited IDs (or range strings) in `bad` cut out of their citation groups, and the group marked
+    "citation removed" so the reader sees the statement lost its support: [E1, E2] -> [E1, citation removed]."""
+    def fix(inner):
+        parts = re.split(r"\s*[,;]\s*", inner)
+        keep = [p for p in parts if not (CITE_TOKEN.search(p) and
+                                         all((m.group(0) if m.group(1) is not None else norm_id(m.group(0))) in bad
+                                             for m in CITE_TOKEN.finditer(p)))]
+        return ", ".join(keep + (["citation removed"] if len(keep) < len(parts) else [])).strip()
+
+    def group(m, open_, close):
+        if not CITE_TOKEN.search(m.group(1)):
+            return m.group(0)
+        return f"{open_}{fix(m.group(1))}{close}"
+
+    t = BRACKET.sub(lambda m: group(m, "[", "]"), text)
+    t = PAREN.sub(lambda m: group(m, "(", ")"), t)
+    return t
 
 
 def strip_citations(text):
@@ -203,12 +259,14 @@ def verify(draft, evidence, llm, edge_names=None, strict=None):
         quote = str(c.get("quote") or text).strip()
         if not text or is_header(quote) or is_header(text):
             continue
+        ranges, drop = [], set()
         if quote and quote in answer or (quote and quote in (draft or "")):
             ids = cited_ids(quote)
+            ranges, drop = _check_ranges(quote, ev_edges)
         else:  # quote not verbatim: keep listed IDs only if they really occur in the draft
             listed = [norm_id(x) for x in list(c.get("edge_ids", [])) + list(c.get("pmids", []))]
             ids = [x for x in listed if x in in_draft]
-        e_ids, p_ids = split_ids(ids)
+        e_ids, p_ids = split_ids([x for x in ids if x not in drop])
         ok_e = [x for x in e_ids if x in ev_edges]
         ok_p = [x for x in p_ids if x in ev_pmids]
         hyp = bool(c.get("is_hypothesis")) or bool(HYP.match(text))
@@ -224,22 +282,34 @@ def verify(draft, evidence, llm, edge_names=None, strict=None):
                                        and "experiment" in section_of(draft, quote).lower()
                                        or EXPERIMENT.search(quote.split(":", 1)[0] + ":")):
             status = "removed"  # a proposed experiment is not a hypothesis claim: keep it unlabelled, as a non-claim
+        bad_ranges = [r["range"] for r in ranges if not r["ok"]]
         if status == "removed":
             why = non_claim_reason(quote, section_of(draft, quote)) or non_claim_reason(text)
             if why:  # kept in the answer, not scored; listed so the hand-check can audit it
-                non_claims.append({"text": text, "reason": why, "quote": quote})
+                nc = {"text": text, "reason": why, "quote": quote}
+                # its citations still have to hold: an ID not in evidence, or (strict) naming nothing it mentions
+                bad = [x for x in e_ids + p_ids if x not in ev_edges and x not in ev_pmids]
+                bad += [x for x in mism if strict and not x.startswith(MODEL_PREFIXES)] + bad_ranges
+                if bad:
+                    nc["bad_ids"] = bad
+                    if quote in answer:
+                        answer = answer.replace(quote, _drop_ids(quote, set(bad)), 1)
+                non_claims.append(nc)
                 continue
         model_only = backed and not ok_p and all(x.startswith(MODEL_PREFIXES) for x in ok_e)
-        claims.append({
+        claim = {
             "claim_id": c.get("claim_id") or f"c{i + 1}", "text": text,
             "support": {"edge_ids": e_ids, "pmids": p_ids},
             "status": status,
             "quote": quote,
-            "unmatched_ids": [x for x in e_ids + p_ids if x not in ev_edges and x not in ev_pmids],
+            "unmatched_ids": [x for x in e_ids + p_ids if x not in ev_edges and x not in ev_pmids] + bad_ranges,
             "entity_match": ent,
             "mismatched_ids": mism,
             "model_output_only": model_only,
-        })
+        }
+        if ranges:  # only claims that cite a range carry this key
+            claim["range_citations"] = ranges
+        claims.append(claim)
         if quote and quote in answer:
             if status == "removed":
                 answer = answer.replace(quote, "", 1)
@@ -257,6 +327,8 @@ def verify(draft, evidence, llm, edge_names=None, strict=None):
              "n_supported_model": sum(bool(c.get("model_output_only")) for c in claims),
              "n_claims_mismatched": sum(bool(c.get("mismatched_ids")) for c in claims),
              "n_non_claims": len(non_claims), "non_claims": non_claims,
+             "n_non_claims_bad_citations": sum(bool(n.get("bad_ids")) for n in non_claims),
+             "n_range_citations_rejected": sum(not r["ok"] for c in claims for r in c.get("range_citations", [])),
              "strict": strict}
     return claims, answer, stats, splitter
 

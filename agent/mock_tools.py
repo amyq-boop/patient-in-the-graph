@@ -138,7 +138,7 @@ def get_drug_targets(patient_id: str, k: int = 15) -> dict:
     if patient_id not in PATIENTS:
         return error(f"unknown patient_id {patient_id!r}", known=PATIENTS)
     item = {"curie": "DRUGBANK:MOCK_BEV", "name": "Bevacizumab", "indicated_for_cancer": True, "has_indication_edge": True,
-            "indication": [{"disease": _N[CCRCC_ID][0], "edge_id": "E900011"}], "n_patient_targets": 1,
+            "indication": [{"disease": _N[CCRCC_ID][0], "edge_id": "E900011", "source": "indication"}], "n_patient_targets": 1,
             "n_targets_total": 1, "score": 3.4,
             "targets": [{"basis": "protein_up", "symbol": "VEGFA", "curie": "NCBIGene:7422", "z": 3.4,
                          "patient_edge_id": patient_edge_id(patient_id, "protein_up", "NCBIGene:7422"),
