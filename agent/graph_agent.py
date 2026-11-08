@@ -36,6 +36,14 @@ def _llm_view(name, res):
         return json.dumps(_subgraph_view(res))
     if name == "get_patient":  # compact lines, mutations first: 100 protein dicts used to push them past the cut
         return json.dumps(_patient_view(res))
+    elif name == "predict_patient" and res.get("top_contributing"):  # tumor vs clinical drivers, one line each
+        line = lambda x: f"[{x['evidence_id']}] {x.get('name') or x['curie']} score={x.get('score')}"  # noqa: E731
+        view = {k: res.get(k) for k in ("patient_id", "label", "risk", "model", "fold", "evidence_id")}
+        view.update({"tumor_drivers": [line(x) for x in res.get("tumor_drivers", [])],
+                     "clinical_drivers": [line(x) for x in res.get("clinical_drivers", [])],
+                     "driver_split": res.get("driver_split", {}),
+                     "note": "tumor_drivers are tumor proteins; clinical_drivers are recorded phenotypes "
+                             "(symptoms or comorbidities), which the model also uses but which are not tumor biology"})
     elif name == "get_mechanism":  # one line per citable edge: models copy IDs reliably from aligned lines, not JSON
         view = {"disease": res.get("disease"), "name": res.get("name"), "citable_lines": _mechanism_lines(res),
                 "genes": res.get("genes", [])}

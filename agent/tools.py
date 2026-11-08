@@ -24,7 +24,7 @@ from agent import config as C
 from agent import mock_tools
 from agent.schemas import TOOLS  # noqa: F401  (re-exported)
 from common.contracts import (GRAPH_VARIANTS, P, contrib_id, edge_id, patient_curie, patient_edge_id, patient_neighbours,
-                              pred_id, rank_id, triple_line, variant_mask)
+                              driver_split, pred_id, rank_id, triple_line, variant_mask)
 
 NAMERES = "https://name-resolution-sri.renci.org/lookup"
 NODENORM = "https://nodenormalization-sri.renci.org/get_normalized_nodes"
@@ -230,8 +230,11 @@ def predict_patient(patient_id):
         c = pd.read_parquet(C.CONTRIBUTIONS)
         c = c[c.patient_id == pid].sort_values("rank").head(10)
         top = [_ref(r.curie, score=round(float(r.score), 4), evidence_id=contrib_id(pid, r.curie)) for r in c.itertuples()]
+    for x in top:
+        x["driver"] = "clinical" if (x["type"] == "phenotype" or x["curie"].startswith("HP:")) else "tumor"
     out = {"patient_id": pid, "label": C.PRIMARY_LABEL, "risk": round(float(p.risk), 4), "model": "gnn",
            "fold": int(p.fold), "evidence_id": pred_id(pid), "top_contributing": top}
+    out.update(driver_split(top))
     if not top:
         out["note"] = "no per-patient contributions file yet"
     return out

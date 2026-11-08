@@ -23,7 +23,8 @@ TOOLS = [
         "Each item has a citable edge_id (pt:...). Never includes stage, grade or outcome.",
         {"patient_id": {"type": "string", "description": "CPTAC case ID, e.g. C3L-00004"}}, ["patient_id"]),
     _fn("predict_patient",
-        "GNN-A out-of-fold risk estimate (stage III-IV) for the patient, with the nodes that contributed most.",
+        "GNN-A out-of-fold risk estimate (stage III-IV) for the patient, with the nodes that contributed most, "
+        "split into tumor_drivers (tumor proteins) and clinical_drivers (recorded phenotypes) with their shares.",
         {"patient_id": _S}, ["patient_id"]),
     _fn("rank_for_patient",
         "GNN-A ranking of the genes, pathways or drugs most relevant to this patient.",

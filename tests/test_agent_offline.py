@@ -231,6 +231,9 @@ def test_real_tools_on_contract_files(tiny_processed, monkeypatch):
     assert not {"y_stage", "stage", "grade"} & set(p)
     pr = T.dispatch("predict_patient", {"patient_id": "C3L-1"})
     assert pr["risk"] == 0.7 and pr["fold"] == 3 and pr["label"] == "y_stage"
+    assert {"tumor_drivers", "clinical_drivers", "driver_split"} <= set(pr)
+    assert all(x["driver"] == "tumor" for x in pr["tumor_drivers"])
+    assert all(x["driver"] == "clinical" and x["curie"].startswith("HP:") for x in pr["clinical_drivers"])
     r = T.dispatch("resolve_terms", {"texts": ["high blood pressure", "HGNC:12687", "ccrcc"]})["results"]
     assert [x["matches"][0]["curie"] for x in r] == ["HP:0000822", "NCBIGene:7428", "MONDO:0005005"]
     assert r[0]["matches"][0]["type"] == "phenotype" and "warning" in r[0]
@@ -295,3 +298,19 @@ def test_auto_mode_falls_back_to_mocks(tiny_processed, monkeypatch):
     assert fb.get("_fallback") and fb["edge_ids"]
     assert "error" not in T.dispatch("get_patient", {"patient_id": "C3L-1"})  # real file exists: no fallback
     assert json.dumps(T.dispatch("get_patient", {"patient_id": "C3L-1"}))
+
+
+def test_driver_split_and_view():
+    from common.contracts import driver_split
+    from agent.graph_agent import _llm_view
+    top = [{"curie": "HP:0000822", "name": "Hypertension", "type": "phenotype", "score": 2.0,
+            "evidence_id": "contrib:X:HP:0000822", "driver": "clinical"},
+           {"curie": "NCBIGene:7428", "name": "VHL", "type": "gene", "score": 6.0,
+            "evidence_id": "contrib:X:NCBIGene:7428", "driver": "tumor"}]
+    s = driver_split(top)
+    assert s["driver_split"]["tumor_share"] == 0.75 and s["driver_split"]["clinical_share"] == 0.25
+    assert [x["name"] for x in s["tumor_drivers"]] == ["VHL"]
+    assert driver_split([]) == {"tumor_drivers": [], "clinical_drivers": [], "driver_split": {}}
+    v = _llm_view("predict_patient", {"patient_id": "X", "risk": 0.5, "evidence_id": "pred:X:gnn",
+                                      "top_contributing": top, **s})
+    assert "[contrib:X:NCBIGene:7428] VHL" in v and "top_contributing" not in v and "clinical_drivers" in v
