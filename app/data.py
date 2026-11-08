@@ -145,7 +145,8 @@ def _norm_brief(b: dict) -> dict:
             "summary": b.get("clinical_summary", ""), "reference": pr.get("reference"),
             "proteins_up": tag(pr.get("top_up", [])[:10]), "proteins_down": tag(pr.get("top_down", [])[:4]),
             "mutations": tag(b.get("mutations", [])), "findings": tag(b.get("phenotypes", [])),
-            "missing": b.get("missing_information", [])}
+            "missing": b.get("missing_information", []), "medications": b.get("medications", []),
+            "demographics": b.get("demographics", {})}
 
 
 def product(cancer: str, name: str) -> tuple[dict | None, str]:
