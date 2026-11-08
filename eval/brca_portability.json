@@ -2,8 +2,8 @@
   "cancer": "brca",
   "patient_id": null,
   "data_origin": "real",
-  "execution": null,
-  "status": "preregistered",
+  "execution": "cached",
+  "status": "partially scored (protein/mutation expectations); drug/agent expectations pending",
   "preregistered_by": "Aniket",
   "preregistered_at": "2026-11-07 (commit this file BEFORE running the pipeline; the commit timestamp is the record)",
   "purpose": "Portability test: run the unchanged graph / GNN-A / agent pipeline on CPTAC-BRCA without disease-specific retraining, and check pre-stated biological expectations.",
@@ -26,54 +26,263 @@
     {
       "patient_id": "11BR060",
       "group": "HER2-amplified, ER-low",
-      "selection_values": {"ERBB2_cnv": 2.96, "ESR1_rna": 0.45, "TP53_mut": true},
+      "selection_values": {
+        "ERBB2_cnv": 2.96,
+        "ESR1_rna": 0.45,
+        "TP53_mut": true
+      },
       "expectations": [
-        {"id": "11BR060-1", "statement": "ERBB2 is among the patient's top-50 up-regulated proteins.", "check": "patient_proteins: ERBB2 direction=up, rank<=50"},
-        {"id": "11BR060-2", "statement": "At least one co-amplified 17q12 neighbour (GRB7, STARD3 or PGAP3) is also among the top-50 up-regulated proteins.", "check": "patient_proteins"},
-        {"id": "11BR060-3", "statement": "A HER2-targeting drug (trastuzumab, pertuzumab, lapatinib, neratinib or tucatinib) appears in rank_for_patient(drug, k=10) or in the agent's cited drug-target evidence.", "check": "rank_for_patient / agent trace"},
-        {"id": "11BR060-4", "statement": "ESR1 is NOT among the top-50 up-regulated proteins.", "check": "patient_proteins"}
+        {
+          "id": "11BR060-1",
+          "statement": "ERBB2 is among the patient's top-50 up-regulated proteins.",
+          "check": "patient_proteins: ERBB2 direction=up, rank<=50"
+        },
+        {
+          "id": "11BR060-2",
+          "statement": "At least one co-amplified 17q12 neighbour (GRB7, STARD3 or PGAP3) is also among the top-50 up-regulated proteins.",
+          "check": "patient_proteins"
+        },
+        {
+          "id": "11BR060-3",
+          "statement": "A HER2-targeting drug (trastuzumab, pertuzumab, lapatinib, neratinib or tucatinib) appears in rank_for_patient(drug, k=10) or in the agent's cited drug-target evidence.",
+          "check": "rank_for_patient / agent trace"
+        },
+        {
+          "id": "11BR060-4",
+          "statement": "ESR1 is NOT among the top-50 up-regulated proteins.",
+          "check": "patient_proteins"
+        }
       ]
     },
     {
       "patient_id": "11BR028",
       "group": "HER2-amplified, ER-low (TP53 wild-type replicate)",
-      "selection_values": {"ERBB2_cnv": 2.64, "ESR1_rna": 0.65, "TP53_mut": false},
+      "selection_values": {
+        "ERBB2_cnv": 2.64,
+        "ESR1_rna": 0.65,
+        "TP53_mut": false
+      },
       "expectations": [
-        {"id": "11BR028-1", "statement": "ERBB2 is among the top-50 up-regulated proteins.", "check": "patient_proteins"},
-        {"id": "11BR028-2", "statement": "A HER2-targeting drug appears in rank_for_patient(drug, k=10) or the agent's cited drug-target evidence.", "check": "rank_for_patient / agent trace"}
+        {
+          "id": "11BR028-1",
+          "statement": "ERBB2 is among the top-50 up-regulated proteins.",
+          "check": "patient_proteins"
+        },
+        {
+          "id": "11BR028-2",
+          "statement": "A HER2-targeting drug appears in rank_for_patient(drug, k=10) or the agent's cited drug-target evidence.",
+          "check": "rank_for_patient / agent trace"
+        }
       ]
     },
     {
       "patient_id": "18BR019",
       "group": "ER-high",
-      "selection_values": {"ERBB2_cnv": -0.08, "ESR1_rna": 150.32},
+      "selection_values": {
+        "ERBB2_cnv": -0.08,
+        "ESR1_rna": 150.32
+      },
       "expectations": [
-        {"id": "18BR019-1", "statement": "ESR1 or an ER-program protein (GATA3, FOXA1, PGR) is among the top-50 up-regulated proteins.", "check": "patient_proteins"},
-        {"id": "18BR019-2", "statement": "An endocrine drug acting on the estrogen receptor (tamoxifen, fulvestrant, raloxifene, toremifene) appears in rank_for_patient(drug, k=10) or the agent's cited evidence.", "check": "rank_for_patient / agent trace"},
-        {"id": "18BR019-3", "statement": "No HER2-targeting drug is presented as a top target for this patient.", "check": "agent trace"}
+        {
+          "id": "18BR019-1",
+          "statement": "ESR1 or an ER-program protein (GATA3, FOXA1, PGR) is among the top-50 up-regulated proteins.",
+          "check": "patient_proteins"
+        },
+        {
+          "id": "18BR019-2",
+          "statement": "An endocrine drug acting on the estrogen receptor (tamoxifen, fulvestrant, raloxifene, toremifene) appears in rank_for_patient(drug, k=10) or the agent's cited evidence.",
+          "check": "rank_for_patient / agent trace"
+        },
+        {
+          "id": "18BR019-3",
+          "statement": "No HER2-targeting drug is presented as a top target for this patient.",
+          "check": "agent trace"
+        }
       ]
     },
     {
       "patient_id": "18BR003",
       "group": "ER-high, CDH1-mutant (PIK3CA, GATA3 also mutant)",
-      "selection_values": {"ERBB2_cnv": -0.11, "ESR1_rna": 142.66, "CDH1_mut": true, "PIK3CA_mut": true, "GATA3_mut": true},
+      "selection_values": {
+        "ERBB2_cnv": -0.11,
+        "ESR1_rna": 142.66,
+        "CDH1_mut": true,
+        "PIK3CA_mut": true,
+        "GATA3_mut": true
+      },
       "expectations": [
-        {"id": "18BR003-1", "statement": "If the CDH1 mutation is truncating (nonsense/frameshift/splice), CDH1 (E-cadherin) protein is among the top-50 DOWN-regulated proteins.", "check": "patient_mutations classes + patient_proteins"},
-        {"id": "18BR003-2", "statement": "PIK3CA appears as a mutation edge, and the agent connects it to PI3K-pathway biology with cited evidence (e.g. alpelisib-PIK3CA drug-target edge).", "check": "patient_mutations + agent trace"},
-        {"id": "18BR003-3", "statement": "ESR1 or an ER-program protein is among the top-50 up-regulated proteins.", "check": "patient_proteins"}
+        {
+          "id": "18BR003-1",
+          "statement": "If the CDH1 mutation is truncating (nonsense/frameshift/splice), CDH1 (E-cadherin) protein is among the top-50 DOWN-regulated proteins.",
+          "check": "patient_mutations classes + patient_proteins"
+        },
+        {
+          "id": "18BR003-2",
+          "statement": "PIK3CA appears as a mutation edge, and the agent connects it to PI3K-pathway biology with cited evidence (e.g. alpelisib-PIK3CA drug-target edge).",
+          "check": "patient_mutations + agent trace"
+        },
+        {
+          "id": "18BR003-3",
+          "statement": "ESR1 or an ER-program protein is among the top-50 up-regulated proteins.",
+          "check": "patient_proteins"
+        }
       ]
     },
     {
       "patient_id": "05BR044",
       "group": "ER-low, HER2-not-amplified (triple-negative-like), TP53 mutant",
-      "selection_values": {"ERBB2_cnv": -0.47, "ESR1_rna": 0.0, "TP53_mut": true},
+      "selection_values": {
+        "ERBB2_cnv": -0.47,
+        "ESR1_rna": 0.0,
+        "TP53_mut": true
+      },
       "expectations": [
-        {"id": "05BR044-1", "statement": "ESR1 is NOT up-regulated; if measured, it is among the top-50 down-regulated proteins.", "check": "patient_proteins"},
-        {"id": "05BR044-2", "statement": "At least one basal or proliferation marker (KRT5, KRT14, KRT17, EGFR, MKI67, TOP2A) is among the top-50 up-regulated proteins.", "check": "patient_proteins"},
-        {"id": "05BR044-3", "statement": "Neither a HER2-targeting drug nor an endocrine drug is presented as a top target.", "check": "agent trace"}
+        {
+          "id": "05BR044-1",
+          "statement": "ESR1 is NOT up-regulated; if measured, it is among the top-50 down-regulated proteins.",
+          "check": "patient_proteins"
+        },
+        {
+          "id": "05BR044-2",
+          "statement": "At least one basal or proliferation marker (KRT5, KRT14, KRT17, EGFR, MKI67, TOP2A) is among the top-50 up-regulated proteins.",
+          "check": "patient_proteins"
+        },
+        {
+          "id": "05BR044-3",
+          "statement": "Neither a HER2-targeting drug nor an endocrine drug is presented as a top target.",
+          "check": "agent trace"
+        }
       ]
     }
   ],
   "scoring": "Each expectation is scored met / not met / not testable (e.g. protein not measured), with the evidence. All results are reported, including misses; none are dropped.",
-  "results": null
+  "results": [
+    {
+      "id": "11BR060-1",
+      "patient_id": "11BR060",
+      "result": "met",
+      "evidence": "ERBB2 up (z=3.52, rank 10)"
+    },
+    {
+      "id": "11BR060-2",
+      "patient_id": "11BR060",
+      "result": "met",
+      "evidence": "GRB7 up (z=3.37, rank 12); STARD3 up (z=2.81, rank 40)"
+    },
+    {
+      "id": "11BR060-3",
+      "patient_id": "11BR060",
+      "result": "pending",
+      "evidence": "needs rank_for_patient(drug) or an agent trace (Kaitlyn's BRCA runs)"
+    },
+    {
+      "id": "11BR060-4",
+      "patient_id": "11BR060",
+      "result": "met",
+      "evidence": "ESR1 measured, not in top-50 up/down"
+    },
+    {
+      "id": "11BR060-context",
+      "patient_id": "11BR060",
+      "result": "context",
+      "evidence": "cluster 1 in clusters_brca.json; mutations: PDE4DIP (Missense_Mutation), TP53 (Splice_Site)"
+    },
+    {
+      "id": "11BR028-1",
+      "patient_id": "11BR028",
+      "result": "not met",
+      "evidence": "ERBB2 measured, not in top-50 up/down"
+    },
+    {
+      "id": "11BR028-2",
+      "patient_id": "11BR028",
+      "result": "pending",
+      "evidence": "needs rank_for_patient(drug) or an agent trace (Kaitlyn's BRCA runs)"
+    },
+    {
+      "id": "11BR028-context",
+      "patient_id": "11BR028",
+      "result": "context",
+      "evidence": "cluster 1 in clusters_brca.json; mutations: BCL11A (Missense_Mutation), NKX2-1 (Missense_Mutation), PTEN (Missense_Mutation)"
+    },
+    {
+      "id": "18BR019-1",
+      "patient_id": "18BR019",
+      "result": "not met",
+      "evidence": "ESR1 measured, not in top-50 up/down; GATA3 measured, not in top-50 up/down; FOXA1 measured, not in top-50 up/down; PGR measured, not in top-50 up/down"
+    },
+    {
+      "id": "18BR019-2",
+      "patient_id": "18BR019",
+      "result": "pending",
+      "evidence": "needs rank_for_patient(drug) or an agent trace (Kaitlyn's BRCA runs)"
+    },
+    {
+      "id": "18BR019-3",
+      "patient_id": "18BR019",
+      "result": "pending",
+      "evidence": "needs rank_for_patient(drug) or an agent trace (Kaitlyn's BRCA runs)"
+    },
+    {
+      "id": "18BR019-context",
+      "patient_id": "18BR019",
+      "result": "context",
+      "evidence": "cluster 1 in clusters_brca.json; mutations: DNMT3A (Splice_Site)"
+    },
+    {
+      "id": "18BR003-1",
+      "patient_id": "18BR003",
+      "result": "met",
+      "evidence": "CDH1 mutation Nonsense_Mutation; CDH1 down (z=-2.84, rank 8)"
+    },
+    {
+      "id": "18BR003-2",
+      "patient_id": "18BR003",
+      "result": "partially scored",
+      "evidence": "PIK3CA mutation edge present (Missense_Mutation); agent explanation part pending"
+    },
+    {
+      "id": "18BR003-3",
+      "patient_id": "18BR003",
+      "result": "not met",
+      "evidence": "ESR1 measured, not in top-50 up/down; GATA3 measured, not in top-50 up/down; FOXA1 measured, not in top-50 up/down; PGR measured, not in top-50 up/down"
+    },
+    {
+      "id": "18BR003-context",
+      "patient_id": "18BR003",
+      "result": "context",
+      "evidence": "cluster 1 in clusters_brca.json; mutations: ALK (Missense_Mutation), ARHGEF12 (Missense_Mutation), ARID1A (Missense_Mutation;Nonsense_Mutation), ATM (Missense_Mutation), BRCA2 (Missense_Mutation;Nonsense_Mutation), CBL (Missense_Mutation), CDH1 (Nonsense_Mutation), COL1A1 (Missense_Mutation), DNM2 (Missense_Mutation), FEV (Missense_Mutation), GATA3 (Missense_Mutation), IL7R (Nonsense_Mutation), JUN (Missense_Mutation), KDM5C (Missense_Mutation), KMT2C (Missense_Mutation), LIFR (Missense_Mutation), LPP (Missense_Mutation), MAP3K1 (Missense_Mutation), MLLT10 (Missense_Mutation), MLLT6 (Missense_Mutation), MSH2 (Missense_Mutation), NSD1 (Missense_Mutation), NUMA1 (Splice_Site), PAX3 (Missense_Mutation), PDE4DIP (Missense_Mutation), PDGFRA (Missense_Mutation), PICALM (Missense_Mutation), PIK3CA (Missense_Mutation), PMS1 (Nonsense_Mutation), RBM15 (Missense_Mutation), REL (Missense_Mutation), SUFU (Missense_Mutation), USP6 (Missense_Mutation), ZNF521 (Missense_Mutation)"
+    },
+    {
+      "id": "05BR044-1",
+      "patient_id": "05BR044",
+      "result": "met",
+      "evidence": "ESR1 measured, not in top-50 up/down (not up; stated 'down if measured' only partly)"
+    },
+    {
+      "id": "05BR044-2",
+      "patient_id": "05BR044",
+      "result": "not met",
+      "evidence": "KRT5 measured, not in top-50 up/down; KRT14 measured, not in top-50 up/down; KRT17 measured, not in top-50 up/down; EGFR measured, not in top-50 up/down; MKI67 measured, not in top-50 up/down; TOP2A measured, not in top-50 up/down"
+    },
+    {
+      "id": "05BR044-3",
+      "patient_id": "05BR044",
+      "result": "pending",
+      "evidence": "needs rank_for_patient(drug) or an agent trace (Kaitlyn's BRCA runs)"
+    },
+    {
+      "id": "05BR044-context",
+      "patient_id": "05BR044",
+      "result": "context",
+      "evidence": "cluster 1 in clusters_brca.json; mutations: AKT1 (Missense_Mutation), CD74 (Missense_Mutation), RET (Missense_Mutation), TP53 (Missense_Mutation)"
+    }
+  ],
+  "results_summary": {
+    "met": 5,
+    "pending": 5,
+    "not met": 4,
+    "partially scored": 1
+  },
+  "scored_at": "2026-11-08T00:52:37+00:00"
 }
