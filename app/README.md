@@ -1,5 +1,7 @@
 # Demo app (WS4)
 
+**Guided tour (pitch demo):** `python -m app.tour --open` opens a six-chapter walkthrough from the knowledge graph, through GNN-A/GNN-B, to Alexander Young's public case, then a patient workspace. See [`app/tour/README.md`](tour/README.md).
+
     pip install -r requirements.txt
     streamlit run app/streamlit_app.py            # from the repo root
 

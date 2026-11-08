@@ -242,6 +242,30 @@ def _words(s: str) -> set[str]:
     return {w for w in re.findall(r"[a-z0-9\-']+", s.lower()) if w not in stop}
 
 
+def cached_questions(pid: str) -> list[dict]:
+    """[{qid, question}] for every verified run of this patient, worded as the run itself records it."""
+    out = []
+    for q in qids(pid):
+        t, _ = trace(pid, q)
+        if t and t.get("question"):
+            out.append({"qid": q, "question": t["question"]})
+    return out
+
+
+def closest_cached(pid: str, text: str, threshold: float = 0.25) -> dict | None:
+    """The verified run for this patient whose question best matches `text` (word-overlap Jaccard, hyphenated words
+    split). Only cached runs are candidates, so a match can always be replayed. None if nothing is close enough."""
+    # split hyphenated words ("drug-driven" -> drug, driven) and compare 5-letter stems (drives / drivers, target / targets)
+    split = lambda ws: {p.replace("'s", "")[:5] for w in ws for p in w.split("-") if p}  # noqa: E731
+    a, best, score = split(_words(text)), None, 0.0
+    for q in cached_questions(pid):
+        b = split(_words(q["question"]))
+        s = len(a & b) / max(len(a | b), 1)
+        if s > score:
+            best, score = q, s
+    return {**best, "score": round(score, 2)} if best and score >= threshold else None
+
+
 def chat(pid: str, text: str) -> dict:
     """Reply for the side chat: {'mode': live|cached|none, 'trace', 'qid'}."""
     if LIVE:

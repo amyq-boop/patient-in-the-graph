@@ -229,6 +229,14 @@ def graph_svg(v, limit=18, intro=False):
         out.append(f'<g class="g-e {v["kidx"][k]}{" cited" if hit else ""}" style="--c:{c}"><title>{esc(title)}</title>'
                    f'<path class="vis" d="{d}" fill="none"{dash}/>{bar}'
                    f'<path class="hit" d="{d}" fill="none" stroke="transparent" stroke-width="14"/></g>')
+    # a drug in the Drugs column has no edge from the patient: medications on record sit in the measured column instead
+    def off_record(c):
+        return ' stroke="#9b95ad" stroke-width="1.6" stroke-dasharray="4 3"' if col(c) == 3 else ""
+
+    def off_record_note(c, x, y):
+        return (f'<text x="{x}" y="{y + 29}" text-anchor="middle" font-size="11.5" fill="#8a8596">not in patient\'s meds</text>'
+                if col(c) == 3 else "")
+
     for i, (cc, (x, y)) in enumerate(pos.items()):
         n = nodes[cc]
         fill, ink, _ = ROLE[node_role(n, observed)]
@@ -236,8 +244,8 @@ def graph_svg(v, limit=18, intro=False):
         w = min(230, max(54, 9.6 * len(label) + 26))
         out.append(f'<g class="g-n {v["nidx"][cc]} {sym_cls(n["name"])}{" hot" if cc in hot else ""}" style="--d:{.04 * i:.2f}s">'
                    f'<title>{esc(n["name"])} ({esc(cc)})</title><rect x="{x - w / 2}" y="{y - 17}" width="{w}" '
-                   f'height="34" rx="7" fill="{fill}"/><text x="{x}" y="{y + 6}" text-anchor="middle" font-size="16.5" '
-                   f'font-weight="500" fill="{ink}">{esc(label)}</text></g>')
+                   f'height="34" rx="7" fill="{fill}"{off_record(cc)}/><text x="{x}" y="{y + 6}" text-anchor="middle" font-size="16.5" '
+                   f'font-weight="500" fill="{ink}">{esc(label)}</text>{off_record_note(cc, x, y)}</g>')
     for i, t in enumerate(["Patient", "Measured or on record", "Known biology", "Drugs"]):
         if cols[i]:
             out.append(f'<text x="{X[i]}" y="20" text-anchor="middle" font-size="14.5" fill="#5d596b">{t}</text>')

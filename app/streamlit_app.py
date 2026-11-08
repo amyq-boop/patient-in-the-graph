@@ -7,6 +7,7 @@ Results come from the same validated files as the slide charts (eval/make_charts
 from __future__ import annotations
 
 import html
+import json
 import sys
 from pathlib import Path
 
@@ -20,8 +21,8 @@ from app import data  # noqa: E402
 from app.run_view import ROLE  # noqa: E402
 from app import workspace as WS  # noqa: E402
 
-TEAM = {"Knowledge graph and patient layer": "", "GNN encoder and retriever": "",  # fill in teammates' names
-        "Agent and verifier": "", "Product, demo and pitch": "Amy Qin"}
+TEAM = {"Knowledge graph and GNN encoder": "Charis", "Patient layer and stratification": "Aniket Naik",
+        "Agent and verifier": "Kaitlin Moore", "Product, demo and pitch": "Amy Qin"}
 STEPS = {"P01": "Risk", "P02": "Hypertension", "P03": "Mechanism", "P04": "Driver genes", "P05": "Confidence",
          "B01": "Drivers and targets"}
 VIEW = st.query_params.get("view", "full")
@@ -263,7 +264,16 @@ if real("e1"):
     g = m["gene"]
     base = g.drop("gnn_pcst").max()
     E1 = {"ours": g["gnn_pcst"], "base": base, "ratio": g["gnn_pcst"] / base if base else None, "m": m,
-          "n": R["e1"]["data"].disease.nunique(), "llm": "llm_only" in set(R["e1"]["data"].method)}
+          "n": R["e1"]["data"].disease.nunique(), "llm": "llm_only" in set(R["e1"]["data"].method), "strong": None}
+    try:  # the strongest non-GNN retriever tested (e1_extended.csv), so the headline is not only against weak baselines
+        import pandas as pd
+        xm = pd.read_csv(data.P.results / "e1_extended.csv").groupby(["kind", "method"]).recall50.mean()
+        cand = [k for k in xm["gene"].index if "gnn" not in k and not k.startswith("untyped")]
+        best = max(cand, key=lambda k: xm["gene"][k])
+        E1["strong"] = {"name": {"text_ppr_pcst": "Text + PageRank search", "ppr_pcst": "PageRank search"}.get(best, best),
+                        "gene": xm["gene"][best], "go": xm["go"][best]}
+    except Exception:  # noqa: BLE001 - the extended file is optional
+        pass
 
 
 def bars(rows, fmt):
@@ -298,8 +308,8 @@ seem empty because their fat and sugar stores wash out during staining. Illustra
     fo, ko, do = (ROLE[r][0] for r in ("observed", "known", "drug"))
     fi, ki, di = (ROLE[r][1] for r in ("observed", "known", "drug"))
     st.markdown(f"""<div class="chain">
-<div class="n"><div class="w" style="background:{fo};color:{fi}">Low VHL protein</div><div class="c">measured in this patient's tumor</div></div>
-<div class="l inf"><span>fits VHL loss</span><i></i></div>
+<div class="n"><div class="w" style="background:{fo};color:{fi}">VHL mutation</div><div class="c">found by tumor sequencing</div></div>
+<div class="l inf"><span>inactivates VHL</span><i></i></div>
 <div class="n"><div class="w" style="background:{ko};color:{ki}">HIF-2α builds up</div><div class="c">VHL normally clears it</div></div>
 <div class="l"><span>drives</span><i></i></div>
 <div class="n"><div class="w" style="background:{ko};color:{ki}">VEGF</div><div class="c">grows new blood vessels</div></div>
@@ -308,20 +318,22 @@ seem empty because their fat and sugar stores wash out during staining. Illustra
 <div class="l inh"><span>blocked by</span><i></i></div>
 <div class="n"><div class="w" style="background:{do};color:{di}">Sunitinib</div><div class="c">a kinase inhibitor</div></div></div>
 <div class="legend"><span><i class="inf"></i>inference from a patient measurement</span><span><i></i>curated mechanism, cited</span>
-<span><i class="inh"></i>drug inhibition</span><span>Low VHL protein fits VHL loss; it doesn't prove a mutation.</span></div>""",
+<span><i class="inh"></i>drug inhibition</span><span>VHL protein is not measured in this cohort; the mutation comes from tumor sequencing, and inherited (germline) status is unknown.</span></div>""",
                 unsafe_allow_html=True)
 
     n_pat = R["n_pat"] or "~100"
     if E1 and E1["ratio"]:
-        e1card = (f"<div><b>{E1['ratio']:.1f}×</b>more hidden disease genes found than the next-best graph method "
-                  f"({E1['ours']:.0%} vs {E1['base']:.0%}, {E1['n']} held-out diseases)</div>")
+        strong = (f" Against the strongest non-GNN retriever ({E1['strong']['name'][0].lower() + E1['strong']['name'][1:]}): {E1['ours']:.0%} vs "
+                  f"{E1['strong']['gene']:.0%}." if E1.get("strong") else "")
+        e1card = (f"<div><b>{E1['ratio']:.1f}×</b>more hidden disease genes found than standard graph search "
+                  f"({E1['ours']:.0%} vs {E1['base']:.0%}, {E1['n']} held-out diseases).{strong}</div>")
     else:
         e1card = "<div class='pending'><b>Pending</b>retrieval test on held-out diseases (E1)</div>"
     if real("e3"):
         from eval.make_charts import e3_shares
         _, sh = e3_shares(R["e3"]["data"])
         e3card = (f"<div><b>{sh.loc['agent', 'n_supported']:.0%}</b>of the agent's claims backed by evidence, vs "
-                  f"{sh.loc['llm_only', 'n_supported']:.0%} for the same LLM without tools</div>")
+                  f"{sh.loc['llm_only', 'n_supported']:.0%} for the same LLM without tools, which has no evidence it could cite</div>")
     else:
         e3card = "<div class='pending'><b>Pending</b>share of claims backed by evidence, agent vs LLM alone (E3)</div>"
     st.markdown(f"""<div class="factgroups">
@@ -366,16 +378,19 @@ returned. Anything else is removed or labeled a hypothesis.</p></div></div>""", 
         st.markdown("<div class='result'><h3>Finding hidden biology</h3>", unsafe_allow_html=True)
         if E1:
             st.markdown(f"<p class='lead'>For {E1['n']} diseases we hid their known genes, then asked each method to find "
-                        f"them again within 50 results. Ours recovered {E1['ours']:.0%}; the next best graph method, "
-                        f"{E1['base']:.0%}.</p>", unsafe_allow_html=True)
-            g = E1["m"]["gene"].sort_values(ascending=False)
+                        f"them again within 50 results. Ours recovered {E1['ours']:.0%}; standard graph search, {E1['base']:.0%}"
+                        + (f"; the strongest non-GNN retriever we tested ({E1['strong']['name'][0].lower() + E1['strong']['name'][1:]}), {E1['strong']['gene']:.0%}"
+                           if E1.get("strong") else "") + ".</p>", unsafe_allow_html=True)
             names = R["M"]["E1"]
-            st.markdown(bars([(names.get(k, k).replace(" (ours)", ""), v, k == "gnn_pcst", None) for k, v in g.items()],
-                             lambda v: f"{v:.0%}"), unsafe_allow_html=True)
+            rows = [(names.get(k, k).replace(" (ours)", ""), v, k == "gnn_pcst", None) for k, v in E1["m"]["gene"].items()]
+            if E1.get("strong"):
+                rows.append((E1["strong"]["name"], E1["strong"]["gene"], False, None))
+            st.markdown(bars(sorted(rows, key=lambda r: -r[1]), lambda v: f"{v:.0%}"), unsafe_allow_html=True)
             gg = E1["m"]["go"]
             st.markdown(f"<p style='font-size:.9rem;color:#5d596b'>Gene-function terms: {gg['gnn_pcst']:.0%} for ours vs "
-                        f"{gg.drop('gnn_pcst').max():.0%} for the next best."
-                        + ("" if E1["llm"] else " The LLM-alone comparison is still running.") + "</p>",
+                        f"{gg.drop('gnn_pcst').max():.0%} for standard graph search"
+                        + (f" and {E1['strong']['go']:.0%} for {E1['strong']['name'][0].lower() + E1['strong']['name'][1:]}" if E1.get("strong") else "")
+                        + ". Source: eval/results/e1.csv, e1_extended.csv.</p>",
                         unsafe_allow_html=True)
         else:
             pend("retrieval on held-out diseases (E1)")
@@ -425,17 +440,28 @@ returned. Anything else is removed or labeled a hypothesis.</p></div></div>""", 
                     "counts only if a backed claim names it and cites evidence the tools returned. This tests reconstruction "
                     "under controlled evidence, not discovery: the LLM may already know this biology.</p>",
                     unsafe_allow_html=True)
-        if real("e4"):
-            d = R["e4"]["data"]
-            ev = d.get("step_evidence") or {}
-            got = {s for s in d["recovered_steps"] if ev.get(s)}
-            st.markdown("".join(f"<div class='steprow'><span class='dot{' on' if s in got else ''}'></span>{esc(s)}"
-                                f"<span style='color:#5d596b;font-size:.88rem'>{'' if s in got else ', not recovered'}</span>"
-                                f"</div>" for s in d["expected_steps"]), unsafe_allow_html=True)
-            st.markdown(f"<p style='font-size:.95rem'>{len(got)} of {len(d['expected_steps'])} steps recovered with "
-                        f"citations. Drugs named: {esc(', '.join(d['drugs_surfaced']) or 'none')}.</p>", unsafe_allow_html=True)
+        E4 = {}
+        for key, name in (("hidden", "e4_cohort_rv.json"), ("visible", "e4_cohort_full_rv.json")):
+            try:
+                E4[key] = json.loads((data.P.results / name).read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                pass
+        if E4.get("hidden") and E4.get("visible"):
+            h, vis = E4["hidden"]["overall"], E4["visible"]["overall"]
+            sh_, sv_ = h.get("step_recovery_kg") or h["step_recovery"], vis.get("step_recovery_kg") or vis["step_recovery"]
+            st.markdown(f"<p class='lead'>{h['n']} patients, chosen by a rule fixed before any run. With the mechanism hidden "
+                        f"the agent recovers {h['mean_steps_recovered']} of 5 steps on average; with it visible, "
+                        f"{vis['mean_steps_recovered']} of 5. Answers follow the graph's evidence, not the model's memory. "
+                        f"Leaks found: {E4['hidden'].get('n_leaky', 0)}.</p>", unsafe_allow_html=True)
+            rows = []
+            for step in sh_:
+                rows += [(f"{step}, mechanism hidden", sh_[step], True, None), (f"{step}, visible", sv_.get(step, 0), False, None)]
+            st.markdown(bars(rows, lambda v: f"{v:.0%}"), unsafe_allow_html=True)
+            st.markdown("<p style='font-size:.9rem;color:#5d596b'>Share of patients for whom a verified claim names the step and "
+                        "cites a retrieved edge or PMID. Source: eval/results/e4_cohort_rv.json, e4_cohort_full_rv.json.</p>",
+                        unsafe_allow_html=True)
         else:
-            pend("pathway reconstruction (E4), running tonight now that the lookup leak is fixed")
+            pend("pathway reconstruction cohort (E4)")
         st.markdown("</div>", unsafe_allow_html=True)
 
 credits = "<br>".join(f"{esc(role)}{': ' + esc(n) if n else ''}" for role, n in TEAM.items())
