@@ -548,7 +548,12 @@ def retrieve_subgraph(question, seeds, budget=C.DEFAULT_BUDGET, retriever="gnn_p
     if C.BUDGET_MODE == "auto" and getattr(_rmod, "ADAPTIVE_BUDGET", False):
         budget = None  # the retriever sizes the subgraph itself (its own ceiling applies)
     import inspect
-    extra = {"anchor": C.ANCHOR_EDGES} if "anchor" in inspect.signature(_rs).parameters else {}
+    params = inspect.signature(_rs).parameters
+    extra = {"anchor": C.ANCHOR_EDGES} if "anchor" in params else {}
+    if C.AGENT_HUB is not None:  # opt-in (AGENT_HUB); unset passes nothing, so the default call is unchanged
+        if "hub" not in params:
+            raise Missing("AGENT_HUB is set but models/retriever.retrieve_subgraph has no hub parameter")
+        extra["hub"] = C.AGENT_HUB
     res = _to_dict(_rs(question=question, seeds=list(seeds), budget=None if budget is None else int(budget),
                        retriever=retriever, **extra,
                        variant=variant or C.VARIANT, target_types=C.TARGET_TYPES))

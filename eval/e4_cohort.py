@@ -11,6 +11,12 @@ eval/e4_case_study.py stays the single, human-reviewed case (eval/results/e4.jso
     python -m eval.e4_cohort --agreement            #    human vs auto agreement, once the sheet is filled in
     python -m eval.e4_cohort --run --variant full   # 7. optional ceiling on the unmasked graph -> e4_cohort_full/
     python -m eval.e4_cohort --reverify             #    re-check saved drafts with the current verifier (no LLM)
+Exploratory arms (after the pre-registered run; each needs --tag, so it gets its own trace folder and results file):
+    python -m eval.e4_cohort --run --hub 0 --tag hub0                 # same patients, AGENT_HUB=0 (E1's retriever setting)
+    python -m eval.e4_cohort --plan --plan-file eval/e4_cohort_plan_b.json --seed 2027 --exclude-plan eval/e4_cohort_plan.json \
+        --note "..."                                                   # a fresh, disjoint draw; commit it before running
+    python -m eval.e4_cohort --run --plan-file eval/e4_cohort_plan_b.json --tag b            # plan B, default retrieval
+    python -m eval.e4_cohort --run --plan-file eval/e4_cohort_plan_b.json --hub 0 --tag b_hub0
                                                     #    -> e4_cohort_rv/ and eval/results/e4_cohort_rv.{json,csv}
 
 Settings are fixed for every patient: BIOHACK_VARIANT=e4 (full for the ceiling), BIOHACK_MOCK=0, VERIFIER_STRICT=1,
@@ -26,6 +32,9 @@ Auto-scoring rules (written before any run):
   are masked on e4). e4_case_study.EXTRA_DRUGS are reported separately as a bonus.
 - A trace that fails the leak audit (leak_check or audit_graph) is invalid: it is listed with its reason and left
   out of the rates, never dropped silently. Other validation failures are reported the same way.
+- Added after the full-graph ceiling run (Nov 8, ~00:00), a parser fix, not a rule change: citations written in
+  parentheses, e.g. "(PMID:37085424)", count like [brackets], as they do in the verifier (bracket_paren_citations).
+  It made 11 of 20 ceiling traces invalid and changes no masked-run result.
 """
 import argparse
 import csv
@@ -104,16 +113,29 @@ def draw(vhl, non_vhl, seed=SEED, n_vhl=N_VHL, n_non=N_NON_VHL):
     return rng.sample(sorted(vhl), n_vhl), rng.sample(sorted(non_vhl), n_non)
 
 
-def make_plan(force=False, predictions=None, mutations=None, path=PLAN):
+def make_plan(force=False, predictions=None, mutations=None, path=PLAN, seed=SEED, exclude_plans=(), note=None):
+    """exclude_plans: earlier plan files whose patients, and every patient used in development, are left out of the
+    pools (a fresh, disjoint draw). Without it the pre-registered rule is unchanged."""
     path = Path(path)
     if path.exists() and not force:
         sys.exit(f"{path} already exists. A pre-registration is written once; pass --force only if it was never run.")
     vhl, non, none = eligible_pools(predictions, mutations)
-    a, b = draw(vhl, non)
     used = _patients_used_in_development()
+    rule = RULE if seed == SEED else RULE.replace(f"random.Random({SEED})", f"random.Random({seed})")
+    excluded = []
+    if exclude_plans:
+        prev = {p["patient_id"] for f in exclude_plans for p in load_plan(f)["patients"]}
+        excluded = sorted((prev | used) & (set(vhl) | set(non)))
+        vhl, non = [p for p in vhl if p not in excluded], [p for p in non if p not in excluded]
+        rule += (" Before drawing, patients in " + ", ".join(str(Path(f).name) for f in exclude_plans)
+                 + " and every patient used in development are removed from both pools.")
+    a, b = draw(vhl, non, seed=seed)
     plan = {
         "eval": "E4 cohort: masked ccRCC mechanism recovery across patients",
-        "rule": RULE, "seed": SEED,
+        "rule": rule, "seed": seed,
+        **({"excluded_before_draw": excluded, "excluded_plans": [str(Path(f).name) for f in exclude_plans]}
+           if exclude_plans else {}),
+        **({"note": note} if note else {}),
         "patients": [{"patient_id": p, "group": "vhl_mutated"} for p in a]
                     + [{"patient_id": p, "group": "no_vhl_mutation"} for p in b],
         "pool_sizes": {"vhl_mutated": len(vhl), "no_vhl_mutation_with_data": len(non), "no_mutation_data": len(none)},
@@ -158,8 +180,13 @@ def plan_committed(path=PLAN):
 
 # ---------------------------------------------------------------- 2. run
 
-def apply_settings(variant):
+def apply_settings(variant, hub=None):
+    """hub: AGENT_HUB for an exploratory arm. Without it, an AGENT_HUB already in the environment is a clash."""
     want = {**SETTINGS, "BIOHACK_VARIANT": variant}
+    if hub is not None:
+        want["AGENT_HUB"] = f"{hub:g}"
+    elif os.environ.get("AGENT_HUB", "").strip():
+        sys.exit(f"AGENT_HUB={os.environ['AGENT_HUB']!r} is set; unset it, or pass --hub and --tag for an exploratory arm")
     clash = {k: (os.environ[k], v) for k, v in want.items() if k in os.environ and os.environ[k] != v}
     if clash:
         sys.exit("Environment conflicts with the fixed E4 cohort settings (have, need): "
@@ -168,14 +195,15 @@ def apply_settings(variant):
     return want
 
 
-def run_cohort(plan, variant="e4", workers=3, limit=None, out_dir=None, force=False):
-    want = apply_settings(variant)
+def run_cohort(plan, variant="e4", workers=3, limit=None, out_dir=None, force=False, hub=None, tag=None):
+    want = apply_settings(variant, hub)
     from agent import config as C  # imported only after the settings are in the environment
     from agent import prompts
     from agent.graph_agent import run
     from agent.llm import get_llm
     from eval.e3_batch import manifest, warm_up, write_manifest
     assert C.VARIANT == variant and not C.DRUG_TARGETS_CCRCC, "agent config did not pick up the E4 settings"
+    assert C.AGENT_HUB == hub, "agent config did not pick up AGENT_HUB"
 
     smoke = limit is not None
     out = Path(out_dir or TRACE_DIRS["smoke" if smoke else ("full" if variant == "full" else "e4")])
@@ -188,7 +216,7 @@ def run_cohort(plan, variant="e4", workers=3, limit=None, out_dir=None, force=Fa
             sys.exit(f"{out} was started on commit {old.get('git_commit')} (prompt {old.get('prompt_sha')}); now "
                      f"{head} (prompt {_prompt_sha(prompts)}). Use a new --out-dir, or --force to restart it.")
     else:
-        m = manifest(PLAN, {"eval": "e4_cohort", "variant": variant, "smoke": smoke,
+        m = manifest(PLAN, {"eval": "e4_cohort", "variant": variant, "smoke": smoke, "tag": tag,
                             "plan_sha": sha_file(PLAN), "prompt_sha": _prompt_sha(prompts),
                             "answer_key_sha256": sha_file(E4.KEY_PATH), "fixed_settings": want,
                             "patients": [p["patient_id"] for p in pts]})
@@ -204,8 +232,9 @@ def run_cohort(plan, variant="e4", workers=3, limit=None, out_dir=None, force=Fa
     def one(p):
         t0 = time.perf_counter()
         trace = run(E4.QUESTION, patient_id=p["patient_id"], qid=E4.QID, llm=get_llm(),
-                    run_id=f"e4_cohort_{variant}{'_smoke' if smoke else ''}")
-        trace["e4_cohort"] = {"group": p["group"], "plan_sha": sha_file(PLAN)}
+                    run_id=f"e4_cohort_{variant}{'_smoke' if smoke else ''}{'_' + tag if tag else ''}")
+        trace["e4_cohort"] = {"group": p["group"], "plan_sha": sha_file(PLAN), "plan": PLAN.name, "tag": tag,
+                              "agent_hub": hub}
         write_json(out / f"{p['patient_id']}.json", trace)
         return trace, time.perf_counter() - t0
 
@@ -265,8 +294,24 @@ def _done(path):
 
 # ---------------------------------------------------------------- 3-5. audit + score
 
+def bracket_paren_citations(trace):
+    """A copy of `trace` whose claim quotes write parenthesised citation groups as brackets: "(PMID:1, E2)" ->
+    "[PMID:1, E2]". The verifier has counted (...) citations since Nov 7 (agent/verifier.py, CONTRACTS §8), while
+    e4_case_study.cited_in_quote reads [...] only, so a supported "(PMID:...)" made the trace invalid. Scoring
+    rules are unchanged; only the quote text handed to e4_case_study is normalised. Parentheses without an ID
+    ("(stage III)") are left alone."""
+    import copy
+    from agent.verifier import ID_TOKEN, PAREN
+    t = copy.deepcopy(trace)
+    for c in t.get("claims", []):
+        if c.get("quote"):
+            c["quote"] = PAREN.sub(lambda m: f"[{m.group(1)}]" if ID_TOKEN.search(m.group(1)) else m.group(0), c["quote"])
+    return t
+
+
 def score_trace(trace, key, audit=E4.audit_graph, ceiling=False):
     """One patient's row. Invalid traces come back with valid=False and the reason; nothing raises."""
+    trace = bracket_paren_citations(trace)
     row = {"patient_id": trace.get("patient_id"), "group": (trace.get("e4_cohort") or {}).get("group"),
            "variant": trace.get("variant"), "valid": True, "leak": False, "invalid_reason": ""}
     try:
@@ -441,6 +486,7 @@ def agreement(path=None):
 # ---------------------------------------------------------------- CLI
 
 def main(argv=None):
+    global PLAN
     for s in (sys.stdout, sys.stderr):
         try:
             s.reconfigure(encoding="utf-8", errors="replace")
@@ -459,10 +505,20 @@ def main(argv=None):
     ap.add_argument("--limit", type=int, help="smoke run on the first N planned patients (-> e4_cohort_smoke/)")
     ap.add_argument("--out-dir", help="trace folder (default by variant)")
     ap.add_argument("--force", action="store_true")
+    ap.add_argument("--plan-file", help=f"plan to write or use (default {PLAN.relative_to(ROOT)})")
+    ap.add_argument("--seed", type=int, default=SEED, help="--plan only: draw seed")
+    ap.add_argument("--exclude-plan", action="append", default=[], help="--plan only: leave these plans' patients out")
+    ap.add_argument("--note", help="--plan only: free text stored in the plan (e.g. the planned arms and comparison)")
+    ap.add_argument("--hub", type=float, help="exploratory arm: AGENT_HUB for the agent's retrieval (needs --tag)")
+    ap.add_argument("--tag", help="exploratory arm name: traces in <default folder>_<tag>, results e4_cohort_<tag>")
     a = ap.parse_args(argv)
+    if a.plan_file:
+        PLAN = Path(a.plan_file).resolve()
+    if (a.hub is not None or a.plan_file) and not a.tag and not a.plan:
+        sys.exit("--hub and --plan-file runs need a --tag, so they can't write into the pre-registered folders")
 
     if a.plan:
-        plan = make_plan(force=a.force)
+        plan = make_plan(force=a.force, path=PLAN, seed=a.seed, exclude_plans=a.exclude_plan, note=a.note)
         log(json.dumps({k: plan[k] for k in ("rule", "seed", "pool_sizes", "git_commit", "created_utc")}, indent=1))
         log("patients: " + ", ".join(f"{p['patient_id']} ({'VHL' if p['group'] == 'vhl_mutated' else 'no VHL'})"
                                      for p in plan["patients"]))
@@ -472,25 +528,28 @@ def main(argv=None):
         log(json.dumps(agreement(), indent=1))
         return 0
 
-    plan = load_plan()
+    plan = load_plan(PLAN)
     ceiling = a.variant == "full"
     tdir = Path(a.out_dir) if a.out_dir else TRACE_DIRS["smoke" if a.limit else ("full" if ceiling else "e4")]
+    if a.tag and not a.out_dir:
+        tdir = tdir.with_name(f"{tdir.name}_{a.tag}")
     if a.reverify:
-        apply_settings(a.variant)
+        apply_settings(a.variant, a.hub)
         src, tdir = tdir, tdir.with_name(tdir.name + "_rv")
         reverify_cohort(src, tdir)
     if a.run:
-        if a.limit is None and not plan_committed():
+        if a.limit is None and not plan_committed(PLAN):
             sys.exit(f"{PLAN} is not committed (or has changes). Commit the pre-registration before the full run; "
                      "use --limit N for a smoke run.")
-        run_cohort(plan, a.variant, a.workers, a.limit, tdir, a.force)
+        run_cohort(plan, a.variant, a.workers, a.limit, tdir, a.force, hub=a.hub, tag=a.tag)
     if a.sample:
         path, rows = make_handcheck(plan, tdir, a.sample)
         log(f"wrote {path} ({len(rows)} rows). Fill human_verdict with recovered / not_recovered, then --agreement.")
         return 0
     sub = {**plan, "patients": plan["patients"][: a.limit]} if a.limit else plan
     summary, rows, details = score_cohort(sub, tdir, ceiling=ceiling)
-    stem = "e4_cohort" + ("_full" if ceiling else "") + ("_smoke" if a.limit else "") + ("_rv" if a.reverify else "")
+    stem = ("e4_cohort" + ("_full" if ceiling else "") + ("_smoke" if a.limit else "") + (f"_{a.tag}" if a.tag else "")
+            + ("_rv" if a.reverify else ""))
     j, c = write_results(summary, rows, details, stem)
     o = summary["overall"]
     log(f"\n{summary['n_valid']}/{summary['n_traces']} valid traces ({summary['n_leaky']} leaky, "

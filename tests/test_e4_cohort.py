@@ -193,3 +193,46 @@ def test_run_is_resumable_and_refuses_a_changed_setup(tmp_path, monkeypatch):
     with pytest.raises(SystemExit) as e:
         K.run_cohort(plan, "e4", out_dir=out)
     assert "aaa1111" in str(e.value)
+
+
+def test_parenthesised_citations_are_read_as_brackets():
+    """The verifier counts "(PMID:...)" citations; e4_case_study reads [...] only. Scoring normalises the quote."""
+    from eval.e4_cohort import bracket_paren_citations
+    t = {"claims": [{"claim_id": "c1", "quote": "VHL inactivation (PMID:37085424) [E5] in stage (III) disease."}]}
+    out = bracket_paren_citations(t)
+    assert out["claims"][0]["quote"] == "VHL inactivation [PMID:37085424] [E5] in stage (III) disease."
+    assert t["claims"][0]["quote"].startswith("VHL inactivation (PMID")  # the input trace is not modified
+
+
+def test_agent_hub_is_opt_in(monkeypatch):
+    """AGENT_HUB unset: retrieve_subgraph passes no hub (the default call is unchanged); set: it is passed."""
+    import sys
+    import types
+    from agent import config as C
+    from agent import tools as T
+    seen = []
+
+    def fake(question, seeds, budget=50, retriever="gnn_pcst", variant="full", target_types=None, hub=None, anchor=0):
+        seen.append({"hub": hub, "anchor": anchor})
+        return {"nodes": [], "edges": [], "triples_text": "x"}
+
+    mod = types.ModuleType("models.retriever")
+    mod.retrieve_subgraph, mod.ADAPTIVE_BUDGET = fake, True
+    monkeypatch.setitem(sys.modules, "models.retriever", mod)
+    monkeypatch.setattr(C, "AGENT_HUB", None)
+    T.retrieve_subgraph("q", ["S"], variant="e4")
+    monkeypatch.setattr(C, "AGENT_HUB", 0.0)
+    T.retrieve_subgraph("q", ["S"], variant="e4")
+    assert seen[0]["hub"] is None and seen[1]["hub"] == 0.0 and seen[0]["anchor"] == C.ANCHOR_EDGES
+
+
+def test_hub_arm_settings_and_tag(monkeypatch):
+    import pytest
+    from eval import e4_cohort as EC
+    _pin_env(monkeypatch)
+    monkeypatch.setenv("AGENT_HUB", "0")
+    with pytest.raises(SystemExit):           # a stray AGENT_HUB can't leak into the pre-registered arm
+        EC.apply_settings("e4")
+    assert EC.apply_settings("e4", hub=0.0)["AGENT_HUB"] == "0"
+    with pytest.raises(SystemExit):           # an exploratory arm must name its own folder
+        EC.main(["--run", "--hub", "0"])

@@ -80,6 +80,10 @@ BUDGET_MODE = os.environ.get("BIOHACK_BUDGET", "auto").lower()  # auto = PCST si
 # Seed -> retrieved-node edges the retriever adds (no extra nodes) so the evidence visibly links back to the patient
 # (Retriever.anchor_edges). 0 turns it off.
 ANCHOR_EDGES = int(os.environ.get("AGENT_ANCHOR", "20"))
+# Degree (hub) penalty for the agent's retrieve_subgraph calls. Unset (default): the retriever's own choice,
+# models.retriever.AGENT_HUB_PENALTY (0.25), and nothing is passed, so requests are unchanged. AGENT_HUB=0 is the
+# E1 retriever's setting; the E4 retrieval diagnostic found 0.25 keeps HIF-2alpha (EPAS1) out of the subgraph.
+AGENT_HUB = float(os.environ["AGENT_HUB"]) if os.environ.get("AGENT_HUB", "").strip() else None
 # Rewrite the answer after retrieval retries only if they found the protein -> phenotype link (1 = always rewrite).
 REVISE_ALWAYS = os.environ.get("AGENT_REVISE_ALWAYS", "0") == "1"
 TOOL_RESULT_CHARS = int(os.environ.get("AGENT_TOOL_RESULT_CHARS", "6000"))  # what the LLM sees per tool result

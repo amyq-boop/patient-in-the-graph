@@ -15,6 +15,12 @@ could not.
 
     python -m eval.e4_retrieval_diag                       # eval/traces/e4_cohort -> eval/results/e4_retrieval_diag.{json,csv}
     python -m eval.e4_retrieval_diag --trace-dir eval/traces/e4_cohort_full --variant full
+    python -m eval.e4_retrieval_diag --hub 0              # what-if: the re-run arms without the agent's hub penalty
+                                                          # (0.25) -> eval/results/e4_retrieval_diag_hub0.{json,csv}
+                                                          # (--hub 0.25 -> ..._hub0p25)
+
+--hub changes only the re-run arms of this diagnostic (the agent's own subgraphs are read from the traces as they
+are); nothing in the agent or the retriever changes.
 """
 import argparse
 import csv
@@ -111,7 +117,9 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--trace-dir", default=None)
     ap.add_argument("--variant", default="e4", choices=("e4", "full"))
-    ap.add_argument("--out", default="e4_retrieval_diag")
+    ap.add_argument("--out", default=None)
+    ap.add_argument("--hub", type=float, default=None,
+                    help="degree penalty for the re-run arms (default: the agent's, models.retriever.AGENT_HUB_PENALTY)")
     a = ap.parse_args(argv)
     if os.environ.get("BIOHACK_VARIANT", a.variant) != a.variant:
         sys.exit(f"BIOHACK_VARIANT={os.environ['BIOHACK_VARIANT']} but --variant {a.variant}")
@@ -130,8 +138,18 @@ def main(argv=None):
     groups = {p["patient_id"]: p["group"] for p in (plan or {}).get("patients", [])}
     markers = resolve_markers(pd.read_parquet(P.nodes, columns=["curie", "name", "type"]))
 
-    def retrieve(**kw):
-        return T.dispatch("retrieve_subgraph", kw)
+    if a.hub is None:
+        def retrieve(**kw):
+            return T.dispatch("retrieve_subgraph", kw)
+    else:  # the tool's exact call (agent/tools.retrieve_subgraph), with only the hub penalty overridden
+        import models.retriever as R
+
+        def retrieve(question, seeds, budget=None):
+            b = None if C.BUDGET_MODE == "auto" and getattr(R, "ADAPTIVE_BUDGET", False) else budget
+            return R.retrieve_subgraph(question=question, seeds=list(seeds), budget=b, retriever="gnn_pcst",
+                                       variant=a.variant, target_types=C.TARGET_TYPES, hub=a.hub,
+                                       anchor=C.ANCHOR_EDGES)
+    a.out = a.out or ("e4_retrieval_diag" + ("" if a.hub is None else "_hub" + f"{a.hub:g}".replace(".", "p")))  # hub0p25: a "." would be eaten by with_suffix
 
     detail, table = {}, []
     files = sorted(f for f in tdir.glob("*.json") if not f.name.startswith("_"))
@@ -151,6 +169,7 @@ def main(argv=None):
               f"vhl_only hif={vo.get('2_hif')} vegf={vo.get('3_vegf')} vhl-hif edge={bool(vo.get('vhl_hif_edges'))}")
 
     summary = {"eval": "e4_retrieval_diag", "variant": a.variant, "trace_dir": str(tdir), "markers": MARKERS,
+               "hub_penalty_rerun_arms": a.hub,
                "note": "exploratory, after the pre-registered run; markers are not the answer key",
                "rates": {arm: {"all": rates(table, arm), **{g: rates(table, arm, g) for g in sorted(set(groups.values()))}}
                          for arm in ARMS},
