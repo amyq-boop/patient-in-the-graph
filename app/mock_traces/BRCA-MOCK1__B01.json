@@ -1,0 +1,250 @@
+{
+ "contract_version": "1",
+ "run_id": "mock_curated",
+ "qid": "B01",
+ "mode": "agent",
+ "cancer": "brca",
+ "data_origin": "mock",
+ "execution": "cached",
+ "patient_id": "BRCA-MOCK1",
+ "question": "What drives this breast tumor, and which targets does it expose?",
+ "model": "mock",
+ "variant": "full",
+ "tool_calls": [
+  {
+   "name": "get_patient",
+   "args": {
+    "patient_id": "BRCA-MOCK1"
+   },
+   "result": {
+    "patient_id": "BRCA-MOCK1",
+    "curie": "PATIENT:BRCA-MOCK1",
+    "clinical_summary": "58-year-old female (mock).",
+    "phenotypes": [],
+    "proteins_up": [
+     {
+      "curie": "NCBIGene:2064",
+      "name": "ERBB2",
+      "symbol": "ERBB2",
+      "z": 3.1,
+      "edge_id": "pt:BRCA-MOCK1:protein_up:NCBIGene:2064"
+     }
+    ],
+    "proteins_down": [
+     {
+      "curie": "NCBIGene:2099",
+      "name": "ESR1",
+      "symbol": "ESR1",
+      "z": -1.9,
+      "edge_id": "pt:BRCA-MOCK1:protein_down:NCBIGene:2099"
+     }
+    ]
+   },
+   "ms": 40
+  },
+  {
+   "name": "rank_for_patient",
+   "args": {
+    "patient_id": "BRCA-MOCK1",
+    "node_type": "drug"
+   },
+   "result": {
+    "patient_id": "BRCA-MOCK1",
+    "node_type": "drug",
+    "items": [
+     {
+      "curie": "DRUGBANK:MOCK_TRAS",
+      "name": "Trastuzumab",
+      "score": 0.9,
+      "rank": 1,
+      "evidence_id": "rank:BRCA-MOCK1:drug:DRUGBANK:MOCK_TRAS"
+     },
+     {
+      "curie": "DRUGBANK:MOCK_LAPA",
+      "name": "Lapatinib",
+      "score": 0.7,
+      "rank": 2,
+      "evidence_id": "rank:BRCA-MOCK1:drug:DRUGBANK:MOCK_LAPA"
+     }
+    ]
+   },
+   "ms": 150
+  },
+  {
+   "name": "retrieve_subgraph",
+   "args": {
+    "question": "What drives this breast tumor, and which targets does it expose?",
+    "seeds": [
+     "PATIENT:BRCA-MOCK1"
+    ]
+   },
+   "result": {
+    "nodes": [
+     {
+      "curie": "NCBIGene:2064",
+      "name": "ERBB2",
+      "type": "gene",
+      "prize": 0.5
+     },
+     {
+      "curie": "MONDO:MOCK_BRCA",
+      "name": "breast carcinoma",
+      "type": "disease",
+      "prize": 0.5
+     },
+     {
+      "curie": "DRUGBANK:MOCK_TRAS",
+      "name": "Trastuzumab",
+      "type": "drug",
+      "prize": 0.5
+     },
+     {
+      "curie": "DRUGBANK:MOCK_LAPA",
+      "name": "Lapatinib",
+      "type": "drug",
+      "prize": 0.5
+     },
+     {
+      "curie": "REACT:MOCK_ERBB2",
+      "name": "ERBB2 signaling",
+      "type": "pathway",
+      "prize": 0.5
+     }
+    ],
+    "edges": [
+     {
+      "edge_id": "E900201",
+      "src_curie": "NCBIGene:2064",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:MOCK_ERBB2",
+      "origin": "mock"
+     },
+     {
+      "edge_id": "E900204",
+      "src_curie": "NCBIGene:2064",
+      "rel": "disease_protein",
+      "dst_curie": "MONDO:MOCK_BRCA",
+      "origin": "mock"
+     },
+     {
+      "edge_id": "E900205",
+      "src_curie": "DRUGBANK:MOCK_TRAS",
+      "rel": "drug_protein",
+      "dst_curie": "NCBIGene:2064",
+      "origin": "mock"
+     },
+     {
+      "edge_id": "E900206",
+      "src_curie": "DRUGBANK:MOCK_LAPA",
+      "rel": "drug_protein",
+      "dst_curie": "NCBIGene:2064",
+      "origin": "mock"
+     }
+    ],
+    "edge_ids": [
+     "E900201",
+     "E900204",
+     "E900205",
+     "E900206"
+    ],
+    "triples_text": "",
+    "meta": {
+     "retriever": "gnn_pcst",
+     "variant": "full",
+     "budget": null,
+     "n_candidates": 9,
+     "mock": true
+    }
+   },
+   "ms": 1100
+  }
+ ],
+ "evidence": {
+  "edge_ids": [
+   "pt:BRCA-MOCK1:protein_up:NCBIGene:2064",
+   "pt:BRCA-MOCK1:protein_down:NCBIGene:2099",
+   "E900201",
+   "E900204",
+   "E900205",
+   "E900206",
+   "rank:BRCA-MOCK1:drug:DRUGBANK:MOCK_TRAS",
+   "rank:BRCA-MOCK1:drug:DRUGBANK:MOCK_LAPA"
+  ],
+  "pmids": []
+ },
+ "draft": "This tumor looks ERBB2-driven: ERBB2 protein is strongly up [pt:BRCA-MOCK1:protein_up:NCBIGene:2064], and ERBB2 sits in the ERBB2 signaling pathway in the graph [E900201]. Two drugs in the graph act on ERBB2: trastuzumab [E900205] and lapatinib [E900206]. This patient will respond to trastuzumab. A drug-target edge is a reason to test, not proof of benefit.",
+ "claims": [
+  {
+   "claim_id": "c1",
+   "text": "ERBB2 protein is strongly up in this tumor.",
+   "support": {
+    "edge_ids": [
+     "pt:BRCA-MOCK1:protein_up:NCBIGene:2064"
+    ],
+    "pmids": []
+   },
+   "status": "supported"
+  },
+  {
+   "claim_id": "c2",
+   "text": "ERBB2 is part of ERBB2 signaling.",
+   "support": {
+    "edge_ids": [
+     "E900201"
+    ],
+    "pmids": []
+   },
+   "status": "supported"
+  },
+  {
+   "claim_id": "c3",
+   "text": "Trastuzumab targets ERBB2.",
+   "support": {
+    "edge_ids": [
+     "E900205"
+    ],
+    "pmids": []
+   },
+   "status": "supported"
+  },
+  {
+   "claim_id": "c4",
+   "text": "Lapatinib targets ERBB2.",
+   "support": {
+    "edge_ids": [
+     "E900206"
+    ],
+    "pmids": []
+   },
+   "status": "supported"
+  },
+  {
+   "claim_id": "c5",
+   "text": "This patient will respond to trastuzumab.",
+   "quote": "This patient will respond to trastuzumab.",
+   "support": {
+    "edge_ids": [],
+    "pmids": []
+   },
+   "status": "removed",
+   "reason": "A drug-target edge shows trastuzumab acts on ERBB2. Nothing the tools returned measures response in this patient."
+  }
+ ],
+ "answer": "This tumor looks ERBB2-driven: ERBB2 protein is strongly up [pt:BRCA-MOCK1:protein_up:NCBIGene:2064], and ERBB2 sits in the ERBB2 signaling pathway in the graph [E900201]. Two drugs in the graph act on ERBB2: trastuzumab [E900205] and lapatinib [E900206]. A drug-target edge is a reason to test, not proof of benefit.",
+ "verifier": {
+  "n_claims": 5,
+  "n_supported": 4,
+  "n_hypothesis": 0,
+  "n_removed": 1,
+  "non_claims": [
+   {
+    "text": "A drug-target edge is a reason to test, not proof of benefit.",
+    "reason": "caveat"
+   }
+  ],
+  "n_non_claims": 1
+ },
+ "notes": [
+  "MOCK DATA: curated demo trace"
+ ]
+}

@@ -3,6 +3,9 @@
  "run_id": "mock_curated",
  "qid": "P01",
  "mode": "agent",
+ "cancer": "ccrcc",
+ "data_origin": "mock",
+ "execution": "cached",
  "patient_id": "C3L-MOCK1",
  "question": "What drives this patient's predicted risk, and what would you target?",
  "model": "mock",
@@ -53,7 +56,26 @@
       "symbol": "VHL",
       "z": -2.7
      }
-    ]
+    ],
+    "mutations": [
+     {
+      "curie": "NCBIGene:7428",
+      "name": "VHL",
+      "edge_id": "pt:C3L-MOCK1:somatic_mutation:NCBIGene:7428",
+      "symbol": "VHL",
+      "type": "somatic",
+      "protein_change": "p.R167Q"
+     }
+    ],
+    "medications": [
+     {
+      "curie": "DRUGBANK:DB00722",
+      "name": "Lisinopril",
+      "source_text": "lisinopril",
+      "edge_id": "pt:C3L-MOCK1:takes_medication:DRUGBANK:DB00722"
+     }
+    ],
+    "note": "mutations are somatic (tumor) calls, not germline status; medications are baseline, not ccRCC treatment"
    },
    "ms": 42
   },
@@ -68,22 +90,53 @@
     "risk": 0.78,
     "model": "gnn",
     "fold": 2,
+    "evidence_id": "pred:C3L-MOCK1:gnn",
     "top_contributing": [
      {
       "curie": "NCBIGene:7422",
       "name": "VEGFA",
       "type": "gene",
-      "score": 0.41
+      "score": 0.41,
+      "evidence_id": "contrib:C3L-MOCK1:NCBIGene:7422"
      },
      {
       "curie": "HP:0000822",
       "name": "Hypertension",
       "type": "phenotype",
-      "score": 0.22
+      "score": 0.22,
+      "evidence_id": "contrib:C3L-MOCK1:HP:0000822"
      }
     ]
    },
    "ms": 180
+  },
+  {
+   "name": "rank_for_patient",
+   "args": {
+    "patient_id": "C3L-MOCK1",
+    "node_type": "drug"
+   },
+   "result": {
+    "patient_id": "C3L-MOCK1",
+    "node_type": "drug",
+    "items": [
+     {
+      "curie": "DRUGBANK:DB01268",
+      "name": "Sunitinib",
+      "score": 0.9,
+      "rank": 1,
+      "evidence_id": "rank:C3L-MOCK1:drug:DRUGBANK:DB01268"
+     },
+     {
+      "curie": "DRUGBANK:MOCK_BELZ",
+      "name": "Belzutifan",
+      "score": 0.8,
+      "rank": 2,
+      "evidence_id": "rank:C3L-MOCK1:drug:DRUGBANK:MOCK_BELZ"
+     }
+    ]
+   },
+   "ms": 150
   },
   {
    "name": "retrieve_subgraph",
@@ -309,7 +362,7 @@
    "PMID:00000003"
   ]
  },
- "draft": "This tumor looks driven by the VHL → HIF-2α → VEGF axis. VHL protein is low [pt:C3L-MOCK1:protein_down:NCBIGene:7428] and VEGFA is strongly up [pt:C3L-MOCK1:protein_up:NCBIGene:7422]. In the curated mechanism, VHL loss stabilizes HIF-2α [PMID:00000001, PMID:00000002], which drives VEGF-dependent blood-vessel growth [PMID:00000003]. Two drug routes reach this axis in the graph: sunitinib acts on KDR, the VEGF receptor [E900006], and belzutifan acts on HIF-2α itself [E900007]. Low VHL protein is not proof of a VHL mutation, and a drug target is not proof of benefit.",
+ "draft": "This tumor looks driven by the VHL → HIF-2α → VEGF axis. VHL protein is low [pt:C3L-MOCK1:protein_down:NCBIGene:7428] and VEGFA is strongly up [pt:C3L-MOCK1:protein_up:NCBIGene:7422]. In the curated mechanism, VHL loss stabilizes HIF-2α [PMID:00000001, PMID:00000002], which drives VEGF-dependent blood-vessel growth [PMID:00000003]. Two drug routes reach this axis in the graph: sunitinib acts on KDR, the VEGF receptor [E900006], and belzutifan acts on HIF-2α itself [E900007]. This patient will respond to sunitinib. Blocking HIF-2α may lower VEGFA more than blocking VEGFR in VHL-low tumors. Low VHL protein is not proof of a VHL mutation, and a drug target is not proof of benefit.",
  "claims": [
   {
    "claim_id": "c1",
@@ -386,7 +439,8 @@
     "pmids": []
    },
    "status": "removed",
-   "reason": "A drug-target edge shows sunitinib acts on KDR. Nothing the tools returned measures response in this patient."
+   "reason": "A drug-target edge shows sunitinib acts on KDR. Nothing the tools returned measures response in this patient.",
+   "quote": "This patient will respond to sunitinib."
   },
   {
    "claim_id": "c8",
@@ -396,10 +450,11 @@
     "pmids": []
    },
    "status": "hypothesis",
-   "reason": "Plausible from the evidence but untested, so it is kept and labeled as a hypothesis."
+   "reason": "Plausible from the evidence but untested, so it is kept and labeled as a hypothesis.",
+   "quote": "Blocking HIF-2α may lower VEGFA more than blocking VEGFR in VHL-low tumors."
   }
  ],
- "answer": "This tumor looks driven by the VHL → HIF-2α → VEGF axis. VHL protein is low [pt:C3L-MOCK1:protein_down:NCBIGene:7428] and VEGFA is strongly up [pt:C3L-MOCK1:protein_up:NCBIGene:7422]. In the curated mechanism, VHL loss stabilizes HIF-2α [PMID:00000001, PMID:00000002], which drives VEGF-dependent blood-vessel growth [PMID:00000003]. Two drug routes reach this axis in the graph: sunitinib acts on KDR, the VEGF receptor [E900006], and belzutifan acts on HIF-2α itself [E900007]. Low VHL protein is not proof of a VHL mutation, and a drug target is not proof of benefit.",
+ "answer": "This tumor looks driven by the VHL → HIF-2α → VEGF axis. VHL protein is low [pt:C3L-MOCK1:protein_down:NCBIGene:7428] and VEGFA is strongly up [pt:C3L-MOCK1:protein_up:NCBIGene:7422]. In the curated mechanism, VHL loss stabilizes HIF-2α [PMID:00000001, PMID:00000002], which drives VEGF-dependent blood-vessel growth [PMID:00000003]. Two drug routes reach this axis in the graph: sunitinib acts on KDR, the VEGF receptor [E900006], and belzutifan acts on HIF-2α itself [E900007]. Hypothesis (unverified): Blocking HIF-2α may lower VEGFA more than blocking VEGFR in VHL-low tumors. Low VHL protein is not proof of a VHL mutation, and a drug target is not proof of benefit.",
  "verifier": {
   "n_claims": 8,
   "n_supported": 6,
