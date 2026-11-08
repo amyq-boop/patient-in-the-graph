@@ -7,9 +7,7 @@ Results come from the same validated files as the slide charts (eval/make_charts
 from __future__ import annotations
 
 import html
-import math
 import sys
-import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -19,10 +17,8 @@ import streamlit as st  # noqa: E402
 import streamlit.components.v1  # noqa: E402,F401
 
 from app import data  # noqa: E402
-from app import run_view as RV  # noqa: E402
-from app.run_view import LABEL, ROLE  # noqa: E402
-from app import product_view as PV  # noqa: E402
-from app import chapters as CH  # noqa: E402
+from app.run_view import ROLE  # noqa: E402
+from app import workspace as WS  # noqa: E402
 
 TEAM = {"Knowledge graph and patient layer": "", "GNN encoder and retriever": "",  # fill in teammates' names
         "Agent and verifier": "", "Product, demo and pitch": "Amy Qin"}
@@ -334,325 +330,20 @@ diseases and symptoms (PrimeKG), plus curated DisMech mechanisms</div><div><b>{n
 each added to the graph with their tumor's proteins</div></div></div>
 <div class="fg"><h4>Measured so far</h4><div class="facts">{e1card}{e3card}</div></div></div>""", unsafe_allow_html=True)
 
-# ------------------------------------------------------------------ the case: patient in, run replayed, answer out
-if VIEW == "demo":  # the live pitch: patient and run start right under the nav
-    st.markdown("<div id='case'></div><style>.block-container{padding-top:1.2rem} .nav{padding-bottom:.6rem}</style>"
-                "<div style='height:.8rem'></div>", unsafe_allow_html=True)
+# ------------------------------------------------------------------ the workspace: patient in, insight out
+if VIEW == "demo":  # the live pitch: workspace right under the nav
+    st.markdown("<div id='case'></div><style>.block-container{padding-top:1.2rem; max-width:1320px} .nav{padding-bottom:.6rem}"
+                "</style>", unsafe_allow_html=True)
 else:
-    st.markdown("<div id='case'></div><div class='sec'><h2>The case</h2><p>Pick a patient and a question, then press Run. "
-                "Watch the GNN pick the evidence, the agent draft an answer and the verifier cut what it can't back up."
-                "</p></div>", unsafe_allow_html=True)
-cc1, cc2, _ = st.columns([1.7, 1, 1])
-cancer = cc1.radio("Cancer", list(data.CANCERS), format_func=data.CANCERS.get, horizontal=True,
-                   label_visibility="collapsed", key="cancer")
-pids = data.patients(cancer)
-if not pids:
-    st.markdown("<p class='q' style='color:#5d596b'>No verified runs for this cancer yet.</p>", unsafe_allow_html=True)
-    st.stop()
-pid = cc2.selectbox("Patient", pids, label_visibility="collapsed", key=f"pid_{cancer}")
-if st.session_state.get("pid") != pid:
-    st.session_state.update(pid=pid, qid=st.query_params.get("q") if cancer == "ccrcc" else None, live_trace=None)
-played = st.session_state.setdefault("played", set())
-
-# 01 the cohort: where this tumor sits among the others
-CANCER_WORD = {"ccrcc": "kidney", "brca": "breast"}[cancer]
-st.markdown(CH.CSS and f"<style>{CH.CSS}</style>", unsafe_allow_html=True)
-CL, cl_origin = data.product(cancer, "clusters.json")
-mock_cl = "<span class='demo'>Demo data: placeholder subgroups</span>" if cl_origin == "mock" else ""
-
-# at a glance: the model's outputs for this tumor, before any prose
-_qs = data.qids(pid)
-_gq = st.session_state.get("qid") if st.session_state.get("qid") in _qs else (_qs[0] if _qs else None)
-_gt = data.trace(pid, _gq)[0] if _gq else None
-_gv = RV.build(_gt) if _gt else None
-tiles = []
-if CL and (c_ := PV.patient_cluster(CL, pid)) is not None:
-    co_ = next((p_ for p_ in CL["patients"] if p_["patient_id"] == pid), {}).get("co_assignment")
-    tiles.append(("Subgroup", esc(PV.cluster_info(CL, c_)["name"]),
-                  f"stable in {co_:.0%} of reruns" if isinstance(co_, float) else "", "warn" if isinstance(co_, float) and co_ < PV.UNSTABLE else ""))
-if CL and c_ is not None:
-    sg_ = PV.cluster_info(CL, c_).get("signature_proteins", [])
-    top_ = [x for x in sg_ if x.get("direction") == "up"][:1] + [x for x in sg_ if x.get("direction") == "down"][:1]
-    tiles.append(("Subgroup signature", " ".join(f"{esc(x['symbol'])} {'↑' if x['direction'] == 'up' else '↓'}" for x in top_)
-                  or "None", "largest differences vs the other subgroup", ""))
-if _gv:
-    tg_ = [r_["drug"] for r_ in PV.targets(_gv)][:2]
-    tiles.append(("Drug targets", esc(", ".join(tg_)) or "None", "linked by graph edges" if tg_ else "none returned", "" if tg_ else "off"))
-    tiles.append(("Verifier", f"{len(_gv['claims']['supported'])} kept, {len(_gv['claims']['removed'])} cut",
-                  f"{len(_gv['claims']['hypothesis'])} kept as hypotheses", ""))
-else:
-    tiles += [("Drug targets", "Pending", "needs a cached agent run", "off"), ("Verifier", "Pending", "needs a cached agent run", "off")]
-st.markdown(CH.glance(tiles), unsafe_allow_html=True)
-
-if CL:
-    st.markdown(mock_cl + CH.chapter(1, 4, "The cohort", f"Where does this tumor sit among {len(CL['patients']) - 1} others?",
-                                     CH.cohort_answer(CL, pid, CANCER_WORD)), unsafe_allow_html=True)
-    st.markdown(CH.cohort_css(CL) + CH.cohort_map(CL, pid) + CH.subgroup_spec(CL, pid), unsafe_allow_html=True)
-
-# 02 the patient: what was measured in it
-pt = data.patient(pid)
-info = pt["info"]
-BRIEF, brief_origin = data.product(cancer, f"briefs/{pid}.json")
-if not BRIEF and "error" not in info:  # no brief file: build the same shape from get_patient
-    BRIEF = {"summary": info.get("clinical_summary", ""), "proteins_up": info.get("proteins_up", []),
-             "proteins_down": info.get("proteins_down", []), "mutations": info.get("mutations", []),
-             "findings": info.get("phenotypes", []), "missing": [], "reference": "normal"}
-if BRIEF:
-    ref_word = {"normal": "normal kidney", "cohort": "other tumors"}.get(BRIEF.get("reference"), "the reference")
-    mock_b = "<span class='demo'>Demo data</span>" if brief_origin == "mock" else ""
-    st.markdown(mock_b + CH.chapter(2, 4, "The patient", f"What did we measure in {pid}?",
-                                    CH.patient_answer(BRIEF, ref_word))
-                + CH.patient_spec(BRIEF, BRIEF), unsafe_allow_html=True)
-else:
-    st.markdown(f"<p style='color:#5d596b'>No patient profile available: {esc(info['error'])}</p>", unsafe_allow_html=True)
-
-# 03 the run: the questions with a verified run for this patient
-qlist = []
-for q_ in data.qids(pid):
-    tq, _ = data.trace(pid, q_)
-    if tq:
-        qlist.append((q_, tq["question"]))
-st.markdown(CH.chapter(3, 4, "The run", "Ask the agent about this tumor.",
-                       "A verified run, replayed. The verifier cuts what it can't back up."), unsafe_allow_html=True)
-if qlist:
-    cols = st.columns(max(len(qlist), 1))
-    for i, (col, (q_, text)) in enumerate(zip(cols, qlist), 1):
-        short = STEPS.get(q_) or (text if len(text) <= 40 else text[:40].rsplit(" ", 1)[0] + "…")
-        if col.button(f"{i}. {short}", key=f"q_{pid}_{q_}", help=text, use_container_width=True,
-                      type="primary" if st.session_state.get("qid") == q_ else "secondary"):
-            st.session_state.update(qid=q_, live_trace=None, play=True)
-            st.rerun()
-else:
-    st.markdown("<div class='empty'><b>No verified run for this tumor yet.</b><p>Runs come from the real agent and are "
-                "cached, so the demo can't break on stage. This tumor's runs will appear here as soon as they're cached. "
-                "Its subgroup and molecular brief above are already real.</p></div>", unsafe_allow_html=True)
-
-qid = st.session_state.get("qid")
-t, src = data.trace(pid, qid) if qid else (st.session_state.get("live_trace"), "live")
-run_key = f"{pid}|{qid or 'live'}|{(t or {}).get('run_id', '')}"
-play = st.session_state.pop("play", False)
-V = RV.build(t) if t else None
-
+    st.markdown("<div id='case'></div><div class='sec'><h2>The workspace</h2><p>Pick a tumor and press Analyze. Every panel "
+                "is linked: hover a gene to find it everywhere.</p></div>", unsafe_allow_html=True)
 score_note = ""
 if real("e2"):
     from eval.make_charts import e2_stats
     _g = e2_stats(R["e2"]["data"])["mean"]
     if "gnn" in _g and "prot_pca_lr" in _g:
-        score_note = (f"Across five folds the GNN's AUROC is {_g['gnn']:.2f}, versus {_g['prot_pca_lr']:.2f} for proteins "
-                      "alone, so at this cohort size the graph adds explanations more than accuracy.")
-
-left, right = st.columns([2.15, 1], gap="large")
-with right:
-    if t:
-        st.markdown("<div class='guide-h'><b>Guide</b><span>Walks you through the run. It only uses this run's evidence."
-                    "</span></div>", unsafe_allow_html=True)
-    guide_ph = st.empty()
-
-
-def bubble(text, who="bot", step=None):
-    tag = f"<span class='gs'>{esc(step)}</span>" if step else ""
-    return f"<div class='gm {who}'>{tag}{esc(text)}</div>"
-
-
-def guide(msgs):
-    # column-reverse keeps the newest message in view while the panel scrolls
-    guide_ph.markdown("<div class='guide'>" + "".join(reversed(msgs)) + "</div>", unsafe_allow_html=True)
-
-
-def nap(s):
-    time.sleep(s * PACE)
-
-
-def replay(v):
-    """Plays the cached trace back stage by stage. Marked as played first, so pressing Skip lands on the result."""
-    played.add(run_key)
-    narr = dict(RV.narration(v))
-    names = dict(RV.STAGES)
-    calls = v["calls"]
-    with left:
-        st.components.v1.html("<script>const a=parent.document.getElementById('runtop');"
-                              "if(a)a.scrollIntoView({behavior:'smooth',block:'start'});</script>", height=0)
-        if st.button("Skip to the result", key="skip"):
-            st.rerun()
-        strip_ph = st.empty()
-        focus = st.empty()  # every stage plays in this one spot, so eyes stay put
-    msgs = []
-    for i, (key, _) in enumerate(RV.STAGES):
-        strip_ph.markdown(RV.strip_html(v, i, i), unsafe_allow_html=True)
-        msgs.append(bubble(narr[key], step=f"{i + 1} · {names[key]}"))
-        guide(msgs + ["<div class='gm bot typing'><i></i><i></i><i></i></div>"] if key != "verify" else msgs)
-        if key == "patient":
-            nap(1.6)
-        elif key == "score" and (p := calls.get("predict_patient")):
-            for f in range(1, 13):
-                focus.markdown(RV.prediction_html(p, p["risk"] * f / 12), unsafe_allow_html=True)
-                nap(.06)
-            nap(1.6)
-        elif key == "retrieve" and (s := calls.get("retrieve_subgraph")):
-            cand = s.get("meta", {}).get("n_candidates")
-            cand = cand if isinstance(cand, int) else None
-            for k in range(1, 4 if cand else 3):
-                rows = [RV.PRIMEKG_EDGES, cand, len(s.get("nodes", []))] if cand else [RV.PRIMEKG_EDGES, len(s["nodes"])]
-                focus.markdown(funnel(rows[:k]), unsafe_allow_html=True)
-                nap(.7)
-            focus.markdown(funnel(rows) + RV.graph_svg(v, intro=True), unsafe_allow_html=True)
-            nap(2.0)
-        elif key == "lookup" and (g := calls.get("get_mechanism")):
-            focus.markdown("<div class='sub-h'>Curated mechanism, DisMech</div>" + RV.chain_html(g), unsafe_allow_html=True)
-            nap(2.0)
-        elif key == "draft":
-            n = RV.draft_sentences(v)
-            for k in range(1, n + 1):
-                focus.markdown("<div class='sub-h'>Agent draft</div>" + RV.draft_partial(v, k), unsafe_allow_html=True)
-                nap(min(.55, 4.0 / max(n, 1)))
-            nap(.6)
-        elif key == "verify":
-            focus.markdown("<div class='sub-h'>Verifier<span>Struck: no evidence the tools returned</span></div>"
-                           + RV.draft_html(v, "verify"), unsafe_allow_html=True)
-            nap(3.2)
-        else:
-            nap(1.0)
-    strip_ph.markdown(RV.strip_html(v, -1, len(RV.STAGES)), unsafe_allow_html=True)
-    nap(.5)
-
-
-def funnel(rows):
-    top = math.log10(rows[0])
-    labels = ["connections in the graph", "candidates near this patient", "facts the GNN kept for this question"]
-    if len(rows) == 2 or (len(rows) == 3 and rows[1] is None):
-        labels = [labels[0], labels[2]]
-    out = []
-    for n, lab in zip(rows, labels):
-        w = max(3, 100 * math.log10(max(n, 1)) / top)
-        out.append(f"<div class='fr'><b>{n:,}</b><span>{lab}</span><div class='fb'><i style='width:{w:.0f}%'></i></div></div>")
-    return "<div class='funnel'>" + "".join(out) + "</div>"
-
-
-def ask(text, v):
-    hist = st.session_state.setdefault("chat", {}).setdefault(pid, [])
-    hist.append({"role": "user", "text": text})
-    it = RV.intent_of(text)
-    if it == "subgroup" and CL:
-        hist.append({"role": "guide", "text": PV.subgroup_explain(CL, pid)})
-        return
-    if it and v:
-        hist.append({"role": "guide", "text": RV.explain(it, v, score_note)})
-        return
-    res = data.chat(pid, text)
-    if res["trace"] and res["mode"] == "live":
-        hist.append({"role": "guide", "text": "I ran the agent live on your question. Watch it work on the left."})
-        st.session_state.update(qid=None, live_trace=res["trace"], play=True)
-    elif res["trace"] and res["qid"] == qid:
-        hist.append({"role": "guide", "text": "That's the question on screen. Hover the answer to trace each claim."})
-    elif res["trace"]:
-        hist.append({"role": "guide", "qid": res["qid"], "text": f"The closest verified run is “{res['trace']['question']}”"})
-    else:
-        hist.append({"role": "guide", "text": "I only answer from verified runs. Ask about the score, the drugs, the "
-                     "evidence or what the verifier removed, or pick one of the questions above."})
-
-
-with left:
-    if not t and qlist:
-        st.markdown("<p class='gcap'>Pick a question above to watch the agent work through it.</p>", unsafe_allow_html=True)
-    elif t:
-        demo = "<span class='demo'>Demo data: placeholder IDs and citations</span>" if src == "mock" else ""
-        st.markdown(f"<div id='runtop'></div>{demo}<div class='q'>{esc(t['question'])}</div>", unsafe_allow_html=True)
-
-if V and play:
-    replay(V)
-    st.rerun()
-
-if V and run_key in played:
-    v = V
-    with left:
-        graph = RV.graph_svg(v)
-        st.markdown(RV.strip_html(v, -1, len(RV.STAGES)), unsafe_allow_html=True)
-        st.markdown("<div class='sub-h'>Verified answer<span>Hover a sentence to see its evidence</span></div>"
-                    + RV.hover_css(v) + RV.answer_html(v), unsafe_allow_html=True)
-        sup, hyp, rem = (v["claims"][k] for k in ("supported", "hypothesis", "removed"))
-        st.markdown(f"<div class='tally'><div><b>{len(sup)}</b>claims backed by evidence</div>"
-                    f"<div><b>{len(hyp)}</b>kept as hypotheses</div><div><b>{len(rem)}</b>removed by the verifier</div>"
-                    "</div>", unsafe_allow_html=True)
-
-        def catch(c, as_hyp=False):
-            why = (c.get("reason") or "Plausible but untested, so it is kept and labeled.") if as_hyp else RV.why_removed(c)
-            txt = esc(RV.strip_ids(c["text"])) if as_hyp else f"<span class='what'>{esc(RV.strip_ids(c['text']))}</span>"
-            return (f"<div class='catch{' hyp' if as_hyp else ''}'><span class='tag'>"
-                    f"{'Kept as hypothesis' if as_hyp else 'Not supported by retrieved evidence'}</span>{txt}"
-                    f"<div class='why'>{esc(why)}</div></div>")
-
-        if rem:
-            st.markdown(catch(rem[0]), unsafe_allow_html=True)
-        more = rem[1:] + hyp
-        if more:
-            with st.expander(f"Everything else the verifier flagged ({len(more)})"):
-                st.markdown("".join(catch(c) for c in rem[1:]) + "".join(catch(c, True) for c in hyp),
-                            unsafe_allow_html=True)
-        with st.expander("See the agent's draft before verification"):
-            st.markdown(RV.draft_html(v, "verify"), unsafe_allow_html=True)
-
-        st.markdown(CH.chapter(4, 4, "The evidence", "What backs this answer?",
-                               f"<b>{len(sup)}</b> claims kept, <b>{len(rem)}</b> cut."),
-                    unsafe_allow_html=True)
-        t1, t2 = st.columns(2, gap="large")
-        t1.markdown("<div class='sub-h'>Drug targets</div>" + PV.targets_html(v), unsafe_allow_html=True)
-        t2.markdown("<div class='sub-h'>Evidence gaps</div>" + PV.gaps_html(v, BRIEF), unsafe_allow_html=True)
-
-        sub = v["calls"].get("retrieve_subgraph")
-        st.markdown("<div class='sub-h'>What the GNN retrieved<span>Hover a line to find the sentence that cites it"
-                    "</span></div>", unsafe_allow_html=True)
-        if sub:
-            cand = sub.get("meta", {}).get("n_candidates")
-            rows = [RV.PRIMEKG_EDGES] + ([cand] if isinstance(cand, int) else []) + [len(sub.get("nodes", []))]
-            st.markdown(funnel(rows), unsafe_allow_html=True)
-        st.markdown(graph, unsafe_allow_html=True)
-        legend = "".join(f"<span><i style='border-color:{ROLE[r][2]};{'border-top-style:dashed' if r == 'observed' else ''}'>"
-                         f"</i>{LABEL[r]}</span>" for r in ROLE)
-        st.markdown(f"<div class='legend' style='margin-top:.3rem'>{legend}<span>Grey: retrieved, not cited.</span></div>", unsafe_allow_html=True)
-        with st.expander(f"Sources ({len(v['order'])})"):
-            st.markdown(RV.sources_html(v), unsafe_allow_html=True)
-        st.button("Replay the run", key="replay", on_click=lambda: st.session_state.update(play=True))
-elif V:
-    with left:
-        st.markdown(RV.strip_html(V, -1, 0), unsafe_allow_html=True)
-        st.markdown("<p class='gcap'>Press Run to watch the agent work through this question. It replays a verified, "
-                    "cached run and takes about 15 seconds.</p>", unsafe_allow_html=True)
-        st.button("Run", type="primary", key="run", on_click=lambda: st.session_state.update(play=True))
-
-# the guide: narration of the run, then follow-up questions answered from this run only
-with (right if t else st.empty()):
-    msgs = []
-    if V and run_key in played:
-        msgs = [bubble(txt, step=f"{i + 1} · {dict(RV.STAGES)[k]}") for i, (k, txt) in enumerate(RV.narration(V))]
-        msgs.append(bubble(RV.outro()))
-    else:
-        msgs.append(bubble("Hi. Pick a question and press Run, and I'll walk you through each step: what we measured "
-                           "in this patient, what the GNN pulled from the graph, and what the verifier cut."))
-    hist = st.session_state.setdefault("chat", {}).get(pid, [])
-    msgs += [bubble(m["text"], "user" if m["role"] == "user" else "bot") for m in hist]
-    guide(msgs)
-    for i, m in enumerate(hist):
-        if m.get("qid") and i == len(hist) - 1:
-            if st.button("Open that run", key=f"open_{pid}_{i}"):
-                st.session_state.update(qid=m["qid"], live_trace=None, play=True)
-                st.rerun()
-    if V and run_key in played:
-        sugg = ([("What defines this subgroup?", "subgroup")] if CL else []) + [
-            ("Why was a claim removed?", "removed"), ("Which drugs, and why?", "drugs"),
-            ("Where does the evidence come from?", "evidence")] + (
-            [("What does the score mean?", "score")] if V["calls"].get("predict_patient") else [])
-        sc = st.columns(2)
-        for j, (label, _) in enumerate(sugg):
-            if sc[j % 2].button(label, key=f"sg_{j}", use_container_width=True):
-                ask(label, V)
-                st.rerun()
-    with st.form(f"chat_{pid}", clear_on_submit=True):
-        q = st.text_input("Ask", placeholder="Ask about this patient", label_visibility="collapsed")
-        sent = st.form_submit_button("Ask the agent" if data.LIVE else "Ask")
-    if sent and q.strip():
-        ask(q.strip(), V if V and run_key in played else None)
-        st.rerun()
-
+        score_note = f"On stage, the GNN's AUROC is {_g['gnn']:.2f} vs {_g['prot_pca_lr']:.2f} for proteins alone."
+WS.render(score_note)
 
 # ------------------------------------------------------------------ method + results
 if VIEW != "demo":

@@ -44,6 +44,12 @@ def _plain(s):
 
 
 # ------------------------------------------------------------------ evidence roles
+def sym_cls(name):
+    """One class per gene or drug name, shared by every panel that shows it, so hovering it anywhere lights it up everywhere."""
+    base = re.sub(r"[^A-Za-z0-9]", "", str(name).split(" ")[0]).upper()
+    return f"sy-{base}" if base else ""
+
+
 def edge_role(key, e):
     if key.startswith(("pt:", "contrib:", "rank:")):
         return "observed"
@@ -228,7 +234,7 @@ def graph_svg(v, limit=18, intro=False):
         fill, ink, _ = ROLE[node_role(n, observed)]
         label = n["name"] if len(n["name"]) <= 22 else n["name"][:21] + "…"
         w = min(230, max(54, 9.6 * len(label) + 26))
-        out.append(f'<g class="g-n {v["nidx"][cc]}{" hot" if cc in hot else ""}" style="--d:{.04 * i:.2f}s">'
+        out.append(f'<g class="g-n {v["nidx"][cc]} {sym_cls(n["name"])}{" hot" if cc in hot else ""}" style="--d:{.04 * i:.2f}s">'
                    f'<title>{esc(n["name"])} ({esc(cc)})</title><rect x="{x - w / 2}" y="{y - 17}" width="{w}" '
                    f'height="34" rx="7" fill="{fill}"/><text x="{x}" y="{y + 6}" text-anchor="middle" font-size="16.5" '
                    f'font-weight="500" fill="{ink}">{esc(label)}</text></g>')

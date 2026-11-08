@@ -167,9 +167,12 @@ def _norm_brief(b: dict) -> dict:
             "demographics": b.get("demographics", {})}
 
 
-def product(cancer: str, name: str) -> tuple[dict | None, str]:
+def product(cancer: str, name: str, mock_only: bool = False) -> tuple[dict | None, str]:
     """A product file: 'clusters.json' or 'briefs/<pid>.json'. Anikat's real files first, then cache/product/, then the
     mocks in app/mock_product/. Returns (data in the panels' shape, origin 'real' | 'mock' | 'missing')."""
+    if mock_only:  # a mock patient is shown with mock cohort files only, never mixed with real ones
+        d = _json(PRODUCT_MOCK / cancer / name)
+        return (d, "mock") if d else (None, "missing")
     if name == "clusters.json" and (d := _json(REAL_CLUSTERS / f"clusters_{cancer}.json")):
         return _norm_clusters(d), d.get("data_origin", "real")
     if name.startswith("briefs/") and (d := _json(REAL_BRIEFS / name.split("/", 1)[1])) and d.get("cancer") == cancer:
