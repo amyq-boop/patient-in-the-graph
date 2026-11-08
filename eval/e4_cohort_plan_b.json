@@ -1,0 +1,140 @@
+{
+ "eval": "E4 cohort: masked ccRCC mechanism recovery across patients",
+ "rule": "From patients with GNN-A predictions (gnn_a/predictions.parquet, model == 'gnn'): sort IDs, then with random.Random(2027) draw 15 without replacement from those with a somatic VHL mutation (NCBIGene:7428 in patients/patient_mutations.parquet), then 5 from those that have mutation data but no VHL mutation. Patients with no mutation data are excluded from the second group. Before drawing, patients in e4_cohort_plan.json and every patient used in development are removed from both pools.",
+ "seed": 2027,
+ "excluded_before_draw": [
+  "C3L-00004",
+  "C3L-00103",
+  "C3L-00183",
+  "C3L-00369",
+  "C3L-00416",
+  "C3L-00448",
+  "C3L-00581",
+  "C3L-00607",
+  "C3L-00902",
+  "C3L-00908",
+  "C3L-01287",
+  "C3L-01560",
+  "C3N-00150",
+  "C3N-00154",
+  "C3N-00244",
+  "C3N-00310",
+  "C3N-00390",
+  "C3N-00491",
+  "C3N-00494",
+  "C3N-00577",
+  "C3N-00852",
+  "C3N-00953",
+  "C3N-01178",
+  "C3N-01646",
+  "C3N-01649"
+ ],
+ "excluded_plans": [
+  "e4_cohort_plan.json"
+ ],
+ "note": "Exploratory, written before any plan-B run. Arms: b = default agent retrieval (AGENT_HUB unset, hub penalty 0.25); b_hub0 = AGENT_HUB=0, the E1 retriever's setting (chosen because E1 uses it, not tuned). Same question, settings and scoring as plan A. Primary comparison: graph-cited recovery of HIF-2alpha Stabilization, and mean graph-cited steps, b_hub0 vs b. Motivation: plan-A retrieval diagnostic, where penalty 0.25 kept EPAS1 out of the subgraph.",
+ "patients": [
+  {
+   "patient_id": "C3L-00097",
+   "group": "vhl_mutated"
+  },
+  {
+   "patient_id": "C3N-01261",
+   "group": "vhl_mutated"
+  },
+  {
+   "patient_id": "C3L-01313",
+   "group": "vhl_mutated"
+  },
+  {
+   "patient_id": "C3L-00096",
+   "group": "vhl_mutated"
+  },
+  {
+   "patient_id": "C3L-00010",
+   "group": "vhl_mutated"
+  },
+  {
+   "patient_id": "C3N-00194",
+   "group": "vhl_mutated"
+  },
+  {
+   "patient_id": "C3L-00813",
+   "group": "vhl_mutated"
+  },
+  {
+   "patient_id": "C3N-00437",
+   "group": "vhl_mutated"
+  },
+  {
+   "patient_id": "C3L-00917",
+   "group": "vhl_mutated"
+  },
+  {
+   "patient_id": "C3N-00177",
+   "group": "vhl_mutated"
+  },
+  {
+   "patient_id": "C3N-00495",
+   "group": "vhl_mutated"
+  },
+  {
+   "patient_id": "C3L-00583",
+   "group": "vhl_mutated"
+  },
+  {
+   "patient_id": "C3N-00834",
+   "group": "vhl_mutated"
+  },
+  {
+   "patient_id": "C3N-00573",
+   "group": "vhl_mutated"
+  },
+  {
+   "patient_id": "C3L-00817",
+   "group": "vhl_mutated"
+  },
+  {
+   "patient_id": "C3L-01882",
+   "group": "no_vhl_mutation"
+  },
+  {
+   "patient_id": "C3N-00435",
+   "group": "no_vhl_mutation"
+  },
+  {
+   "patient_id": "C3L-01352",
+   "group": "no_vhl_mutation"
+  },
+  {
+   "patient_id": "C3N-00646",
+   "group": "no_vhl_mutation"
+  },
+  {
+   "patient_id": "C3N-00492",
+   "group": "no_vhl_mutation"
+  }
+ ],
+ "pool_sizes": {
+  "vhl_mutated": 63,
+  "no_vhl_mutation_with_data": 17,
+  "no_mutation_data": 5
+ },
+ "question": "What drives this patient's predicted risk, and what would you target?",
+ "qid": "E4",
+ "settings": {
+  "BIOHACK_MOCK": "0",
+  "VERIFIER_STRICT": "1",
+  "VERIFIER_SPLITTER": "rules",
+  "AGENT_DRUG_TARGETS": "0",
+  "BIOHACK_VARIANT": "e4"
+ },
+ "scoring": "- A step (each core_chain step and each downstream_of_hif2 item) is recovered iff a verifier-SUPPORTED claim mentions\n  one of the step's accept_terms or its label, AND cites >= 1 ID present in that trace's observed evidence (evidence\n  rebuilt from the tool results by e4_case_study.supported_claims). `recovered_kg` additionally requires one of those\n  IDs to be a graph edge (E...) or PMID, not only a patient or model ID; it is reported alongside, not instead.\n- drugs_surfaced: supported claims naming sunitinib, pazopanib, axitinib or cabozantinib (belzutifan's only links\n  are masked on e4). e4_case_study.EXTRA_DRUGS are reported separately as a bonus.\n- A trace that fails the leak audit (leak_check or audit_graph) is invalid: it is listed with its reason and left\n  out of the rates, never dropped silently. Other validation failures are reported the same way.\n- Added after the full-graph ceiling run (Nov 8, ~00:00), a parser fix, not a rule change: citations written in\n  parentheses, e.g. \"(PMID:37085424)\", count like [brackets], as they do in the verifier (bracket_paren_citations).\n  It made 11 of 20 ceiling traces invalid and changes no masked-run result.",
+ "answer_key_sha256": "487c6672002f3ade",
+ "git_commit": "c333e8a",
+ "git_dirty_files": [
+  "agent/HANDOFF.md"
+ ],
+ "created_utc": "2026-11-08T05:06:28+00:00",
+ "note_development_overlap": "Sampled patients that were also used while building the agent (E3 questions, demo, single E4 case). Reported, not excluded: none"
+}
