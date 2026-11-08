@@ -146,6 +146,19 @@ def rank_id(patient_id: str, node_type: str, curie: str) -> str:
     return f"rank:{patient_id}:{node_type}:{curie}"
 
 
+def driver_split(top):
+    """Split GNN contributions into tumor drivers (the tumor's proteins) and clinical drivers (recorded
+    phenotypes: symptoms or comorbidities such as hypertension), with each group's share of the
+    contribution weight. Shares are over the listed top contributors only, not the whole model."""
+    tum = [x for x in top if x.get("driver") == "tumor"]
+    cli = [x for x in top if x.get("driver") == "clinical"]
+    tot = sum(abs(x["score"]) for x in top) or 1.0
+    return {"tumor_drivers": tum, "clinical_drivers": cli,
+            "driver_split": {"tumor_share": round(sum(abs(x["score"]) for x in tum) / tot, 3),
+                             "clinical_share": round(sum(abs(x["score"]) for x in cli) / tot, 3),
+                             "basis": f"top {len(top)} contributors"} if top else {}}
+
+
 MODEL_OUTPUT_PREFIXES = ("pred:", "contrib:", "rank:")
 
 

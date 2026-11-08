@@ -12,7 +12,7 @@ from __future__ import annotations
 import json
 
 from common.contracts import (
-    CCRCC_ID, CONTRACT_VERSION, DEFAULT_BUDGET, PRIMARY_LABEL, error, patient_curie, patient_edge_id, triple_line,
+    CCRCC_ID, CONTRACT_VERSION, DEFAULT_BUDGET, PRIMARY_LABEL, driver_split, error, patient_curie, patient_edge_id, triple_line,
 )
 
 PID = "C3L-MOCK1"
@@ -84,10 +84,10 @@ def get_patient(patient_id: str) -> dict:
 def predict_patient(patient_id: str) -> dict:
     if patient_id not in PATIENTS:
         return error(f"unknown patient_id {patient_id!r}", known=PATIENTS)
+    top = [_ref(c, score=s, evidence_id=f"contrib:{patient_id}:{c}", driver=d)
+           for c, s, d in (("NCBIGene:7422", 0.41, "tumor"), ("HP:0000822", 0.22, "clinical"))]
     return {"patient_id": patient_id, "label": PRIMARY_LABEL, "risk": 0.78, "model": "gnn", "fold": 2,
-            "evidence_id": f"pred:{patient_id}:gnn",
-            "top_contributing": [_ref(c, score=s, evidence_id=f"contrib:{patient_id}:{c}")
-                                 for c, s in (("NCBIGene:7422", 0.41), ("HP:0000822", 0.22))]}
+            "evidence_id": f"pred:{patient_id}:gnn", "top_contributing": top, **driver_split(top)}
 
 
 def rank_for_patient(patient_id: str, node_type: str, k: int = 10) -> dict:
@@ -99,7 +99,8 @@ def rank_for_patient(patient_id: str, node_type: str, k: int = 10) -> dict:
     items = [{"curie": c, "name": _N[c][0], "score": round(0.9 - 0.1 * i, 2), "rank": i + 1,
               "evidence_id": f"rank:{patient_id}:{node_type}:{c}"}
              for i, c in enumerate(pool[:k])]
-    return {"patient_id": patient_id, "node_type": node_type, "items": items}
+    extra = {"scoring": "cohort_relative", "filter": "drugs with an indication edge"} if node_type == "drug" else {"scoring": "model_score"}
+    return {"patient_id": patient_id, "node_type": node_type, "basis": "tumor_proteins", **extra, "items": items}
 
 
 def retrieve_subgraph(question: str, seeds: list[str], budget: int = DEFAULT_BUDGET,

@@ -215,7 +215,8 @@ def tiny_processed(tmp_path, monkeypatch):
         proc / "patients" / "patient_mutations.parquet")
     monkeypatch.setattr(K.P, "patient_mutations", proc / "patients" / "patient_mutations.parquet")
     monkeypatch.setattr(K.P, "patient_drugs", proc / "patients" / "patient_drugs.parquet")  # missing on purpose
-    caches = (T._nodes, T._patient_tables, T._predictions, T._dm_tables, T._mech_file, T._gnn_a, T._patient_extras)
+    caches = (T._nodes, T._patient_tables, T._predictions, T._dm_tables, T._mech_file, T._gnn_a, T._patient_extras,
+              T._cohort_scores, T._approved_drugs)
     for f in caches:
         f.cache_clear()
     yield proc
@@ -231,6 +232,9 @@ def test_real_tools_on_contract_files(tiny_processed, monkeypatch):
     assert not {"y_stage", "stage", "grade"} & set(p)
     pr = T.dispatch("predict_patient", {"patient_id": "C3L-1"})
     assert pr["risk"] == 0.7 and pr["fold"] == 3 and pr["label"] == "y_stage"
+    assert {"tumor_drivers", "clinical_drivers", "driver_split"} <= set(pr)
+    assert all(x["driver"] == "tumor" for x in pr["tumor_drivers"])
+    assert all(x["driver"] == "clinical" and x["curie"].startswith("HP:") for x in pr["clinical_drivers"])
     r = T.dispatch("resolve_terms", {"texts": ["high blood pressure", "HGNC:12687", "ccrcc"]})["results"]
     assert [x["matches"][0]["curie"] for x in r] == ["HP:0000822", "NCBIGene:7428", "MONDO:0005005"]
     assert r[0]["matches"][0]["type"] == "phenotype" and "warning" in r[0]
@@ -295,3 +299,67 @@ def test_auto_mode_falls_back_to_mocks(tiny_processed, monkeypatch):
     assert fb.get("_fallback") and fb["edge_ids"]
     assert "error" not in T.dispatch("get_patient", {"patient_id": "C3L-1"})  # real file exists: no fallback
     assert json.dumps(T.dispatch("get_patient", {"patient_id": "C3L-1"}))
+
+
+def test_driver_split_and_view():
+    from common.contracts import driver_split
+    from agent.graph_agent import _llm_view
+    top = [{"curie": "HP:0000822", "name": "Hypertension", "type": "phenotype", "score": 2.0,
+            "evidence_id": "contrib:X:HP:0000822", "driver": "clinical"},
+           {"curie": "NCBIGene:7428", "name": "VHL", "type": "gene", "score": 6.0,
+            "evidence_id": "contrib:X:NCBIGene:7428", "driver": "tumor"}]
+    s = driver_split(top)
+    assert s["driver_split"]["tumor_share"] == 0.75 and s["driver_split"]["clinical_share"] == 0.25
+    assert [x["name"] for x in s["tumor_drivers"]] == ["VHL"]
+    assert driver_split([]) == {"tumor_drivers": [], "clinical_drivers": [], "driver_split": {}}
+    v = _llm_view("predict_patient", {"patient_id": "X", "risk": 0.5, "evidence_id": "pred:X:gnn",
+                                      "top_contributing": top, **s})
+    assert "[contrib:X:NCBIGene:7428] VHL" in v and "top_contributing" not in v and "clinical_drivers" in v
+
+
+def test_rank_drugs_cohort_relative(tiny_processed, monkeypatch):
+    """A hub drug that scores high for everyone drops below a drug specific to this patient; unapproved drugs are out."""
+    import numpy as np
+    monkeypatch.setattr(C, "MOCK_MODE", "0")
+    monkeypatch.setattr(C, "RANK_DRUGS", "cohort")
+
+    class Fake:
+        gidx_by_type = {"drug": np.array([5, 6, 7, 8])}
+        nodes = pd.DataFrame({"gidx": range(9), "curie": [f"DRUGBANK:DB0{i}" for i in range(9)],
+                              "name": ["x"] * 5 + ["Iron", "Specific", "Unapproved", "Other"]})
+        def relation_scores(self, neigh, node_type, w):  # C3L-1's own scores
+            return np.array([0.30, 0.25, 0.40, 0.10])
+
+    fake = lambda tag: Fake()  # noqa: E731
+    fake.cache_clear = lambda: None
+    std = lambda s: (s - s.mean()) / s.std()  # noqa: E731
+    R = np.vstack([std(np.array([0.30, 0.25, 0.40, 0.10])),   # C3L-1 (left out of its own baseline)
+                   std(np.array([0.30, 0.05, 0.10, 0.12])),   # others: Iron high for everyone
+                   std(np.array([0.31, 0.06, 0.12, 0.10]))])
+    cohort = lambda *a: (["C3L-1", "C3L-2", "C3L-3"], R)  # noqa: E731
+    cohort.cache_clear = lambda: None
+    approved = lambda v: frozenset({5, 6, 8})  # noqa: E731
+    approved.cache_clear = lambda: None
+    monkeypatch.setattr(T, "_gnn_a", fake)
+    monkeypatch.setattr(T, "_cohort_scores", cohort)
+    monkeypatch.setattr(T, "_approved_drugs", approved)
+    r = T.dispatch("rank_for_patient", {"patient_id": "C3L-1", "node_type": "drug", "k": 3})
+    assert r["scoring"] == "cohort_relative" and r["filter"] == "drugs with an indication edge"
+    names = [x["name"] for x in r["items"]]
+    assert names[0] == "Specific" and "Unapproved" not in names and names.index("Iron") > 0
+    assert r["items"][0]["evidence_id"] == "rank:C3L-1:drug:DRUGBANK:DB06" and "model_score" in r["items"][0]
+    none = lambda v: frozenset()  # noqa: E731  (a variant with no indication edges)
+    none.cache_clear = lambda: None
+    monkeypatch.setattr(T, "_approved_drugs", none)
+    assert "none" in T.dispatch("rank_for_patient", {"patient_id": "C3L-1", "node_type": "drug"})["filter"]
+
+
+def test_approved_drugs_respects_variant(tiny_processed):
+    e = pd.read_parquet(tiny_processed / "edges.parquet")
+    extra = pd.DataFrame({"edge_row": [4, 5], "src": [2, 2], "dst": [3, 4], "src_type": ["disease"] * 2,
+                          "rel": ["indication"] * 2, "dst_type": ["drug"] * 2, "origin": ["primekg"] * 2,
+                          "dm_row": [-1, -1], "hub": [False] * 2, "e1_holdout": [False] * 2,
+                          "e4_dismech": [False] * 2, "e4_full": [False, True]})
+    pd.concat([e, extra]).to_parquet(tiny_processed / "edges.parquet")
+    assert T._approved_drugs("full") == {3, 4}
+    assert T._approved_drugs("e4") == {3}

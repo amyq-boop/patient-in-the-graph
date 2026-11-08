@@ -24,7 +24,7 @@ from agent import config as C
 from agent import mock_tools
 from agent.schemas import TOOLS  # noqa: F401  (re-exported)
 from common.contracts import (GRAPH_VARIANTS, P, contrib_id, edge_id, patient_curie, patient_edge_id, patient_neighbours,
-                              pred_id, rank_id, triple_line, variant_mask)
+                              driver_split, pred_id, rank_id, triple_line, variant_mask)
 
 NAMERES = "https://name-resolution-sri.renci.org/lookup"
 NODENORM = "https://nodenormalization-sri.renci.org/get_normalized_nodes"
@@ -230,8 +230,11 @@ def predict_patient(patient_id):
         c = pd.read_parquet(C.CONTRIBUTIONS)
         c = c[c.patient_id == pid].sort_values("rank").head(10)
         top = [_ref(r.curie, score=round(float(r.score), 4), evidence_id=contrib_id(pid, r.curie)) for r in c.itertuples()]
+    for x in top:
+        x["driver"] = "clinical" if (x["type"] == "phenotype" or x["curie"].startswith("HP:")) else "tumor"
     out = {"patient_id": pid, "label": C.PRIMARY_LABEL, "risk": round(float(p.risk), 4), "model": "gnn",
            "fold": int(p.fold), "evidence_id": pred_id(pid), "top_contributing": top}
+    out.update(driver_split(top))
     if not top:
         out["note"] = "no per-patient contributions file yet"
     return out
@@ -256,12 +259,83 @@ def rank_for_patient(patient_id, node_type, k=10):
     neigh, w = patient_neighbours(pid, phe.iloc[0:0] if tumor_only else phe, pro)
     if not neigh:
         return {"error": f"no {'protein' if tumor_only else 'phenotype or protein'} neighbours for {patient_id!r}"}
-    df = _gnn_a(C.GNN_A_TAG).rank_for_patient_rel(neigh, node_type, k=int(k), weights=w)
-    return {"patient_id": pid, "node_type": node_type,
-            "basis": "tumor_proteins" if tumor_only else "phenotypes+proteins",
-            "items": [{"curie": r.curie, "name": r.name, "score": round(float(r.score), 4), "rank": i + 1,
-                       "evidence_id": rank_id(pid, node_type, r.curie)}
-                      for i, r in enumerate(df.itertuples())]}
+    out = {"patient_id": pid, "node_type": node_type,
+           "basis": "tumor_proteins" if tumor_only else "phenotypes+proteins"}
+    if node_type == "drug" and C.RANK_DRUGS == "cohort":
+        rows, filtered = _rank_drugs_cohort(pid, neigh, w, int(k))
+        out.update(scoring="cohort_relative",
+                   filter="drugs with an indication edge" if filtered else "none (this variant has no indication edges)",
+                   note="score = how far above the rest of the cohort this drug scores for this patient (SD units); "
+                        "model_score is the raw GNN score. A model suggestion, not evidence that the drug works.")
+    else:
+        df = _gnn_a(C.GNN_A_TAG).rank_for_patient_rel(neigh, node_type, k=int(k), weights=w)
+        rows = [{"curie": r.curie, "name": r.name, "score": round(float(r.score), 4)} for r in df.itertuples()]
+        out["scoring"] = "model_score"
+    out["items"] = [{**r, "rank": i + 1, "evidence_id": rank_id(pid, node_type, r["curie"])} for i, r in enumerate(rows)]
+    return out
+
+
+# ---------------------------------------------------------------- cohort-relative drug ranking
+
+def _standardize(s):
+    """z-score one patient's scores across all candidates, so patients on different scales are comparable."""
+    import numpy as np
+    sd = np.nanstd(s)
+    return (s - np.nanmean(s)) / sd if sd > 0 else s * np.nan
+
+
+def cohort_lift(R, i, own):
+    """`own` (standardized scores) minus the mean of the other patients' rows of R (leave-one-out when i is set)."""
+    import numpy as np
+    others = R if i is None else np.delete(R, i, axis=0)
+    return own - np.nanmean(others, axis=0)
+
+
+def _patient_scores(g, pid, node_type, basis, phe, pro):
+    import numpy as np
+    neigh, w = patient_neighbours(pid, phe.iloc[0:0] if basis == "tumor" else phe, pro)
+    if not neigh:
+        return np.full(len(g.gidx_by_type[node_type]), np.nan)
+    return np.asarray(g.relation_scores(neigh, node_type, w), dtype=float)
+
+
+@lru_cache(maxsize=4)
+def _cohort_scores(tag, node_type, basis):
+    """(patient IDs, standardized GNN-A scores: patients x candidates). Built once per process, a few seconds."""
+    import numpy as np
+    g = _gnn_a(tag)
+    _, phe, pro = _patient_tables()
+    pids = sorted(set(pro.patient_id) | (set() if basis == "tumor" else set(phe.patient_id)))
+    return pids, np.vstack([_standardize(_patient_scores(g, p, node_type, basis, phe, pro)) for p in pids])
+
+
+@lru_cache(maxsize=4)
+def _approved_drugs(variant):
+    """gidx of drugs with at least one indication edge visible in `variant`, our stand-in for approved drugs.
+    Uses the variant mask, so a drug known only through E4's hidden ccRCC edges can't slip back in."""
+    flags = list(GRAPH_VARIANTS[variant])
+    import pyarrow.parquet as pq
+    have = set(pq.read_schema(_need(P.edges)).names)
+    if set(flags) - have:
+        raise Missing(f"edges.parquet has no {sorted(set(flags) - have)} column(s) for variant {variant!r}; get the newer data kit")
+    e = pd.read_parquet(P.edges, columns=["src", "dst", "rel", "src_type", "dst_type", "origin", *flags])
+    e = e[variant_mask(e, variant) & (e.rel == "indication")]
+    return frozenset(e.src[e.src_type == "drug"].tolist()) | frozenset(e.dst[e.dst_type == "drug"].tolist())
+
+
+def _rank_drugs_cohort(pid, neigh, w, k):
+    import numpy as np
+    g = _gnn_a(C.GNN_A_TAG)
+    pids, R = _cohort_scores(C.GNN_A_TAG, "drug", C.RANK_BASIS)
+    raw = np.asarray(g.relation_scores(neigh, "drug", w), dtype=float)
+    lift = cohort_lift(R, pids.index(pid) if pid in pids else None, _standardize(raw))
+    cand = np.asarray(g.gidx_by_type["drug"])
+    approved = _approved_drugs(C.VARIANT)  # empty on variants that drop all indication edges (bifo_strict, bifo_flow)
+    ok = (np.isin(cand, list(approved)) if approved else np.ones(len(cand), bool)) & np.isfinite(lift)
+    lift = np.where(ok, lift, -np.inf)
+    order = [j for j in np.argsort(-lift, kind="stable")[:k] if ok[j]]
+    return [{"curie": str(g.nodes.curie.values[cand[j]]), "name": str(g.nodes.name.values[cand[j]]),
+             "score": round(float(lift[j]), 3), "model_score": round(float(raw[j]), 4)} for j in order], bool(approved)
 
 
 def _to_dict(res):
