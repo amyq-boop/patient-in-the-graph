@@ -34,8 +34,9 @@ import re
 
 from agent.prompts import CLAIMS_SYSTEM
 
-ID_TOKEN = re.compile(r"\bE\d+\b|\b(?:pt|pred|contrib|rank):[^\s,;\]\)]+|\bPMID:\s*\d+", re.I)
-RANGE = re.compile(r"\bE(\d+)\s*[\u2010-\u2015-]\s*E?(\d+)\b", re.I)  # E12-E15, E12–E15, E12 – 15
+# An edge ID is E<digits> standing alone: not the "E70" inside protein notation like p.E70* (a VHL truncation).
+ID_TOKEN = re.compile(r"(?<![.\w])E\d+(?![\w*])|\b(?:pt|pred|contrib|rank):[^\s,;\]\)]+|\bPMID:\s*\d+", re.I)
+RANGE = re.compile(r"(?<![.\w])E(\d+)\s*[\u2010-\u2015-]\s*E?(\d+)\b", re.I)  # E12-E15, E12–E15, E12 – 15
 CITE_TOKEN = re.compile(f"{RANGE.pattern}|{ID_TOKEN.pattern}", re.I)
 RANGE_MAX = 10  # a longer range is never a list of edges the agent actually read
 MODEL_PREFIXES = ("pred:", "contrib:", "rank:")

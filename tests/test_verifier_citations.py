@@ -27,6 +27,15 @@ def test_plain_parentheses_are_not():
         "Loss causes signaling in patients (n=3)."
 
 
+
+def test_protein_notation_is_not_an_edge_id():
+    # p.E70* is a VHL truncation, not edge E70 (found in the audit).
+    assert cited_ids("VHL truncation (p.E70*) drives HIF-2\u03b1 stabilization [E12].") == ["E12"]
+    assert cited_ids("Variants (p.E70K, p.E70fs, p.E70_L72del) are listed.") == []
+    assert cited_ids("Truncation (E70*) only.") == []
+    assert cited_ids("VHL loss [E70, E71] and [E12\u2013E14].") == ["E70", "E71", "E12", "E14"]
+    assert strip_citations("VHL truncation (p.E70*) drives HIF.") == "VHL truncation (p.E70*) drives HIF."
+
 def test_bare_numbers_after_pmid_are_pmids():
     assert cited_ids("First hit [PMID:39334956, 38540392] (E8320604).") == ["PMID:39334956", "PMID:38540392", "E8320604"]
     assert cited_ids("Edge [E1, 38540392]") == ["E1"]  # no PMID: in the group -> a bare number is not a PMID
