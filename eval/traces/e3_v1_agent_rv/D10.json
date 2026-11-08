@@ -1,0 +1,3320 @@
+{
+ "contract_version": "1",
+ "run_id": "e3_v1_agent_rv",
+ "qid": "D10",
+ "mode": "agent",
+ "patient_id": null,
+ "question": "What mechanism explains sickle cell disease, and how does hydroxyurea help?",
+ "model": "nvidia/nemotron-3-ultra-550b-a55b",
+ "variant": "full",
+ "tool_calls": [
+  {
+   "name": "resolve_terms",
+   "args": {
+    "texts": [
+     "sickle cell disease",
+     "hydroxyurea"
+    ]
+   },
+   "result": {
+    "results": [
+     {
+      "text": "sickle cell disease",
+      "matches": [
+       {
+        "curie": "MONDO:0011382",
+        "name": "sickle cell anemia",
+        "type": "disease",
+        "score": 0.95
+       },
+       {
+        "curie": "MONDO:0016672",
+        "name": "hereditary persistence of fetal hemoglobin-sickle cell disease syndrome",
+        "type": "disease",
+        "score": 0.102
+       }
+      ]
+     },
+     {
+      "text": "hydroxyurea",
+      "matches": [
+       {
+        "curie": "DRUGBANK:DB01005",
+        "name": "Hydroxyurea",
+        "type": "drug",
+        "score": 1.0
+       }
+      ]
+     }
+    ]
+   },
+   "ms": 570,
+   "by": "llm"
+  },
+  {
+   "name": "get_mechanism",
+   "args": {
+    "disease_curie": "MONDO:0011382"
+   },
+   "result": {
+    "disease": "MONDO:0011382",
+    "name": "sickle cell anemia",
+    "chains": [
+     {
+      "chain_id": "chain-1",
+      "steps": [
+       {
+        "mechanism": "dismech:Sickle_Cell_Disease#Hemoglobin_Polymerization",
+        "label": "Hemoglobin Polymerization",
+        "edge_id": "E8303098",
+        "pmids": [
+         "PMID:29614632",
+         "PMID:3965046",
+         "PMID:4020873",
+         "PMID:25645011"
+        ],
+        "quotes": [
+         "[PMID:29614632] [SUPPORT] Due to the unique dependence of Hb S polymerization on cellular Hb S concentration, cell dehydration promotes polymerization and sickling. --- Explanation: HbS polymerization is concentration-dependent and leads to sickling.|[PMID:3965046] [SUPPORT] Our results support the hypothesis that the intracellular polymerization of HbS is the primary determinant of the severity of both anemia and clinical symptomatology in the sickle hemoglobinopathies. --- Explanation: Establishes HbS polymerization as the primary determinant of clinical severity in sickling syndromes.|[PMID:4020873] [SUPPORT] A double nucleation mechanism for the polymerization of sickle hemoglobin is described. The mechanism accounts for all of the major kinetic observations: the appearance of a delay, the high concentration dependence of the delay time, and the stochastic behavior of slowly polymerizing samples in small volumes. --- Explanation: Supplies the kinetic mechanism behind this node. Polymerization is initiated by homogeneous nucleation in solution and then autocatalytically amplified by heterogeneous nucleation on the surface of existing polymers, which is what produces the delay time and its steep dependence on intracellular HbS concentration.|[PMID:25645011] [SUPPORT] Sickle hemoglobin polymerization commences with a striking latency period, called a \"delay time\" followed by abrupt polymer formation. The delay time is exceedingly concentration dependent. --- Explanation: Forty-year reassessment confirming that the delay time governs whether polymerization occurs within capillary transit, and that measured delay times track the clinical severity of sickling syndromes and the improvement seen on hydroxyurea. This is the quantitative basis for why diluting HbS with fetal hemoglobin works."
+        ]
+       },
+       {
+        "mechanism": "dismech:Sickle_Cell_Disease#Red_Blood_Cell_Sickling",
+        "label": "Red Blood Cell Sickling",
+        "edge_id": "E8303099",
+        "pmids": [],
+        "quotes": []
+       },
+       {
+        "mechanism": "dismech:Sickle_Cell_Disease#Vaso_Occlusion",
+        "label": "Vaso-Occlusion",
+        "edge_id": "E8303101",
+        "pmids": [],
+        "quotes": []
+       },
+       {
+        "mechanism": "dismech:Sickle_Cell_Disease#Chronic_Organ_Damage",
+        "label": "Chronic Organ Damage",
+        "edge_id": "E8303112",
+        "pmids": [],
+        "quotes": []
+       }
+      ]
+     },
+     {
+      "chain_id": "chain-2",
+      "steps": [
+       {
+        "mechanism": "dismech:Sickle_Cell_Disease#Erythrocyte_Dehydration",
+        "label": "Erythrocyte Dehydration",
+        "edge_id": "E8303105",
+        "pmids": [
+         "PMID:15618480",
+         "PMID:29614632"
+        ],
+        "quotes": [
+         "[PMID:15618480] [SUPPORT] Polymers of deoxyhemoglobin S deform sickle cell anemia red blood cells into sickle shapes, leading to the formation of dense, dehydrated red blood cells with a markedly shortened life-span. --- Explanation: States the step this node represents: polymer-driven deformation produces dense dehydrated cells whose survival is markedly reduced.|[PMID:15618480] [SUPPORT] a multitrack dehydration model based on interactive influences between the red cell anion exchanger and two K(+) transporters, the Gardos channel (hSK4, hIK1) and the K-Cl cotransporter (KCC), with differential effects dependent on red cell age and variability of KCC expression among reticulocytes --- Explanation: Names the specific transporters behind the dehydration, which is what distinguishes this node from a generic statement that sickle cells lose water, and notes that their contribution varies with cell age.|[PMID:29614632] [SUPPORT] Due to the unique dependence of Hb S polymerization on cellular Hb S concentration, cell dehydration promotes polymerization and sickling. --- Explanation: Supports the feedback edge from this node back to polymerization: because polymerization depends so steeply on intracellular HbS concentration, dehydration accelerates it."
+        ]
+       }
+      ]
+     },
+     {
+      "chain_id": "chain-3",
+      "steps": [
+       {
+        "mechanism": "dismech:Sickle_Cell_Disease#Endothelial_Activation_and_Leukocyte_Recruitment",
+        "label": "Endothelial Activation and Leukocyte Recruitment",
+        "edge_id": "E8303108",
+        "pmids": [
+         "PMID:11844991",
+         "PMID:17932253",
+         "PMID:8982148",
+         "PMID:41206783"
+        ],
+        "quotes": [
+         "[PMID:11844991] [SUPPORT] A novel multistep model for sickle cell vaso-occlusion is proposed in which endothelial activation is induced by sickle cells or secondary inflammatory stimuli and leads to the recruitment of adherent leukocytes. The resulting adherent leukocytes interact with circulating sickle erythrocytes, and this interaction impedes microvascular blood flow. --- Explanation: The paper that proposed this step as a distinct stage of vaso-occlusion, and the reason the node exists separately from Vaso-Occlusion. Note the same source states that the molecular requirements for the erythrocyte-leukocyte interaction were then unknown.|[PMID:17932253] [SUPPORT] IVIG rapidly (<10 minutes) reduced adherent leukocyte numbers and dramatically inhibited interactions between RBCs and WBCs, resulting in improved microcirculatory blood flow and survival of sickle cell \"Berkeley\" mice. --- Explanation: Interventional test of the node in vivo. Reducing leukocyte adhesion after the inflammatory challenge restored flow and survival, and survival correlated with blood flow and inversely with adherent-leukocyte number and with red-cell-white-cell interactions.|[PMID:8982148] [SUPPORT] In multivariable analyses, there was strong evidence of independent association of lower neutrophil counts with lower crisis rates. --- Explanation: Human support for the leukocyte arm from a randomized trial cohort: crisis rate tracked neutrophil count independently of the other measured variables. The same report declines to attribute hydroxyurea's mechanism, since the trial was not designed to test it, so this is an association within treated and untreated patients rather than a demonstration that neutrophil reduction is how the drug works.|[PMID:41206783] [SUPPORT] The plasma P-selectin, E-Selectin, ICAM-1 and VCAM-1 levels were significantly higher during crisis than at the discharge and steady state. --- Explanation: Longitudinal human series sampling 140 patients at admission, discharge and steady state, showing the adhesion molecules that mediate this step rise specifically during crisis. The same study found no significant association between any of these levels and pain severity."
+        ]
+       }
+      ]
+     },
+     {
+      "chain_id": "chain-4",
+      "steps": [
+       {
+        "mechanism": "dismech:Sickle_Cell_Disease#Chronic_Hemolysis",
+        "label": "Chronic Hemolysis",
+        "edge_id": "E8303121",
+        "pmids": [
+         "PMID:15998894"
+        ],
+        "quotes": [
+         "[PMID:15998894] [SUPPORT] hemolysis contributes to reduced nitric oxide bioavailability and endothelial dysfunction via release of erythrocyte arginase, which limits arginine bioavailability, and release of erythrocyte hemoglobin, which scavenges nitric oxide. --- Explanation: Hemolysis releases both arginase (which depletes L-arginine, the substrate for nitric oxide synthesis) and free hemoglobin (which directly scavenges nitric oxide), leading to endothelial dysfunction and pulmonary hypertension.|[PMID:15998894] [SUPPORT] The ratios of arginine to ornithine and arginine to ornithine plus citrulline are independently associated with pulmonary hypertension and increased mortality in patients with sickle cell disease. --- Explanation: Low arginine bioavailability due to increased arginase activity is directly associated with pulmonary hypertension severity and mortality risk in SCD patients."
+        ]
+       }
+      ]
+     }
+    ],
+    "genes": [
+     "NCBIGene:3043",
+     "NCBIGene:53335"
+    ],
+    "drugs": [],
+    "drug_evidence": []
+   },
+   "ms": 33,
+   "by": "llm"
+  },
+  {
+   "name": "retrieve_subgraph",
+   "args": {
+    "question": "How does hydroxyurea help sickle cell disease?",
+    "seeds": [
+     "MONDO:0011382",
+     "DRUGBANK:DB01005"
+    ]
+   },
+   "result": {
+    "nodes": [
+     {
+      "curie": "DRUGBANK:DB01005",
+      "name": "Hydroxyurea",
+      "type": "drug",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "MONDO:0011382",
+      "name": "sickle cell anemia",
+      "type": "disease",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:4879",
+      "name": "NPPB",
+      "type": "gene",
+      "prize": 1.0,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB08946",
+      "name": "Iopanoic acid",
+      "type": "drug",
+      "prize": 1.0,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0046209",
+      "name": "nitric oxide metabolic process",
+      "type": "biological_process",
+      "prize": 1.0,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005515",
+      "name": "protein binding",
+      "type": "molecular_function",
+      "prize": 1.0,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005829",
+      "name": "cytosol",
+      "type": "cellular_component",
+      "prize": 1.0,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0008346",
+      "name": "Increased red cell sickling tendency",
+      "type": "phenotype",
+      "prize": 1.0,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-500753",
+      "name": "Pyrimidine biosynthesis",
+      "type": "pathway",
+      "prize": 1.0,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB09403",
+      "name": "Iocetamic acid",
+      "type": "drug",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0011981",
+      "name": "Pigment gallstones",
+      "type": "phenotype",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0061756",
+      "name": "leukocyte adhesion to vascular endothelial cell",
+      "type": "biological_process",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0042802",
+      "name": "identical protein binding",
+      "type": "molecular_function",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005783",
+      "name": "endoplasmic reticulum",
+      "type": "cellular_component",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-2168880",
+      "name": "Scavenging of heme from plasma",
+      "type": "pathway",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:1723",
+      "name": "DHODH",
+      "type": "gene",
+      "prize": 0.9995,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB09333",
+      "name": "Iopodic acid",
+      "type": "drug",
+      "prize": 0.9995,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0011895",
+      "name": "Anemia due to reduced life span of red cells",
+      "type": "phenotype",
+      "prize": 0.9995,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0034108",
+      "name": "positive regulation of erythrocyte clearance",
+      "type": "biological_process",
+      "prize": 0.9995,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005524",
+      "name": "ATP binding",
+      "type": "molecular_function",
+      "prize": 0.9995,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005654",
+      "name": "nucleoplasm",
+      "type": "cellular_component",
+      "prize": 0.9995,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-6798695",
+      "name": "Neutrophil degranulation",
+      "type": "pathway",
+      "prize": 0.9995,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:4352",
+      "name": "MPL",
+      "type": "gene",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB06755",
+      "name": "Beta carotene",
+      "type": "drug",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0019899",
+      "name": "enzyme binding",
+      "type": "molecular_function",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005789",
+      "name": "endoplasmic reticulum membrane",
+      "type": "cellular_component",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0011982",
+      "name": "Black pigment gallstones",
+      "type": "phenotype",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0034101",
+      "name": "erythrocyte homeostasis",
+      "type": "biological_process",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-6785807",
+      "name": "Interleukin-4 and Interleukin-13 signaling",
+      "type": "pathway",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:7036",
+      "name": "TFR2",
+      "type": "gene",
+      "prize": 0.9991,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB14123",
+      "name": "Racementhol",
+      "type": "drug",
+      "prize": 0.9991,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0046872",
+      "name": "metal ion binding",
+      "type": "molecular_function",
+      "prize": 0.9991,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005886",
+      "name": "plasma membrane",
+      "type": "cellular_component",
+      "prize": 0.9991,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0011983",
+      "name": "Brown pigment gallstones",
+      "type": "phenotype",
+      "prize": 0.9991,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0046210",
+      "name": "nitric oxide catabolic process",
+      "type": "biological_process",
+      "prize": 0.9991,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-9707616",
+      "name": "Heme signaling",
+      "type": "pathway",
+      "prize": 0.9991,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:5949",
+      "name": "RBP3",
+      "type": "gene",
+      "prize": 0.9988,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB00125",
+      "name": "Arginine",
+      "type": "drug",
+      "prize": 0.9988,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-983231",
+      "name": "Factors involved in megakaryocyte development and platelet production",
+      "type": "pathway",
+      "prize": 0.9988,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0031090",
+      "name": "Finger dactylitis",
+      "type": "phenotype",
+      "prize": 0.9988,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0050901",
+      "name": "leukocyte tethering or rolling",
+      "type": "biological_process",
+      "prize": 0.9988,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0004252",
+      "name": "serine-type endopeptidase activity",
+      "type": "molecular_function",
+      "prize": 0.9988,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005739",
+      "name": "mitochondrion",
+      "type": "cellular_component",
+      "prize": 0.9988,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:3039",
+      "name": "HBA1",
+      "type": "gene",
+      "prize": 0.9986,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB02901",
+      "name": "Stanolone",
+      "type": "drug",
+      "prize": 0.9986,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0003677",
+      "name": "DNA binding",
+      "type": "molecular_function",
+      "prize": 0.9986,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0016020",
+      "name": "membrane",
+      "type": "cellular_component",
+      "prize": 0.9986,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-9707564",
+      "name": "Cytoprotection by HMOX1",
+      "type": "pathway",
+      "prize": 0.9986,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0004870",
+      "name": "Chronic hemolytic anemia",
+      "type": "phenotype",
+      "prize": 0.9986,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0036339",
+      "name": "lymphocyte adhesion to endothelial cell of high endothelial venule",
+      "type": "biological_process",
+      "prize": 0.9986,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:3047",
+      "name": "HBG1",
+      "type": "gene",
+      "prize": 0.9984,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB11248",
+      "name": "Zinc gluconate",
+      "type": "drug",
+      "prize": 0.9984,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0008270",
+      "name": "zinc ion binding",
+      "type": "molecular_function",
+      "prize": 0.9984,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005794",
+      "name": "Golgi apparatus",
+      "type": "cellular_component",
+      "prize": 0.9984,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0011904",
+      "name": "Persistence of hemoglobin F",
+      "type": "phenotype",
+      "prize": 0.9984,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0061757",
+      "name": "leukocyte adhesion to arterial endothelial cell",
+      "type": "biological_process",
+      "prize": 0.9984,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-419037",
+      "name": "NCAM1 interactions",
+      "type": "pathway",
+      "prize": 0.9984,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:3048",
+      "name": "HBG2",
+      "type": "gene",
+      "prize": 0.9981,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB09321",
+      "name": "Zinc oxide",
+      "type": "drug",
+      "prize": 0.9981,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0051258",
+      "name": "protein polymerization",
+      "type": "biological_process",
+      "prize": 0.9981,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005737",
+      "name": "cytoplasm",
+      "type": "cellular_component",
+      "prize": 0.9981,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0008282",
+      "name": "Unconjugated hyperbilirubinemia",
+      "type": "phenotype",
+      "prize": 0.9981,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0020037",
+      "name": "heme binding",
+      "type": "molecular_function",
+      "prize": 0.9981,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-5576892",
+      "name": "Phase 0 - rapid depolarisation",
+      "type": "pathway",
+      "prize": 0.9981,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:10333",
+      "name": "TLR6",
+      "type": "gene",
+      "prize": 0.9979,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB01783",
+      "name": "Pantothenic acid",
+      "type": "drug",
+      "prize": 0.9979,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0002597",
+      "name": "Abnormality of the vasculature",
+      "type": "phenotype",
+      "prize": 0.9979,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0002262",
+      "name": "myeloid cell homeostasis",
+      "type": "biological_process",
+      "prize": 0.9979,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005634",
+      "name": "nucleus",
+      "type": "cellular_component",
+      "prize": 0.9979,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0001228",
+      "name": "DNA-binding transcription activator activity, RNA polymerase II-specific",
+      "type": "molecular_function",
+      "prize": 0.9979,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-198933",
+      "name": "Immunoregulatory interactions between a Lymphoid and a non-Lymphoid cell",
+      "type": "pathway",
+      "prize": 0.9979,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB02701",
+      "name": "Nicotinamide",
+      "type": "drug",
+      "prize": 0.9977,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:53630",
+      "name": "BCO1",
+      "type": "gene",
+      "prize": 0.9977,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0007159",
+      "name": "leukocyte cell-cell adhesion",
+      "type": "biological_process",
+      "prize": 0.9977,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005179",
+      "name": "hormone activity",
+      "type": "molecular_function",
+      "prize": 0.9977,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005576",
+      "name": "extracellular region",
+      "type": "cellular_component",
+      "prize": 0.9977,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-422356",
+      "name": "Regulation of insulin secretion",
+      "type": "pathway",
+      "prize": 0.9977,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0005518",
+      "name": "Increased mean corpuscular volume",
+      "type": "phenotype",
+      "prize": 0.9977,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:2266",
+      "name": "FGG",
+      "type": "gene",
+      "prize": 0.9974,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB00162",
+      "name": "Vitamin A",
+      "type": "drug",
+      "prize": 0.9974,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0001743",
+      "name": "Abnormality of the spleen",
+      "type": "phenotype",
+      "prize": 0.9974,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0004601",
+      "name": "peroxidase activity",
+      "type": "molecular_function",
+      "prize": 0.9974,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0032991",
+      "name": "protein-containing complex",
+      "type": "cellular_component",
+      "prize": 0.9974,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0006809",
+      "name": "nitric oxide biosynthetic process",
+      "type": "biological_process",
+      "prize": 0.9974,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-400042",
+      "name": "Adrenaline,noradrenaline inhibits insulin secretion",
+      "type": "pathway",
+      "prize": 0.9974,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB00139",
+      "name": "Succinic acid",
+      "type": "drug",
+      "prize": 0.9972,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0045785",
+      "name": "positive regulation of cell adhesion",
+      "type": "biological_process",
+      "prize": 0.9972,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0003924",
+      "name": "GTPase activity",
+      "type": "molecular_function",
+      "prize": 0.9972,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005887",
+      "name": "integral component of plasma membrane",
+      "type": "cellular_component",
+      "prize": 0.9972,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:5948",
+      "name": "RBP2",
+      "type": "gene",
+      "prize": 0.9972,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0100507",
+      "name": "Reduced blood folate concentration",
+      "type": "phenotype",
+      "prize": 0.9972,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-216083",
+      "name": "Integrin cell surface interactions",
+      "type": "pathway",
+      "prize": 0.9972,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:2056",
+      "name": "EPO",
+      "type": "gene",
+      "prize": 0.997,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB13257",
+      "name": "Ferrous sulfate anhydrous",
+      "type": "drug",
+      "prize": 0.997,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005102",
+      "name": "signaling receptor binding",
+      "type": "molecular_function",
+      "prize": 0.997,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0002931",
+      "name": "response to ischemia",
+      "type": "biological_process",
+      "prize": 0.997,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0070062",
+      "name": "extracellular exosome",
+      "type": "cellular_component",
+      "prize": 0.997,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-5576893",
+      "name": "Phase 2 - plateau phase",
+      "type": "pathway",
+      "prize": 0.997,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0002754",
+      "name": "Osteomyelitis",
+      "type": "phenotype",
+      "prize": 0.997,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:3040",
+      "name": "HBA2",
+      "type": "gene",
+      "prize": 0.9967,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB00126",
+      "name": "Ascorbic acid",
+      "type": "drug",
+      "prize": 0.9967,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0034106",
+      "name": "regulation of erythrocyte clearance",
+      "type": "biological_process",
+      "prize": 0.9967,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005125",
+      "name": "cytokine activity",
+      "type": "molecular_function",
+      "prize": 0.9967,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0016021",
+      "name": "integral component of membrane",
+      "type": "cellular_component",
+      "prize": 0.9967,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0001896",
+      "name": "Reticulocytopenia",
+      "type": "phenotype",
+      "prize": 0.9967,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-6783783",
+      "name": "Interleukin-10 signaling",
+      "type": "pathway",
+      "prize": 0.9967,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:1373",
+      "name": "CPS1",
+      "type": "gene",
+      "prize": 0.9965,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB13169",
+      "name": "Nandrolone",
+      "type": "drug",
+      "prize": 0.9965,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0002684",
+      "name": "positive regulation of immune system process",
+      "type": "biological_process",
+      "prize": 0.9965,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0003700",
+      "name": "DNA-binding transcription factor activity",
+      "type": "molecular_function",
+      "prize": 0.9965,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0001923",
+      "name": "Reticulocytosis",
+      "type": "phenotype",
+      "prize": 0.9965,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005615",
+      "name": "extracellular space",
+      "type": "cellular_component",
+      "prize": 0.9965,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-1237044",
+      "name": "Erythrocytes take up carbon dioxide and release oxygen",
+      "type": "pathway",
+      "prize": 0.9965,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:57817",
+      "name": "HAMP",
+      "type": "gene",
+      "prize": 0.9963,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB14491",
+      "name": "Ferrous fumarate",
+      "type": "drug",
+      "prize": 0.9963,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0006979",
+      "name": "response to oxidative stress",
+      "type": "biological_process",
+      "prize": 0.9963,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0019904",
+      "name": "protein domain specific binding",
+      "type": "molecular_function",
+      "prize": 0.9963,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0003259",
+      "name": "Elevated serum creatinine",
+      "type": "phenotype",
+      "prize": 0.9963,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0009986",
+      "name": "cell surface",
+      "type": "cellular_component",
+      "prize": 0.9963,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-1247673",
+      "name": "Erythrocytes take up oxygen and release carbon dioxide",
+      "type": "pathway",
+      "prize": 0.9963,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:8912",
+      "name": "CACNA1H",
+      "type": "gene",
+      "prize": 0.996,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB00153",
+      "name": "Ergocalciferol",
+      "type": "drug",
+      "prize": 0.996,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0001666",
+      "name": "response to hypoxia",
+      "type": "biological_process",
+      "prize": 0.996,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0000981",
+      "name": "DNA-binding transcription factor activity, RNA polymerase II-specific",
+      "type": "molecular_function",
+      "prize": 0.996,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0043231",
+      "name": "intracellular membrane-bounded organelle",
+      "type": "cellular_component",
+      "prize": 0.996,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0005506",
+      "name": "Chronic myelogenous leukemia",
+      "type": "phenotype",
+      "prize": 0.996,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-9615710",
+      "name": "Late endosomal microautophagy",
+      "type": "pathway",
+      "prize": 0.996,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:3593",
+      "name": "IL12B",
+      "type": "gene",
+      "prize": 0.9958,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB00770",
+      "name": "Alprostadil",
+      "type": "drug",
+      "prize": 0.9958,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0050900",
+      "name": "leukocyte migration",
+      "type": "biological_process",
+      "prize": 0.9958,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0019901",
+      "name": "protein kinase binding",
+      "type": "molecular_function",
+      "prize": 0.9958,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0025435",
+      "name": "Increased lactate dehydrogenase level",
+      "type": "phenotype",
+      "prize": 0.9958,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0043025",
+      "name": "neuronal cell body",
+      "type": "cellular_component",
+      "prize": 0.9958,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-9613829",
+      "name": "Chaperone Mediated Autophagy",
+      "type": "pathway",
+      "prize": 0.9958,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:790",
+      "name": "CAD",
+      "type": "gene",
+      "prize": 0.9956,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB13719",
+      "name": "Trolnitrate",
+      "type": "drug",
+      "prize": 0.9956,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0034105",
+      "name": "positive regulation of tissue remodeling",
+      "type": "biological_process",
+      "prize": 0.9956,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0030492",
+      "name": "hemoglobin binding",
+      "type": "molecular_function",
+      "prize": 0.9956,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0072562",
+      "name": "blood microparticle",
+      "type": "cellular_component",
+      "prize": 0.9956,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-877300",
+      "name": "Interferon gamma signaling",
+      "type": "pathway",
+      "prize": 0.9956,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0200023",
+      "name": "Priapism",
+      "type": "phenotype",
+      "prize": 0.9956,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:10661",
+      "name": "KLF1",
+      "type": "gene",
+      "prize": 0.9953,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB01698",
+      "name": "Rutin",
+      "type": "drug",
+      "prize": 0.9953,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0002140",
+      "name": "Ischemic stroke",
+      "type": "phenotype",
+      "prize": 0.9953,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0034599",
+      "name": "cellular response to oxidative stress",
+      "type": "biological_process",
+      "prize": 0.9953,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0000978",
+      "name": "RNA polymerase II cis-regulatory region sequence-specific DNA binding",
+      "type": "molecular_function",
+      "prize": 0.9953,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-9707587",
+      "name": "Regulation of HMOX1 expression and activity",
+      "type": "pathway",
+      "prize": 0.9953,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005743",
+      "name": "mitochondrial inner membrane",
+      "type": "cellular_component",
+      "prize": 0.9953,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:7372",
+      "name": "UMPS",
+      "type": "gene",
+      "prize": 0.9951,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB04216",
+      "name": "Quercetin",
+      "type": "drug",
+      "prize": 0.9951,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0010885",
+      "name": "Avascular necrosis",
+      "type": "phenotype",
+      "prize": 0.9951,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:2147",
+      "name": "F2",
+      "type": "gene",
+      "prize": 0.9771,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:7412",
+      "name": "VCAM1",
+      "type": "gene",
+      "prize": 0.9767,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:775",
+      "name": "CACNA1C",
+      "type": "gene",
+      "prize": 0.9727,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0004312",
+      "name": "Abnormal reticulocyte morphology",
+      "type": "phenotype",
+      "prize": 0.965,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:1958",
+      "name": "EGR1",
+      "type": "gene",
+      "prize": 0.954,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:3630",
+      "name": "INS",
+      "type": "gene",
+      "prize": 0.9388,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:2932",
+      "name": "GSK3B",
+      "type": "gene",
+      "prize": 0.9267,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:7316",
+      "name": "UBC",
+      "type": "gene",
+      "prize": 0.9022,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:801",
+      "name": "CALM1",
+      "type": "gene",
+      "prize": 0.8954,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:5879",
+      "name": "RAC1",
+      "type": "gene",
+      "prize": 0.8739,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:3662",
+      "name": "IRF4",
+      "type": "gene",
+      "prize": 0.866,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:3163",
+      "name": "HMOX2",
+      "type": "gene",
+      "prize": 0.8473,
+      "is_seed": false
+     }
+    ],
+    "edges": [
+     {
+      "edge_id": "E8303091",
+      "src_curie": "MONDO:0011382",
+      "rel": "dm_affects",
+      "dst_curie": "GO:0046209",
+      "origin": "dismech",
+      "pmids": [
+       "PMID:15998894",
+       "PMID:15998894"
+      ],
+      "quote": "[PMID:15998894] [INDIRECT EVIDENCE] [SUPPORT] hemolysis contributes to reduced nitric oxide bioavailability and endothelial dysfunction via release of erythrocyte arginase, which limits arginine bioavailability, and release of erythrocyte hemoglobin, which scavenges nitric oxide. --- Explanation: He"
+     },
+     {
+      "edge_id": "E3368141",
+      "src_curie": "DRUGBANK:DB01005",
+      "rel": "drug_effect",
+      "dst_curie": "HP:0100507",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E8303057",
+      "src_curie": "MONDO:0011382",
+      "rel": "dm_has_phenotype",
+      "dst_curie": "HP:0004870",
+      "origin": "dismech",
+      "pmids": [
+       "PMID:15998894"
+      ],
+      "quote": "[PMID:15998894] [SUPPORT] hemolysis contributes to reduced nitric oxide bioavailability and endothelial dysfunction via release of erythrocyte arginase --- Explanation: Chronic hemolysis is a hallmark feature of sickle cell disease.|[ORPHA:232] [SUPPORT] HP:0004870 ¦ Chronic hemolytic anemia ¦ Oblig"
+     },
+     {
+      "edge_id": "E8303060",
+      "src_curie": "MONDO:0011382",
+      "rel": "dm_has_phenotype",
+      "dst_curie": "HP:0001743",
+      "origin": "dismech",
+      "pmids": [],
+      "quote": "[ORPHA:232] [SUPPORT] HP:0001743 ¦ Abnormality of the spleen ¦ Frequent (79-30%) --- Explanation: Orphanet records spleen abnormality as a frequent phenotype."
+     },
+     {
+      "edge_id": "E8303063",
+      "src_curie": "MONDO:0011382",
+      "rel": "dm_has_phenotype",
+      "dst_curie": "HP:0002140",
+      "origin": "dismech",
+      "pmids": [],
+      "quote": "[ORPHA:232] [SUPPORT] HP:0002140 ¦ Ischemic stroke ¦ Occasional (29-5%) --- Explanation: Orphanet records ischemic stroke as an occasional phenotype."
+     },
+     {
+      "edge_id": "E8303064",
+      "src_curie": "MONDO:0011382",
+      "rel": "dm_has_phenotype",
+      "dst_curie": "HP:0200023",
+      "origin": "dismech",
+      "pmids": [],
+      "quote": "[ORPHA:232] [SUPPORT] HP:0200023 ¦ Priapism ¦ Occasional (29-5%) --- Explanation: Orphanet records priapism as an occasional phenotype."
+     },
+     {
+      "edge_id": "E8303067",
+      "src_curie": "MONDO:0011382",
+      "rel": "dm_has_phenotype",
+      "dst_curie": "HP:0011981",
+      "origin": "dismech",
+      "pmids": [],
+      "quote": "[ORPHA:232] [SUPPORT] HP:0011981 ¦ Pigment gallstones ¦ Frequent (79-30%) --- Explanation: Orphanet records pigment gallstones as a frequent phenotype."
+     },
+     {
+      "edge_id": "E8303069",
+      "src_curie": "MONDO:0011382",
+      "rel": "dm_has_phenotype",
+      "dst_curie": "HP:0001923",
+      "origin": "dismech",
+      "pmids": [],
+      "quote": "[ORPHA:232] [SUPPORT] HP:0001923 ¦ Reticulocytosis ¦ Frequent (79-30%) --- Explanation: Orphanet records reticulocytosis as a frequent phenotype."
+     },
+     {
+      "edge_id": "E8303070",
+      "src_curie": "MONDO:0011382",
+      "rel": "dm_has_phenotype",
+      "dst_curie": "HP:0010885",
+      "origin": "dismech",
+      "pmids": [],
+      "quote": "[ORPHA:232] [SUPPORT] HP:0010885 ¦ Avascular necrosis ¦ Frequent (79-30%) --- Explanation: Orphanet records avascular necrosis as a frequent phenotype."
+     },
+     {
+      "edge_id": "E8303072",
+      "src_curie": "MONDO:0011382",
+      "rel": "dm_has_phenotype",
+      "dst_curie": "HP:0002754",
+      "origin": "dismech",
+      "pmids": [],
+      "quote": "[ORPHA:232] [SUPPORT] HP:0002754 ¦ Osteomyelitis ¦ Frequent (79-30%) --- Explanation: Orphanet records osteomyelitis as a frequent phenotype."
+     },
+     {
+      "edge_id": "E8303076",
+      "src_curie": "MONDO:0011382",
+      "rel": "dm_has_phenotype",
+      "dst_curie": "HP:0031090",
+      "origin": "dismech",
+      "pmids": [],
+      "quote": "[ORPHA:232] [SUPPORT] HP:0031090 ¦ Finger dactylitis ¦ Occasional (29-5%) --- Explanation: Orphanet records finger dactylitis as an occasional phenotype."
+     },
+     {
+      "edge_id": "E8303077",
+      "src_curie": "MONDO:0011382",
+      "rel": "dm_affects",
+      "dst_curie": "GO:0051258",
+      "origin": "dismech",
+      "pmids": [
+       "PMID:29614632",
+       "PMID:3965046",
+       "PMID:4020873",
+       "PMID:25645011"
+      ],
+      "quote": "[PMID:29614632] [INDIRECT EVIDENCE] [SUPPORT] Due to the unique dependence of Hb S polymerization on cellular Hb S concentration, cell dehydration promotes polymerization and sickling. --- Explanation: HbS polymerization is concentration-dependent and leads to sickling.|[PMID:3965046] [INDIRECT EVID"
+     },
+     {
+      "edge_id": "E8303078",
+      "src_curie": "MONDO:0011382",
+      "rel": "dm_affects",
+      "dst_curie": "GO:0001666",
+      "origin": "dismech",
+      "pmids": [
+       "PMID:29614632",
+       "PMID:3965046",
+       "PMID:4020873",
+       "PMID:25645011"
+      ],
+      "quote": "[PMID:29614632] [INDIRECT EVIDENCE] [SUPPORT] Due to the unique dependence of Hb S polymerization on cellular Hb S concentration, cell dehydration promotes polymerization and sickling. --- Explanation: HbS polymerization is concentration-dependent and leads to sickling.|[PMID:3965046] [INDIRECT EVID"
+     },
+     {
+      "edge_id": "E8303080",
+      "src_curie": "MONDO:0011382",
+      "rel": "dm_affects",
+      "dst_curie": "GO:0034101",
+      "origin": "dismech",
+      "pmids": [
+       "PMID:29614632"
+      ],
+      "quote": "[PMID:29614632] [INDIRECT EVIDENCE] [SUPPORT] In double heterozygosis for Hb S and C (SC disease) dehydration is the determining factor in disease pathophysiology. --- Explanation: Cell dehydration promotes sickling and fragility of red blood cells."
+     },
+     {
+      "edge_id": "E8303081",
+      "src_curie": "MONDO:0011382",
+      "rel": "dm_affects",
+      "dst_curie": "GO:0034108",
+      "origin": "dismech",
+      "pmids": [
+       "PMID:29614632"
+      ],
+      "quote": "[PMID:29614632] [INDIRECT EVIDENCE] [SUPPORT] In double heterozygosis for Hb S and C (SC disease) dehydration is the determining factor in disease pathophysiology. --- Explanation: Cell dehydration promotes sickling and fragility of red blood cells."
+     },
+     {
+      "edge_id": "E8303086",
+      "src_curie": "MONDO:0011382",
+      "rel": "dm_affects",
+      "dst_curie": "GO:0061756",
+      "origin": "dismech",
+      "pmids": [
+       "PMID:11844991",
+       "PMID:17932253",
+       "PMID:8982148",
+       "PMID:41206783"
+      ],
+      "quote": "[PMID:11844991] [INDIRECT EVIDENCE] [SUPPORT] A novel multistep model for sickle cell vaso-occlusion is proposed in which endothelial activation is induced by sickle cells or secondary inflammatory stimuli and leads to the recruitment of adherent leukocytes. The resulting adherent leukocytes interac"
+     },
+     {
+      "edge_id": "E8303087",
+      "src_curie": "MONDO:0011382",
+      "rel": "dm_affects",
+      "dst_curie": "GO:0050900",
+      "origin": "dismech",
+      "pmids": [
+       "PMID:11844991",
+       "PMID:17932253",
+       "PMID:8982148",
+       "PMID:41206783"
+      ],
+      "quote": "[PMID:11844991] [INDIRECT EVIDENCE] [SUPPORT] A novel multistep model for sickle cell vaso-occlusion is proposed in which endothelial activation is induced by sickle cells or secondary inflammatory stimuli and leads to the recruitment of adherent leukocytes. The resulting adherent leukocytes interac"
+     },
+     {
+      "edge_id": "E8303090",
+      "src_curie": "MONDO:0011382",
+      "rel": "dm_affects",
+      "dst_curie": "GO:0045785",
+      "origin": "dismech",
+      "pmids": [
+       "PMID:24277079"
+      ],
+      "quote": "[PMID:24277079] [INDIRECT EVIDENCE] [SUPPORT] intravascular hemolysis in SCD releases heme that activates endothelial TLR4 signaling leading to WPB degranulation, NF-κB activation, and vaso-occlusion. --- Explanation: Heme released from hemolysis triggers TLR4 signaling on endothelial cells, leading"
+     },
+     {
+      "edge_id": "E8303092",
+      "src_curie": "MONDO:0011382",
+      "rel": "dm_affects",
+      "dst_curie": "GO:0006979",
+      "origin": "dismech",
+      "pmids": [
+       "PMID:15998894",
+       "PMID:15998894"
+      ],
+      "quote": "[PMID:15998894] [INDIRECT EVIDENCE] [SUPPORT] hemolysis contributes to reduced nitric oxide bioavailability and endothelial dysfunction via release of erythrocyte arginase, which limits arginine bioavailability, and release of erythrocyte hemoglobin, which scavenges nitric oxide. --- Explanation: He"
+     },
+     {
+      "edge_id": "E8303093",
+      "src_curie": "MONDO:0011382",
+      "rel": "dm_affects",
+      "dst_curie": "GO:0002931",
+      "origin": "dismech",
+      "pmids": [],
+      "quote": ""
+     },
+     {
+      "edge_id": "E8303094",
+      "src_curie": "MONDO:0011382",
+      "rel": "dm_affects",
+      "dst_curie": "GO:0034599",
+      "origin": "dismech",
+      "pmids": [],
+      "quote": ""
+     },
+     {
+      "edge_id": "E321116",
+      "src_curie": "DRUGBANK:DB00162",
+      "rel": "drug_protein",
+      "dst_curie": "NCBIGene:5949",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E321180",
+      "src_curie": "DRUGBANK:DB00162",
+      "rel": "drug_protein",
+      "dst_curie": "NCBIGene:5948",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E321181",
+      "src_curie": "DRUGBANK:DB06755",
+      "rel": "drug_protein",
+      "dst_curie": "NCBIGene:5948",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E327122",
+      "src_curie": "DRUGBANK:DB06755",
+      "rel": "drug_protein",
+      "dst_curie": "NCBIGene:53630",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E327247",
+      "src_curie": "DRUGBANK:DB13257",
+      "rel": "drug_protein",
+      "dst_curie": "NCBIGene:57817",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E328457",
+      "src_curie": "DRUGBANK:DB14491",
+      "rel": "drug_protein",
+      "dst_curie": "NCBIGene:3040",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E341938",
+      "src_curie": "DRUGBANK:DB00153",
+      "rel": "drug_protein",
+      "dst_curie": "NCBIGene:8912",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E362173",
+      "src_curie": "DRUGBANK:DB02701",
+      "rel": "contraindication",
+      "dst_curie": "MONDO:0011382",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E362175",
+      "src_curie": "DRUGBANK:DB08946",
+      "rel": "contraindication",
+      "dst_curie": "MONDO:0011382",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E362177",
+      "src_curie": "DRUGBANK:DB14123",
+      "rel": "contraindication",
+      "dst_curie": "MONDO:0011382",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E362179",
+      "src_curie": "DRUGBANK:DB01783",
+      "rel": "contraindication",
+      "dst_curie": "MONDO:0011382",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E362189",
+      "src_curie": "DRUGBANK:DB00125",
+      "rel": "contraindication",
+      "dst_curie": "MONDO:0011382",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E362193",
+      "src_curie": "DRUGBANK:DB13719",
+      "rel": "contraindication",
+      "dst_curie": "MONDO:0011382",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E362203",
+      "src_curie": "DRUGBANK:DB09333",
+      "rel": "contraindication",
+      "dst_curie": "MONDO:0011382",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E362205",
+      "src_curie": "DRUGBANK:DB02901",
+      "rel": "off_label_use",
+      "dst_curie": "MONDO:0011382",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E362207",
+      "src_curie": "DRUGBANK:DB00126",
+      "rel": "contraindication",
+      "dst_curie": "MONDO:0011382",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E362211",
+      "src_curie": "DRUGBANK:DB11248",
+      "rel": "contraindication",
+      "dst_curie": "MONDO:0011382",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E362221",
+      "src_curie": "DRUGBANK:DB09403",
+      "rel": "contraindication",
+      "dst_curie": "MONDO:0011382",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E362223",
+      "src_curie": "DRUGBANK:DB01698",
+      "rel": "contraindication",
+      "dst_curie": "MONDO:0011382",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E362233",
+      "src_curie": "DRUGBANK:DB09321",
+      "rel": "contraindication",
+      "dst_curie": "MONDO:0011382",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E362237",
+      "src_curie": "DRUGBANK:DB04216",
+      "rel": "contraindication",
+      "dst_curie": "MONDO:0011382",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E362239",
+      "src_curie": "DRUGBANK:DB00139",
+      "rel": "contraindication",
+      "dst_curie": "MONDO:0011382",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3066579",
+      "src_curie": "HP:0004312",
+      "rel": "phenotype_phenotype",
+      "dst_curie": "HP:0001896",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3066597",
+      "src_curie": "HP:0004312",
+      "rel": "phenotype_phenotype",
+      "dst_curie": "HP:0001923",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3070935",
+      "src_curie": "HP:0011895",
+      "rel": "phenotype_phenotype",
+      "dst_curie": "HP:0008346",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3075560",
+      "src_curie": "HP:0011981",
+      "rel": "phenotype_phenotype",
+      "dst_curie": "HP:0011982",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3075561",
+      "src_curie": "HP:0011981",
+      "rel": "phenotype_phenotype",
+      "dst_curie": "HP:0011983",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3103393",
+      "src_curie": "MONDO:0011382",
+      "rel": "disease_phenotype_positive",
+      "dst_curie": "HP:0008346",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3177873",
+      "src_curie": "MONDO:0011382",
+      "rel": "disease_phenotype_positive",
+      "dst_curie": "HP:0002597",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3177874",
+      "src_curie": "MONDO:0011382",
+      "rel": "disease_phenotype_positive",
+      "dst_curie": "HP:0003259",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3177875",
+      "src_curie": "MONDO:0011382",
+      "rel": "disease_phenotype_positive",
+      "dst_curie": "HP:0008282",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3177876",
+      "src_curie": "MONDO:0011382",
+      "rel": "disease_phenotype_positive",
+      "dst_curie": "HP:0011904",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3177877",
+      "src_curie": "MONDO:0011382",
+      "rel": "disease_phenotype_positive",
+      "dst_curie": "HP:0025435",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3177878",
+      "src_curie": "MONDO:0011382",
+      "rel": "disease_phenotype_positive",
+      "dst_curie": "HP:0005518",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3348671",
+      "src_curie": "DRUGBANK:DB00770",
+      "rel": "drug_effect",
+      "dst_curie": "HP:0200023",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3368148",
+      "src_curie": "DRUGBANK:DB01005",
+      "rel": "drug_effect",
+      "dst_curie": "HP:0005506",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3368176",
+      "src_curie": "DRUGBANK:DB01005",
+      "rel": "drug_effect",
+      "dst_curie": "HP:0001896",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3392643",
+      "src_curie": "DRUGBANK:DB13169",
+      "rel": "drug_effect",
+      "dst_curie": "HP:0200023",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3443595",
+      "src_curie": "GO:0034105",
+      "rel": "bioprocess_bioprocess",
+      "dst_curie": "GO:0034108",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3443596",
+      "src_curie": "GO:0002684",
+      "rel": "bioprocess_bioprocess",
+      "dst_curie": "GO:0034108",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3443597",
+      "src_curie": "GO:0034106",
+      "rel": "bioprocess_bioprocess",
+      "dst_curie": "GO:0034108",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3446478",
+      "src_curie": "GO:0046209",
+      "rel": "bioprocess_bioprocess",
+      "dst_curie": "GO:0006809",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3452955",
+      "src_curie": "GO:0046209",
+      "rel": "bioprocess_bioprocess",
+      "dst_curie": "GO:0046210",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3456563",
+      "src_curie": "GO:0061756",
+      "rel": "bioprocess_bioprocess",
+      "dst_curie": "GO:0036339",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3456564",
+      "src_curie": "GO:0061756",
+      "rel": "bioprocess_bioprocess",
+      "dst_curie": "GO:0061757",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3456565",
+      "src_curie": "GO:0061756",
+      "rel": "bioprocess_bioprocess",
+      "dst_curie": "GO:0050901",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3462885",
+      "src_curie": "GO:0007159",
+      "rel": "bioprocess_bioprocess",
+      "dst_curie": "GO:0061756",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3471755",
+      "src_curie": "GO:0005515",
+      "rel": "molfunc_molfunc",
+      "dst_curie": "GO:0019904",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3471795",
+      "src_curie": "GO:0005515",
+      "rel": "molfunc_molfunc",
+      "dst_curie": "GO:0042802",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3471830",
+      "src_curie": "GO:0005515",
+      "rel": "molfunc_molfunc",
+      "dst_curie": "GO:0030492",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3474444",
+      "src_curie": "GO:0003700",
+      "rel": "molfunc_molfunc",
+      "dst_curie": "GO:0000981",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3474966",
+      "src_curie": "GO:0000981",
+      "rel": "molfunc_molfunc",
+      "dst_curie": "GO:0001228",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3480539",
+      "src_curie": "GO:0043231",
+      "rel": "cellcomp_cellcomp",
+      "dst_curie": "GO:0005794",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3480552",
+      "src_curie": "GO:0043231",
+      "rel": "cellcomp_cellcomp",
+      "dst_curie": "GO:0005634",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3480561",
+      "src_curie": "GO:0043231",
+      "rel": "cellcomp_cellcomp",
+      "dst_curie": "GO:0005739",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3480565",
+      "src_curie": "GO:0043231",
+      "rel": "cellcomp_cellcomp",
+      "dst_curie": "GO:0005783",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3484307",
+      "src_curie": "NCBIGene:790",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0019899",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3484958",
+      "src_curie": "NCBIGene:2266",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0005102",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3485129",
+      "src_curie": "NCBIGene:10333",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0005102",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3486360",
+      "src_curie": "NCBIGene:1958",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0005515",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3487150",
+      "src_curie": "NCBIGene:3630",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0005515",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3487168",
+      "src_curie": "NCBIGene:3662",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0005515",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3497838",
+      "src_curie": "NCBIGene:1958",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0003677",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3499230",
+      "src_curie": "NCBIGene:790",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0008270",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3500172",
+      "src_curie": "NCBIGene:1373",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0005524",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3502465",
+      "src_curie": "NCBIGene:10333",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0042802",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3503872",
+      "src_curie": "NCBIGene:8912",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0046872",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3504032",
+      "src_curie": "NCBIGene:10661",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0046872",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3504342",
+      "src_curie": "NCBIGene:53630",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0046872",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3508600",
+      "src_curie": "NCBIGene:5879",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0003924",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3513508",
+      "src_curie": "NCBIGene:2147",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0004252",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3514591",
+      "src_curie": "NCBIGene:2932",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0019901",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3520518",
+      "src_curie": "NCBIGene:57817",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0005179",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3525755",
+      "src_curie": "NCBIGene:10661",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0000981",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3527949",
+      "src_curie": "NCBIGene:3048",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0020037",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3531741",
+      "src_curie": "NCBIGene:10661",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0000978",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3532537",
+      "src_curie": "NCBIGene:3593",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0005125",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3545119",
+      "src_curie": "NCBIGene:3040",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0004601",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3554167",
+      "src_curie": "NCBIGene:2056",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005615",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3554465",
+      "src_curie": "NCBIGene:4879",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005615",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3554566",
+      "src_curie": "NCBIGene:5949",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005615",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3555755",
+      "src_curie": "NCBIGene:3040",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0072562",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3555759",
+      "src_curie": "NCBIGene:3048",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0072562",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3556347",
+      "src_curie": "NCBIGene:2266",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0070062",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3556452",
+      "src_curie": "NCBIGene:3040",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0070062",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3559332",
+      "src_curie": "NCBIGene:5949",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005576",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3559965",
+      "src_curie": "NCBIGene:57817",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005576",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3562057",
+      "src_curie": "NCBIGene:5948",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005829",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3567591",
+      "src_curie": "NCBIGene:7372",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005634",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3571470",
+      "src_curie": "NCBIGene:3163",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005789",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3573063",
+      "src_curie": "NCBIGene:8912",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0016021",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3576065",
+      "src_curie": "NCBIGene:2056",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0009986",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3576188",
+      "src_curie": "NCBIGene:4352",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0009986",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3577013",
+      "src_curie": "NCBIGene:775",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005886",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3577022",
+      "src_curie": "NCBIGene:801",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005886",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3577340",
+      "src_curie": "NCBIGene:2147",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005886",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3577561",
+      "src_curie": "NCBIGene:2932",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005886",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3577605",
+      "src_curie": "NCBIGene:3163",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005886",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3578196",
+      "src_curie": "NCBIGene:5879",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005886",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3578427",
+      "src_curie": "NCBIGene:7036",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005886",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3578481",
+      "src_curie": "NCBIGene:7316",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005886",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3578494",
+      "src_curie": "NCBIGene:7412",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005886",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3583001",
+      "src_curie": "NCBIGene:7372",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005737",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3588569",
+      "src_curie": "NCBIGene:3040",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0016020",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3591903",
+      "src_curie": "NCBIGene:7036",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005887",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3591993",
+      "src_curie": "NCBIGene:8912",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005887",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3592095",
+      "src_curie": "NCBIGene:10333",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005887",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3597195",
+      "src_curie": "NCBIGene:1373",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005743",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3597208",
+      "src_curie": "NCBIGene:1723",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005743",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3599489",
+      "src_curie": "NCBIGene:10661",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005654",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3603508",
+      "src_curie": "NCBIGene:1373",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0032991",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3604537",
+      "src_curie": "NCBIGene:790",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0043025",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3604561",
+      "src_curie": "NCBIGene:1723",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0043025",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3604632",
+      "src_curie": "NCBIGene:4352",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0043025",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3728315",
+      "src_curie": "NCBIGene:57817",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:0002262",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3749550",
+      "src_curie": "NCBIGene:1373",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:0046209",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3765688",
+      "src_curie": "NCBIGene:3593",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:0034105",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3790524",
+      "src_curie": "REACT:R-HSA-422356",
+      "rel": "pathway_pathway",
+      "dst_curie": "REACT:R-HSA-400042",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3791813",
+      "src_curie": "REACT:R-HSA-9707564",
+      "rel": "pathway_pathway",
+      "dst_curie": "REACT:R-HSA-9707587",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3797884",
+      "src_curie": "NCBIGene:1723",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-500753",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3800185",
+      "src_curie": "NCBIGene:2266",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-216083",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3805263",
+      "src_curie": "NCBIGene:3039",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-1247673",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3805264",
+      "src_curie": "NCBIGene:3039",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-2168880",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3805266",
+      "src_curie": "NCBIGene:3039",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-9707616",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3805267",
+      "src_curie": "NCBIGene:3040",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-1237044",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3805268",
+      "src_curie": "NCBIGene:3040",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-1247673",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3805270",
+      "src_curie": "NCBIGene:3040",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-9707564",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3805283",
+      "src_curie": "NCBIGene:3047",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-983231",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3805284",
+      "src_curie": "NCBIGene:3048",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-983231",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3805660",
+      "src_curie": "NCBIGene:3163",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-6798695",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3806967",
+      "src_curie": "NCBIGene:3593",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-6783783",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3806968",
+      "src_curie": "NCBIGene:3593",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-6785807",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3807035",
+      "src_curie": "NCBIGene:3630",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-422356",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3807140",
+      "src_curie": "NCBIGene:3662",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-877300",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3825345",
+      "src_curie": "NCBIGene:7316",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-9613829",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3825346",
+      "src_curie": "NCBIGene:7316",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-9615710",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3825595",
+      "src_curie": "NCBIGene:7372",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-500753",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3825687",
+      "src_curie": "NCBIGene:7412",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-198933",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3826178",
+      "src_curie": "NCBIGene:775",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-5576893",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3827023",
+      "src_curie": "NCBIGene:801",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-5576892",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3831778",
+      "src_curie": "NCBIGene:8912",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-419037",
+      "origin": "primekg"
+     }
+    ],
+    "edge_ids": [
+     "E8303091",
+     "E3368141",
+     "E8303057",
+     "E8303060",
+     "E8303063",
+     "E8303064",
+     "E8303067",
+     "E8303069",
+     "E8303070",
+     "E8303072",
+     "E8303076",
+     "E8303077",
+     "E8303078",
+     "E8303080",
+     "E8303081",
+     "E8303086",
+     "E8303087",
+     "E8303090",
+     "E8303092",
+     "E8303093",
+     "E8303094",
+     "E321116",
+     "E321180",
+     "E321181",
+     "E327122",
+     "E327247",
+     "E328457",
+     "E341938",
+     "E362173",
+     "E362175",
+     "E362177",
+     "E362179",
+     "E362189",
+     "E362193",
+     "E362203",
+     "E362205",
+     "E362207",
+     "E362211",
+     "E362221",
+     "E362223",
+     "E362233",
+     "E362237",
+     "E362239",
+     "E3066579",
+     "E3066597",
+     "E3070935",
+     "E3075560",
+     "E3075561",
+     "E3103393",
+     "E3177873",
+     "E3177874",
+     "E3177875",
+     "E3177876",
+     "E3177877",
+     "E3177878",
+     "E3348671",
+     "E3368148",
+     "E3368176",
+     "E3392643",
+     "E3443595",
+     "E3443596",
+     "E3443597",
+     "E3446478",
+     "E3452955",
+     "E3456563",
+     "E3456564",
+     "E3456565",
+     "E3462885",
+     "E3471755",
+     "E3471795",
+     "E3471830",
+     "E3474444",
+     "E3474966",
+     "E3480539",
+     "E3480552",
+     "E3480561",
+     "E3480565",
+     "E3484307",
+     "E3484958",
+     "E3485129",
+     "E3486360",
+     "E3487150",
+     "E3487168",
+     "E3497838",
+     "E3499230",
+     "E3500172",
+     "E3502465",
+     "E3503872",
+     "E3504032",
+     "E3504342",
+     "E3508600",
+     "E3513508",
+     "E3514591",
+     "E3520518",
+     "E3525755",
+     "E3527949",
+     "E3531741",
+     "E3532537",
+     "E3545119",
+     "E3554167",
+     "E3554465",
+     "E3554566",
+     "E3555755",
+     "E3555759",
+     "E3556347",
+     "E3556452",
+     "E3559332",
+     "E3559965",
+     "E3562057",
+     "E3567591",
+     "E3571470",
+     "E3573063",
+     "E3576065",
+     "E3576188",
+     "E3577013",
+     "E3577022",
+     "E3577340",
+     "E3577561",
+     "E3577605",
+     "E3578196",
+     "E3578427",
+     "E3578481",
+     "E3578494",
+     "E3583001",
+     "E3588569",
+     "E3591903",
+     "E3591993",
+     "E3592095",
+     "E3597195",
+     "E3597208",
+     "E3599489",
+     "E3603508",
+     "E3604537",
+     "E3604561",
+     "E3604632",
+     "E3728315",
+     "E3749550",
+     "E3765688",
+     "E3790524",
+     "E3791813",
+     "E3797884",
+     "E3800185",
+     "E3805263",
+     "E3805264",
+     "E3805266",
+     "E3805267",
+     "E3805268",
+     "E3805270",
+     "E3805283",
+     "E3805284",
+     "E3805660",
+     "E3806967",
+     "E3806968",
+     "E3807035",
+     "E3807140",
+     "E3825345",
+     "E3825346",
+     "E3825595",
+     "E3825687",
+     "E3826178",
+     "E3827023",
+     "E3831778"
+    ],
+    "triples_text": "[E8303091] sickle cell anemia (disease) --dm_affects--> nitric oxide metabolic process (biological_process)\n[E3368141] Hydroxyurea (drug) --drug_effect--> Reduced blood folate concentration (phenotype)\n[E8303057] sickle cell anemia (disease) --dm_has_phenotype--> Chronic hemolytic anemia (phenotype)\n[E8303060] sickle cell anemia (disease) --dm_has_phenotype--> Abnormality of the spleen (phenotype)\n[E8303063] sickle cell anemia (disease) --dm_has_phenotype--> Ischemic stroke (phenotype)\n[E8303064] sickle cell anemia (disease) --dm_has_phenotype--> Priapism (phenotype)\n[E8303067] sickle cell anemia (disease) --dm_has_phenotype--> Pigment gallstones (phenotype)\n[E8303069] sickle cell anemia (disease) --dm_has_phenotype--> Reticulocytosis (phenotype)\n[E8303070] sickle cell anemia (disease) --dm_has_phenotype--> Avascular necrosis (phenotype)\n[E8303072] sickle cell anemia (disease) --dm_has_phenotype--> Osteomyelitis (phenotype)\n[E8303076] sickle cell anemia (disease) --dm_has_phenotype--> Finger dactylitis (phenotype)\n[E8303077] sickle cell anemia (disease) --dm_affects--> protein polymerization (biological_process)\n[E8303078] sickle cell anemia (disease) --dm_affects--> response to hypoxia (biological_process)\n[E8303080] sickle cell anemia (disease) --dm_affects--> erythrocyte homeostasis (biological_process)\n[E8303081] sickle cell anemia (disease) --dm_affects--> positive regulation of erythrocyte clearance (biological_process)\n[E8303086] sickle cell anemia (disease) --dm_affects--> leukocyte adhesion to vascular endothelial cell (biological_process)\n[E8303087] sickle cell anemia (disease) --dm_affects--> leukocyte migration (biological_process)\n[E8303090] sickle cell anemia (disease) --dm_affects--> positive regulation of cell adhesion (biological_process)\n[E8303092] sickle cell anemia (disease) --dm_affects--> response to oxidative stress (biological_process)\n[E8303093] sickle cell anemia (disease) --dm_affects--> response to ischemia (biological_process)\n[E8303094] sickle cell anemia (disease) --dm_affects--> cellular response to oxidative stress (biological_process)\n[E321116] Vitamin A (drug) --drug_protein--> RBP3 (gene)\n[E321180] Vitamin A (drug) --drug_protein--> RBP2 (gene)\n[E321181] Beta carotene (drug) --drug_protein--> RBP2 (gene)\n[E327122] Beta carotene (drug) --drug_protein--> BCO1 (gene)\n[E327247] Ferrous sulfate anhydrous (drug) --drug_protein--> HAMP (gene)\n[E328457] Ferrous fumarate (drug) --drug_protein--> HBA2 (gene)\n[E341938] Ergocalciferol (drug) --drug_protein--> CACNA1H (gene)\n[E362173] Nicotinamide (drug) --contraindication--> sickle cell anemia (disease)\n[E362175] Iopanoic acid (drug) --contraindication--> sickle cell anemia (disease)\n[E362177] Racementhol (drug) --contraindication--> sickle cell anemia (disease)\n[E362179] Pantothenic acid (drug) --contraindication--> sickle cell anemia (disease)\n[E362189] Arginine (drug) --contraindication--> sickle cell anemia (disease)\n[E362193] Trolnitrate (drug) --contraindication--> sickle cell anemia (disease)\n[E362203] Iopodic acid (drug) --contraindication--> sickle cell anemia (disease)\n[E362205] Stanolone (drug) --off_label_use--> sickle cell anemia (disease)\n[E362207] Ascorbic acid (drug) --contraindication--> sickle cell anemia (disease)\n[E362211] Zinc gluconate (drug) --contraindication--> sickle cell anemia (disease)\n[E362221] Iocetamic acid (drug) --contraindication--> sickle cell anemia (disease)\n[E362223] Rutin (drug) --contraindication--> sickle cell anemia (disease)\n[E362233] Zinc oxide (drug) --contraindication--> sickle cell anemia (disease)\n[E362237] Quercetin (drug) --contraindication--> sickle cell anemia (disease)\n[E362239] Succinic acid (drug) --contraindication--> sickle cell anemia (disease)\n[E3066579] Abnormal reticulocyte morphology (phenotype) --phenotype_phenotype--> Reticulocytopenia (phenotype)\n[E3066597] Abnormal reticulocyte morphology (phenotype) --phenotype_phenotype--> Reticulocytosis (phenotype)\n[E3070935] Anemia due to reduced life span of red cells (phenotype) --phenotype_phenotype--> Increased red cell sickling tendency (phenotype)\n[E3075560] Pigment gallstones (phenotype) --phenotype_phenotype--> Black pigment gallstones (phenotype)\n[E3075561] Pigment gallstones (phenotype) --phenotype_phenotype--> Brown pigment gallstones (phenotype)\n[E3103393] sickle cell anemia (disease) --disease_phenotype_positive--> Increased red cell sickling tendency (phenotype)\n[E3177873] sickle cell anemia (disease) --disease_phenotype_positive--> Abnormality of the vasculature (phenotype)\n[E3177874] sickle cell anemia (disease) --disease_phenotype_positive--> Elevated serum creatinine (phenotype)\n[E3177875] sickle cell anemia (disease) --disease_phenotype_positive--> Unconjugated hyperbilirubinemia (phenotype)\n[E3177876] sickle cell anemia (disease) --disease_phenotype_positive--> Persistence of hemoglobin F (phenotype)\n[E3177877] sickle cell anemia (disease) --disease_phenotype_positive--> Increased lactate dehydrogenase level (phenotype)\n[E3177878] sickle cell anemia (disease) --disease_phenotype_positive--> Increased mean corpuscular volume (phenotype)\n[E3348671] Alprostadil (drug) --drug_effect--> Priapism (phenotype)\n[E3368148] Hydroxyurea (drug) --drug_effect--> Chronic myelogenous leukemia (phenotype)\n[E3368176] Hydroxyurea (drug) --drug_effect--> Reticulocytopenia (phenotype)\n[E3392643] Nandrolone (drug) --drug_effect--> Priapism (phenotype)\n[E3443595] positive regulation of tissue remodeling (biological_process) --bioprocess_bioprocess--> positive regulation of erythrocyte clearance (biological_process)\n[E3443596] positive regulation of immune system process (biological_process) --bioprocess_bioprocess--> positive regulation of erythrocyte clearance (biological_process)\n[E3443597] regulation of erythrocyte clearance (biological_process) --bioprocess_bioprocess--> positive regulation of erythrocyte clearance (biological_process)\n[E3446478] nitric oxide metabolic process (biological_process) --bioprocess_bioprocess--> nitric oxide biosynthetic process (biological_process)\n[E3452955] nitric oxide metabolic process (biological_process) --bioprocess_bioprocess--> nitric oxide catabolic process (biological_process)\n[E3456563] leukocyte adhesion to vascular endothelial cell (biological_process) --bioprocess_bioprocess--> lymphocyte adhesion to endothelial cell of high endothelial venule (biological_process)\n[E3456564] leukocyte adhesion to vascular endothelial cell (biological_process) --bioprocess_bioprocess--> leukocyte adhesion to arterial endothelial cell (biological_process)\n[E3456565] leukocyte adhesion to vascular endothelial cell (biological_process) --bioprocess_bioprocess--> leukocyte tethering or rolling (biological_process)\n[E3462885] leukocyte cell-cell adhesion (biological_process) --bioprocess_bioprocess--> leukocyte adhesion to vascular endothelial cell (biological_process)\n[E3471755] protein binding (molecular_function) --molfunc_molfunc--> protein domain specific binding (molecular_function)\n[E3471795] protein binding (molecular_function) --molfunc_molfunc--> identical protein binding (molecular_function)\n[E3471830] protein binding (molecular_function) --molfunc_molfunc--> hemoglobin binding (molecular_function)\n[E3474444] DNA-binding transcription factor activity (molecular_function) --molfunc_molfunc--> DNA-binding transcription factor activity, RNA polymerase II-specific (molecular_function)\n[E3474966] DNA-binding transcription factor activity, RNA polymerase II-specific (molecular_function) --molfunc_molfunc--> DNA-binding transcription activator activity, RNA polymerase II-specific (molecular_function)\n[E3480539] intracellular membrane-bounded organelle (cellular_component) --cellcomp_cellcomp--> Golgi apparatus (cellular_component)\n[E3480552] intracellular membrane-bounded organelle (cellular_component) --cellcomp_cellcomp--> nucleus (cellular_component)\n[E3480561] intracellular membrane-bounded organelle (cellular_component) --cellcomp_cellcomp--> mitochondrion (cellular_component)\n[E3480565] intracellular membrane-bounded organelle (cellular_component) --cellcomp_cellcomp--> endoplasmic reticulum (cellular_component)\n[E3484307] CAD (gene) --molfunc_protein--> enzyme binding (molecular_function)\n[E3484958] FGG (gene) --molfunc_protein--> signaling receptor binding (molecular_function)\n[E3485129] TLR6 (gene) --molfunc_protein--> signaling receptor binding (molecular_function)\n[E3486360] EGR1 (gene) --molfunc_protein--> protein binding (molecular_function)\n[E3487150] INS (gene) --molfunc_protein--> protein binding (molecular_function)\n[E3487168] IRF4 (gene) --molfunc_protein--> protein binding (molecular_function)\n[E3497838] EGR1 (gene) --molfunc_protein--> DNA binding (molecular_function)\n[E3499230] CAD (gene) --molfunc_protein--> zinc ion binding (molecular_function)\n[E3500172] CPS1 (gene) --molfunc_protein--> ATP binding (molecular_function)\n[E3502465] TLR6 (gene) --molfunc_protein--> identical protein binding (molecular_function)\n[E3503872] CACNA1H (gene) --molfunc_protein--> metal ion binding (molecular_function)\n[E3504032] KLF1 (gene) --molfunc_protein--> metal ion binding (molecular_function)\n[E3504342] BCO1 (gene) --molfunc_protein--> metal ion binding (molecular_function)\n[E3508600] RAC1 (gene) --molfunc_protein--> GTPase activity (molecular_function)\n[E3513508] F2 (gene) --molfunc_protein--> serine-type endopeptidase activity (molecular_function)\n[E3514591] GSK3B (gene) --molfunc_protein--> protein kinase binding (molecular_function)\n[E3520518] HAMP (gene) --molfunc_protein--> hormone activity (molecular_function)\n[E3525755] KLF1 (gene) --molfunc_protein--> DNA-binding transcription factor activity, RNA polymerase II-specific (molecular_function)\n[E3527949] HBG2 (gene) --molfunc_protein--> heme binding (molecular_function)\n[E3531741] KLF1 (gene) --molfunc_protein--> RNA polymerase II cis-regulatory region sequence-specific DNA binding (molecular_function)\n[E3532537] IL12B (gene) --molfunc_protein--> cytokine activity (molecular_function)\n[E3545119] HBA2 (gene) --molfunc_protein--> peroxidase activity (molecular_function)\n[E3554167] EPO (gene) --cellcomp_protein--> extracellular space (cellular_component)\n[E3554465] NPPB (gene) --cellcomp_protein--> extracellular space (cellular_component)\n[E3554566] RBP3 (gene) --cellcomp_protein--> extracellular space (cellular_component)\n[E3555755] HBA2 (gene) --cellcomp_protein--> blood microparticle (cellular_component)\n[E3555759] HBG2 (gene) --cellcomp_protein--> blood microparticle (cellular_component)\n[E3556347] FGG (gene) --cellcomp_protein--> extracellular exosome (cellular_component)\n[E3556452] HBA2 (gene) --cellcomp_protein--> extracellular exosome (cellular_component)\n[E3559332] RBP3 (gene) --cellcomp_protein--> extracellular region (cellular_component)\n[E3559965] HAMP (gene) --cellcomp_protein--> extracellular region (cellular_component)\n[E3562057] RBP2 (gene) --cellcomp_protein--> cytosol (cellular_component)\n[E3567591] UMPS (gene) --cellcomp_protein--> nucleus (cellular_component)\n[E3571470] HMOX2 (gene) --cellcomp_protein--> endoplasmic reticulum membrane (cellular_component)\n[E3573063] CACNA1H (gene) --cellcomp_protein--> integral component of membrane (cellular_component)\n[E3576065] EPO (gene) --cellcomp_protein--> cell surface (cellular_component)\n[E3576188] MPL (gene) --cellcomp_protein--> cell surface (cellular_component)\n[E3577013] CACNA1C (gene) --cellcomp_protein--> plasma membrane (cellular_component)\n[E3577022] CALM1 (gene) --cellcomp_protein--> plasma membrane (cellular_component)\n[E3577340] F2 (gene) --cellcomp_protein--> plasma membrane (cellular_component)\n[E3577561] GSK3B (gene) --cellcomp_protein--> plasma membrane (cellular_component)\n[E3577605] HMOX2 (gene) --cellcomp_protein--> plasma membrane (cellular_component)\n[E3578196] RAC1 (gene) --cellcomp_protein--> plasma membrane (cellular_component)\n[E3578427] TFR2 (gene) --cellcomp_protein--> plasma membrane (cellular_component)\n[E3578481] UBC (gene) --cellcomp_protein--> plasma membrane (cellular_component)\n[E3578494] VCAM1 (gene) --cellcomp_protein--> plasma membrane (cellular_component)\n[E3583001] UMPS (gene) --cellcomp_protein--> cytoplasm (cellular_component)\n[E3588569] HBA2 (gene) --cellcomp_protein--> membrane (cellular_component)\n[E3591903] TFR2 (gene) --cellcomp_protein--> integral component of plasma membrane (cellular_component)\n[E3591993] CACNA1H (gene) --cellcomp_protein--> integral component of plasma membrane (cellular_component)\n[E3592095] TLR6 (gene) --cellcomp_protein--> integral component of plasma membrane (cellular_component)\n[E3597195] CPS1 (gene) --cellcomp_protein--> mitochondrial inner membrane (cellular_component)\n[E3597208] DHODH (gene) --cellcomp_protein--> mitochondrial inner membrane (cellular_component)\n[E3599489] KLF1 (gene) --cellcomp_protein--> nucleoplasm (cellular_component)\n[E3603508] CPS1 (gene) --cellcomp_protein--> protein-containing complex (cellular_component)\n[E3604537] CAD (gene) --cellcomp_protein--> neuronal cell body (cellular_component)\n[E3604561] DHODH (gene) --cellcomp_protein--> neuronal cell body (cellular_component)\n[E3604632] MPL (gene) --cellcomp_protein--> neuronal cell body (cellular_component)\n[E3728315] HAMP (gene) --bioprocess_protein--> myeloid cell homeostasis (biological_process)\n[E3749550] CPS1 (gene) --bioprocess_protein--> nitric oxide metabolic process (biological_process)\n[E3765688] IL12B (gene) --bioprocess_protein--> positive regulation of tissue remodeling (biological_process)\n[E3790524] Regulation of insulin secretion (pathway) --pathway_pathway--> Adrenaline,noradrenaline inhibits insulin secretion (pathway)\n[E3791813] Cytoprotection by HMOX1 (pathway) --pathway_pathway--> Regulation of HMOX1 expression and activity (pathway)\n[E3797884] DHODH (gene) --pathway_protein--> Pyrimidine biosynthesis (pathway)\n[E3800185] FGG (gene) --pathway_protein--> Integrin cell surface interactions (pathway)\n[E3805263] HBA1 (gene) --pathway_protein--> Erythrocytes take up oxygen and release carbon dioxide (pathway)\n[E3805264] HBA1 (gene) --pathway_protein--> Scavenging of heme from plasma (pathway)\n[E3805266] HBA1 (gene) --pathway_protein--> Heme signaling (pathway)\n[E3805267] HBA2 (gene) --pathway_protein--> Erythrocytes take up carbon dioxide and release oxygen (pathway)\n[E3805268] HBA2 (gene) --pathway_protein--> Erythrocytes take up oxygen and release carbon dioxide (pathway)\n[E3805270] HBA2 (gene) --pathway_protein--> Cytoprotection by HMOX1 (pathway)\n[E3805283] HBG1 (gene) --pathway_protein--> Factors involved in megakaryocyte development and platelet production (pathway)\n[E3805284] HBG2 (gene) --pathway_protein--> Factors involved in megakaryocyte development and platelet production (pathway)\n[E3805660] HMOX2 (gene) --pathway_protein--> Neutrophil degranulation (pathway)\n[E3806967] IL12B (gene) --pathway_protein--> Interleukin-10 signaling (pathway)\n[E3806968] IL12B (gene) --pathway_protein--> Interleukin-4 and Interleukin-13 signaling (pathway)\n[E3807035] INS (gene) --pathway_protein--> Regulation of insulin secretion (pathway)\n[E3807140] IRF4 (gene) --pathway_protein--> Interferon gamma signaling (pathway)\n[E3825345] UBC (gene) --pathway_protein--> Chaperone Mediated Autophagy (pathway)\n[E3825346] UBC (gene) --pathway_protein--> Late endosomal microautophagy (pathway)\n[E3825595] UMPS (gene) --pathway_protein--> Pyrimidine biosynthesis (pathway)\n[E3825687] VCAM1 (gene) --pathway_protein--> Immunoregulatory interactions between a Lymphoid and a non-Lymphoid cell (pathway)\n[E3826178] CACNA1C (gene) --pathway_protein--> Phase 2 - plateau phase (pathway)\n[E3827023] CALM1 (gene) --pathway_protein--> Phase 0 - rapid depolarisation (pathway)\n[E3831778] CACNA1H (gene) --pathway_protein--> NCAM1 interactions (pathway)",
+    "meta": {
+     "retriever": "gnn_pcst",
+     "variant": "full",
+     "budget": 500,
+     "gnn_a_tag": "main",
+     "target_types": [
+      "gene",
+      "biological_process",
+      "molecular_function",
+      "cellular_component",
+      "drug",
+      "phenotype",
+      "pathway"
+     ],
+     "per_type": true,
+     "missing_seeds": [],
+     "seed_notes": [],
+     "n_candidates": 19702,
+     "alpha": 0.0,
+     "beta": 0.25,
+     "ppr": 1.0,
+     "hub": 0.25,
+     "lift": true,
+     "direct_go": true,
+     "anchor_edges": 2,
+     "adaptive_budget": true,
+     "budget_ceiling": 500,
+     "n_nonseed": 161
+    }
+   },
+   "ms": 4354,
+   "by": "llm"
+  }
+ ],
+ "evidence": {
+  "edge_ids": [
+   "E8303098",
+   "E8303099",
+   "E8303101",
+   "E8303112",
+   "E8303105",
+   "E8303108",
+   "E8303121",
+   "E8303091",
+   "E3368141",
+   "E8303057",
+   "E8303060",
+   "E8303063",
+   "E8303064",
+   "E8303067",
+   "E8303069",
+   "E8303070",
+   "E8303072",
+   "E8303076",
+   "E8303077",
+   "E8303078",
+   "E8303080",
+   "E8303081",
+   "E8303086",
+   "E8303087",
+   "E8303090",
+   "E8303092",
+   "E8303093",
+   "E8303094",
+   "E321116",
+   "E321180",
+   "E321181",
+   "E327122",
+   "E327247",
+   "E328457",
+   "E341938",
+   "E362173",
+   "E362175",
+   "E362177",
+   "E362179",
+   "E362189",
+   "E362193",
+   "E362203",
+   "E362205",
+   "E362207",
+   "E362211",
+   "E362221",
+   "E362223",
+   "E362233",
+   "E362237",
+   "E362239",
+   "E3066579",
+   "E3066597",
+   "E3070935",
+   "E3075560",
+   "E3075561",
+   "E3103393",
+   "E3177873",
+   "E3177874",
+   "E3177875",
+   "E3177876",
+   "E3177877",
+   "E3177878",
+   "E3348671",
+   "E3368148",
+   "E3368176",
+   "E3392643",
+   "E3443595",
+   "E3443596",
+   "E3443597",
+   "E3446478",
+   "E3452955",
+   "E3456563",
+   "E3456564",
+   "E3456565",
+   "E3462885",
+   "E3471755",
+   "E3471795",
+   "E3471830",
+   "E3474444",
+   "E3474966",
+   "E3480539",
+   "E3480552",
+   "E3480561",
+   "E3480565",
+   "E3484307",
+   "E3484958",
+   "E3485129",
+   "E3486360",
+   "E3487150",
+   "E3487168",
+   "E3497838",
+   "E3499230",
+   "E3500172",
+   "E3502465",
+   "E3503872",
+   "E3504032",
+   "E3504342",
+   "E3508600",
+   "E3513508",
+   "E3514591",
+   "E3520518",
+   "E3525755",
+   "E3527949",
+   "E3531741",
+   "E3532537",
+   "E3545119",
+   "E3554167",
+   "E3554465",
+   "E3554566",
+   "E3555755",
+   "E3555759",
+   "E3556347",
+   "E3556452",
+   "E3559332",
+   "E3559965",
+   "E3562057",
+   "E3567591",
+   "E3571470",
+   "E3573063",
+   "E3576065",
+   "E3576188",
+   "E3577013",
+   "E3577022",
+   "E3577340",
+   "E3577561",
+   "E3577605",
+   "E3578196",
+   "E3578427",
+   "E3578481",
+   "E3578494",
+   "E3583001",
+   "E3588569",
+   "E3591903",
+   "E3591993",
+   "E3592095",
+   "E3597195",
+   "E3597208",
+   "E3599489",
+   "E3603508",
+   "E3604537",
+   "E3604561",
+   "E3604632",
+   "E3728315",
+   "E3749550",
+   "E3765688",
+   "E3790524",
+   "E3791813",
+   "E3797884",
+   "E3800185",
+   "E3805263",
+   "E3805264",
+   "E3805266",
+   "E3805267",
+   "E3805268",
+   "E3805270",
+   "E3805283",
+   "E3805284",
+   "E3805660",
+   "E3806967",
+   "E3806968",
+   "E3807035",
+   "E3807140",
+   "E3825345",
+   "E3825346",
+   "E3825595",
+   "E3825687",
+   "E3826178",
+   "E3827023",
+   "E3831778"
+  ],
+  "pmids": [
+   "PMID:29614632",
+   "PMID:3965046",
+   "PMID:4020873",
+   "PMID:25645011",
+   "PMID:15618480",
+   "PMID:11844991",
+   "PMID:17932253",
+   "PMID:8982148",
+   "PMID:41206783",
+   "PMID:15998894"
+  ]
+ },
+ "draft": "**Summary**  \nSickle cell anemia is driven by polymerization of mutant hemoglobin S, which distorts red cells, triggers vaso‑occlusion, chronic hemolysis, and downstream organ damage. Hydroxyurea is a standard therapy, but the current graph does not contain a curated causal chain linking hydroxyurea to fetal‑hemoglobin induction or direct inhibition of the sickling cascade; it only records hydroxyurea’s general drug effects (folate reduction, reticulocytopenia) and contraindications.\n\n**Evidence paths**  \n- Core sickle cell mechanism: Hemoglobin Polymerization → Red Blood Cell Sickling → Vaso‑Occlusion → Chronic Organ Damage [E8303098, E8303099, E8303101, E8303112].  \n- Parallel pathways: Erythrocyte Dehydration [E8303105]; Endothelial Activation and Leukocyte Recruitment [E8303108]; Chronic Hemolysis [E8303121].  \n- Hydroxyurea drug effects in the graph: Reduced blood folate concentration [E3368141]; Reticulocytopenia [E3368176]; Chronic myelogenous leukemia phenotype [E3368148]. No edge connects hydroxyurea to HBG1/HBG2 (fetal hemoglobin genes) or to the sickling pathway.\n\n**Mechanism** (curated dismech steps for MONDO:0011382)  \n1. Hemoglobin Polymerization (PMID:29614632, PMID:3965046, PMID:4020873, PMID:25645011) [E8303098]  \n2. Red Blood Cell Sickling [E8303099]  \n3. Vaso‑Occlusion [E8303101]  \n4. Chronic Organ Damage [E8303112]  \n5. Erythrocyte Dehydration (PMID:15618480, PMID:29614632) [E8303105]  \n6. Endothelial Activation and Leukocyte Recruitment (PMID:11844991, PMID:17932253, PMID:8982148, PMID:41206783) [E8303108]  \n7. Chronic Hemolysis (PMID:15998894) [E8303121]\n\n**Targets / drugs**  \n- Hydroxyurea (DRUGBANK:DB01005) – model‑ranked for sickle cell anemia would require a patient‑specific tumor profile; not applicable here. The graph shows no drug‑protein or drug‑pathway edges linking hydroxyurea to fetal hemoglobin induction or sickle cell mechanism nodes.\n\n**Testable hypothesis**  \nHypothesis: Hydroxyurea reduces sickle cell vaso‑occlusion primarily by inducing γ‑globin (HBG1/HBG2) expression, increasing fetal hemoglobin, and thereby inhibiting hemoglobin S polymerization.  \nExperiment: Treat primary erythroid progenitors from sickle cell donors with hydroxyurea; measure HBG1/HBG2 mRNA, HbF protein, and hemoglobin S polymerization kinetics in vitro. Compare to CRISPRa‑mediated HBG1/HBG2 activation as a positive control.\n\n**Caveats**  \n- The knowledge graph lacks a curated hydroxyurea→fetal hemoglobin→sickle cell mechanism chain; the above hypothesis is based on external literature, not on cited edges.  \n- No patient‑specific data were used; this is a general disease question, not a ccRCC patient analysis.  \n- Drug effects listed (folate reduction, reticulocytopenia) are general pharmacology, not sickle‑cell‑specific mechanisms.",
+ "claims": [
+  {
+   "claim_id": "c1",
+   "text": "Sickle cell anemia is driven by polymerization of mutant hemoglobin S, which distorts red cells, triggers vaso‑occlusion, chronic hemolysis, and downstream organ damage.",
+   "support": {
+    "edge_ids": [],
+    "pmids": []
+   },
+   "status": "removed",
+   "quote": "Sickle cell anemia is driven by polymerization of mutant hemoglobin S, which distorts red cells, triggers vaso‑occlusion, chronic hemolysis, and downstream organ damage.",
+   "unmatched_ids": [],
+   "entity_match": false,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c3",
+   "text": "Core sickle cell mechanism: Hemoglobin Polymerization → Red Blood Cell Sickling → Vaso‑Occlusion → Chronic Organ Damage.",
+   "support": {
+    "edge_ids": [
+     "E8303098",
+     "E8303099",
+     "E8303101",
+     "E8303112"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "Core sickle cell mechanism: Hemoglobin Polymerization → Red Blood Cell Sickling → Vaso‑Occlusion → Chronic Organ Damage [E8303098, E8303099, E8303101, E8303112].",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c4",
+   "text": "Parallel pathways: Erythrocyte Dehydration; Endothelial Activation and Leukocyte Recruitment; Chronic Hemolysis.",
+   "support": {
+    "edge_ids": [
+     "E8303105",
+     "E8303108",
+     "E8303121"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "Parallel pathways: Erythrocyte Dehydration [E8303105]; Endothelial Activation and Leukocyte Recruitment [E8303108]; Chronic Hemolysis [E8303121].",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c5",
+   "text": "Hydroxyurea drug effects in the graph: Reduced blood folate concentration; Reticulocytopenia; Chronic myelogenous leukemia phenotype.",
+   "support": {
+    "edge_ids": [
+     "E3368141",
+     "E3368176",
+     "E3368148"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "Hydroxyurea drug effects in the graph: Reduced blood folate concentration [E3368141]; Reticulocytopenia [E3368176]; Chronic myelogenous leukemia phenotype [E3368148].",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c7",
+   "text": "Hemoglobin Polymerization",
+   "support": {
+    "edge_ids": [
+     "E8303098"
+    ],
+    "pmids": [
+     "PMID:29614632",
+     "PMID:3965046",
+     "PMID:4020873",
+     "PMID:25645011"
+    ]
+   },
+   "status": "supported",
+   "quote": "Hemoglobin Polymerization (PMID:29614632, PMID:3965046, PMID:4020873, PMID:25645011) [E8303098]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c8",
+   "text": "Red Blood Cell Sickling",
+   "support": {
+    "edge_ids": [
+     "E8303099"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "Red Blood Cell Sickling [E8303099]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c9",
+   "text": "Vaso‑Occlusion",
+   "support": {
+    "edge_ids": [
+     "E8303101"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "Vaso‑Occlusion [E8303101]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c10",
+   "text": "Chronic Organ Damage",
+   "support": {
+    "edge_ids": [
+     "E8303112"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "Chronic Organ Damage [E8303112]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c11",
+   "text": "Erythrocyte Dehydration",
+   "support": {
+    "edge_ids": [
+     "E8303105"
+    ],
+    "pmids": [
+     "PMID:15618480",
+     "PMID:29614632"
+    ]
+   },
+   "status": "supported",
+   "quote": "Erythrocyte Dehydration (PMID:15618480, PMID:29614632) [E8303105]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c12",
+   "text": "Endothelial Activation and Leukocyte Recruitment",
+   "support": {
+    "edge_ids": [
+     "E8303108"
+    ],
+    "pmids": [
+     "PMID:11844991",
+     "PMID:17932253",
+     "PMID:8982148",
+     "PMID:41206783"
+    ]
+   },
+   "status": "supported",
+   "quote": "Endothelial Activation and Leukocyte Recruitment (PMID:11844991, PMID:17932253, PMID:8982148, PMID:41206783) [E8303108]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c13",
+   "text": "Chronic Hemolysis",
+   "support": {
+    "edge_ids": [
+     "E8303121"
+    ],
+    "pmids": [
+     "PMID:15998894"
+    ]
+   },
+   "status": "supported",
+   "quote": "Chronic Hemolysis (PMID:15998894) [E8303121]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c14",
+   "text": "Hydroxyurea (DRUGBANK:DB01005) – model‑ranked for sickle cell anemia would require a patient‑specific tumor profile; not applicable here.",
+   "support": {
+    "edge_ids": [],
+    "pmids": []
+   },
+   "status": "removed",
+   "quote": "Hydroxyurea (DRUGBANK:DB01005) – model‑ranked for sickle cell anemia would require a patient‑specific tumor profile; not applicable here.",
+   "unmatched_ids": [],
+   "entity_match": false,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c15",
+   "text": "The graph shows no drug‑protein or drug‑pathway edges linking hydroxyurea to fetal hemoglobin induction or sickle cell mechanism nodes.",
+   "support": {
+    "edge_ids": [],
+    "pmids": []
+   },
+   "status": "removed",
+   "quote": "The graph shows no drug‑protein or drug‑pathway edges linking hydroxyurea to fetal hemoglobin induction or sickle cell mechanism nodes.",
+   "unmatched_ids": [],
+   "entity_match": false,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c16",
+   "text": "Hypothesis: Hydroxyurea reduces sickle cell vaso‑occlusion primarily by inducing γ‑globin (HBG1/HBG2) expression, increasing fetal hemoglobin, and thereby inhibiting hemoglobin S polymerization.",
+   "support": {
+    "edge_ids": [],
+    "pmids": []
+   },
+   "status": "hypothesis",
+   "quote": "Hypothesis: Hydroxyurea reduces sickle cell vaso‑occlusion primarily by inducing γ‑globin (HBG1/HBG2) expression, increasing fetal hemoglobin, and thereby inhibiting hemoglobin S polymerization.",
+   "unmatched_ids": [],
+   "entity_match": false,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c18",
+   "text": "Compare to CRISPRa‑mediated HBG1/HBG2 activation as a positive control.",
+   "support": {
+    "edge_ids": [],
+    "pmids": []
+   },
+   "status": "removed",
+   "quote": "Compare to CRISPRa‑mediated HBG1/HBG2 activation as a positive control.",
+   "unmatched_ids": [],
+   "entity_match": false,
+   "mismatched_ids": [],
+   "model_output_only": false
+  }
+ ],
+ "answer": "**Summary**\n Hydroxyurea is a standard therapy, but the current graph does not contain a curated causal chain linking hydroxyurea to fetal‑hemoglobin induction or direct inhibition of the sickling cascade; it only records hydroxyurea’s general drug effects (folate reduction, reticulocytopenia) and contraindications.\n\n**Evidence paths**\n- Core sickle cell mechanism: Hemoglobin Polymerization → Red Blood Cell Sickling → Vaso‑Occlusion → Chronic Organ Damage [E8303098, E8303099, E8303101, E8303112].\n- Parallel pathways: Erythrocyte Dehydration [E8303105]; Endothelial Activation and Leukocyte Recruitment [E8303108]; Chronic Hemolysis [E8303121].\n- Hydroxyurea drug effects in the graph: Reduced blood folate concentration [E3368141]; Reticulocytopenia [E3368176]; Chronic myelogenous leukemia phenotype [E3368148]. No edge connects hydroxyurea to HBG1/HBG2 (fetal hemoglobin genes) or to the sickling pathway.\n\n**Mechanism** (curated dismech steps for MONDO:0011382)\n1. Hemoglobin Polymerization (PMID:29614632, PMID:3965046, PMID:4020873, PMID:25645011) [E8303098]\n2. Red Blood Cell Sickling [E8303099]\n3. Vaso‑Occlusion [E8303101]\n4. Chronic Organ Damage [E8303112]\n5. Erythrocyte Dehydration (PMID:15618480, PMID:29614632) [E8303105]\n6. Endothelial Activation and Leukocyte Recruitment (PMID:11844991, PMID:17932253, PMID:8982148, PMID:41206783) [E8303108]\n7. Chronic Hemolysis (PMID:15998894) [E8303121]\n\n**Testable hypothesis**\nHypothesis: Hydroxyurea reduces sickle cell vaso‑occlusion primarily by inducing γ‑globin (HBG1/HBG2) expression, increasing fetal hemoglobin, and thereby inhibiting hemoglobin S polymerization.\nExperiment: Treat primary erythroid progenitors from sickle cell donors with hydroxyurea; measure HBG1/HBG2 mRNA, HbF protein, and hemoglobin S polymerization kinetics in vitro.\n\n**Caveats**\n- The knowledge graph lacks a curated hydroxyurea→fetal hemoglobin→sickle cell mechanism chain; the above hypothesis is based on external literature, not on cited edges.\n- No patient‑specific data were used; this is a general disease question, not a ccRCC patient analysis.\n- Drug effects listed (folate reduction, reticulocytopenia) are general pharmacology, not sickle‑cell‑specific mechanisms.\n\n_Verifier: removed 4 claim(s) that had no supporting edge or PMID._",
+ "verifier": {
+  "n_claims": 15,
+  "n_supported": 10,
+  "n_hypothesis": 1,
+  "n_removed": 4,
+  "n_supported_entity_match": 10,
+  "n_supported_model": 0,
+  "n_claims_mismatched": 0,
+  "n_non_claims": 6,
+  "non_claims": [
+   {
+    "text": "Hydroxyurea is a standard therapy, but the current graph does not contain a curated causal chain linking hydroxyurea to fetal‑hemoglobin induction or direct inhibition of the sickling cascade; it only records hydroxyurea’s general drug effects (folate reduction, reticulocytopenia) and contraindications.",
+    "reason": "abstention",
+    "quote": "Hydroxyurea is a standard therapy, but the current graph does not contain a curated causal chain linking hydroxyurea to fetal‑hemoglobin induction or direct inhibition of the sickling cascade; it only records hydroxyurea’s general drug effects (folate reduction, reticulocytopenia) and contraindications."
+   },
+   {
+    "text": "No edge connects hydroxyurea to HBG1/HBG2 (fetal hemoglobin genes) or to the sickling pathway.",
+    "reason": "abstention",
+    "quote": "No edge connects hydroxyurea to HBG1/HBG2 (fetal hemoglobin genes) or to the sickling pathway."
+   },
+   {
+    "text": "Experiment: Treat primary erythroid progenitors from sickle cell donors with hydroxyurea; measure HBG1/HBG2 mRNA, HbF protein, and hemoglobin S polymerization kinetics in vitro.",
+    "reason": "experiment",
+    "quote": "Experiment: Treat primary erythroid progenitors from sickle cell donors with hydroxyurea; measure HBG1/HBG2 mRNA, HbF protein, and hemoglobin S polymerization kinetics in vitro."
+   },
+   {
+    "text": "The knowledge graph lacks a curated hydroxyurea→fetal hemoglobin→sickle cell mechanism chain; the above hypothesis is based on external literature, not on cited edges.",
+    "reason": "caveat",
+    "quote": "The knowledge graph lacks a curated hydroxyurea→fetal hemoglobin→sickle cell mechanism chain; the above hypothesis is based on external literature, not on cited edges."
+   },
+   {
+    "text": "No patient‑specific data were used; this is a general disease question, not a ccRCC patient analysis.",
+    "reason": "caveat",
+    "quote": "No patient‑specific data were used; this is a general disease question, not a ccRCC patient analysis."
+   },
+   {
+    "text": "Drug effects listed (folate reduction, reticulocytopenia) are general pharmacology, not sickle‑cell‑specific mechanisms.",
+    "reason": "caveat",
+    "quote": "Drug effects listed (folate reduction, reticulocytopenia) are general pharmacology, not sickle‑cell‑specific mechanisms."
+   }
+  ],
+  "strict": true
+ },
+ "verifier_splitter": "deterministic",
+ "notes": [],
+ "elapsed_s": 23.54,
+ "llm_calls": [
+  {
+   "purpose": "agent",
+   "s": 1.88,
+   "cached": false,
+   "attempt": 1,
+   "finish_reason": "tool_calls",
+   "prompt_tokens": 1911,
+   "completion_tokens": 122,
+   "reasoning_tokens": 85
+  },
+  {
+   "purpose": "agent",
+   "s": 5.34,
+   "cached": false,
+   "attempt": 1,
+   "finish_reason": "tool_calls",
+   "prompt_tokens": 2129,
+   "completion_tokens": 108,
+   "reasoning_tokens": 69
+  },
+  {
+   "purpose": "agent",
+   "s": 0.98,
+   "cached": false,
+   "attempt": 1,
+   "finish_reason": "tool_calls",
+   "prompt_tokens": 2614,
+   "completion_tokens": 100,
+   "reasoning_tokens": 29
+  },
+  {
+   "purpose": "agent",
+   "s": 10.37,
+   "cached": false,
+   "attempt": 1,
+   "finish_reason": "stop",
+   "prompt_tokens": 8135,
+   "completion_tokens": 1247,
+   "reasoning_tokens": 370
+  }
+ ],
+ "subgraph_sizes": [
+  {
+   "by": "llm",
+   "requested_budget": null,
+   "budget": 500,
+   "adaptive": true,
+   "n_nodes": 163,
+   "n_edges": 162
+  }
+ ],
+ "e3_batch": {
+  "kind": "disease",
+  "trap": false,
+  "category": "generalization"
+ },
+ "reverified": {
+  "from": "eval\\traces\\e3_v1_agent\\D10.json",
+  "at": "2026-11-07T21:29:01",
+  "verifier_sha": "54177496ec62",
+  "previous_verifier": {
+   "n_claims": 15,
+   "n_supported": 10,
+   "n_hypothesis": 1,
+   "n_removed": 4,
+   "n_supported_entity_match": 10,
+   "n_supported_model": 0,
+   "n_claims_mismatched": 0,
+   "n_non_claims": 6,
+   "non_claims": [
+    {
+     "text": "Hydroxyurea is a standard therapy, but the current graph does not contain a curated causal chain linking hydroxyurea to fetal‑hemoglobin induction or direct inhibition of the sickling cascade; it only records hydroxyurea’s general drug effects (folate reduction, reticulocytopenia) and contraindications.",
+     "reason": "abstention",
+     "quote": "Hydroxyurea is a standard therapy, but the current graph does not contain a curated causal chain linking hydroxyurea to fetal‑hemoglobin induction or direct inhibition of the sickling cascade; it only records hydroxyurea’s general drug effects (folate reduction, reticulocytopenia) and contraindications."
+    },
+    {
+     "text": "No edge connects hydroxyurea to HBG1/HBG2 (fetal hemoglobin genes) or to the sickling pathway.",
+     "reason": "abstention",
+     "quote": "No edge connects hydroxyurea to HBG1/HBG2 (fetal hemoglobin genes) or to the sickling pathway."
+    },
+    {
+     "text": "Experiment: Treat primary erythroid progenitors from sickle cell donors with hydroxyurea; measure HBG1/HBG2 mRNA, HbF protein, and hemoglobin S polymerization kinetics in vitro.",
+     "reason": "experiment",
+     "quote": "Experiment: Treat primary erythroid progenitors from sickle cell donors with hydroxyurea; measure HBG1/HBG2 mRNA, HbF protein, and hemoglobin S polymerization kinetics in vitro."
+    },
+    {
+     "text": "The knowledge graph lacks a curated hydroxyurea→fetal hemoglobin→sickle cell mechanism chain; the above hypothesis is based on external literature, not on cited edges.",
+     "reason": "caveat",
+     "quote": "The knowledge graph lacks a curated hydroxyurea→fetal hemoglobin→sickle cell mechanism chain; the above hypothesis is based on external literature, not on cited edges."
+    },
+    {
+     "text": "No patient‑specific data were used; this is a general disease question, not a ccRCC patient analysis.",
+     "reason": "caveat",
+     "quote": "No patient‑specific data were used; this is a general disease question, not a ccRCC patient analysis."
+    },
+    {
+     "text": "Drug effects listed (folate reduction, reticulocytopenia) are general pharmacology, not sickle‑cell‑specific mechanisms.",
+     "reason": "caveat",
+     "quote": "Drug effects listed (folate reduction, reticulocytopenia) are general pharmacology, not sickle‑cell‑specific mechanisms."
+    }
+   ],
+   "strict": true
+  }
+ }
+}

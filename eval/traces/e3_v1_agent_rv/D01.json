@@ -1,0 +1,3810 @@
+{
+ "contract_version": "1",
+ "run_id": "e3_v1_agent_rv",
+ "qid": "D01",
+ "mode": "agent",
+ "patient_id": null,
+ "question": "How does ccRCC lead to hematuria, and which tumor mechanisms are involved?",
+ "model": "nvidia/nemotron-3-ultra-550b-a55b",
+ "variant": "full",
+ "tool_calls": [
+  {
+   "name": "resolve_terms",
+   "args": {
+    "texts": [
+     "clear cell renal cell carcinoma",
+     "hematuria"
+    ]
+   },
+   "result": {
+    "results": [
+     {
+      "text": "clear cell renal cell carcinoma",
+      "matches": [
+       {
+        "curie": "HP:0006770",
+        "name": "Clear cell renal cell carcinoma",
+        "type": "phenotype",
+        "score": 1.0
+       },
+       {
+        "curie": "MONDO:0003010",
+        "name": "multilocular clear cell renal cell carcinoma",
+        "type": "disease",
+        "score": 0.95
+       },
+       {
+        "curie": "MONDO:0018492",
+        "name": "hereditary clear cell renal cell carcinoma",
+        "type": "disease",
+        "score": 0.95
+       },
+       {
+        "curie": "MONDO:0005005",
+        "name": "clear cell renal carcinoma",
+        "type": "disease",
+        "score": 0.621
+       }
+      ]
+     },
+     {
+      "text": "hematuria",
+      "matches": [
+       {
+        "curie": "HP:0000790",
+        "name": "Hematuria",
+        "type": "phenotype",
+        "score": 1.0
+       },
+       {
+        "curie": "HP:0002907",
+        "name": "Microscopic hematuria",
+        "type": "phenotype",
+        "score": 0.063
+       },
+       {
+        "curie": "HP:0012587",
+        "name": "Macroscopic hematuria",
+        "type": "phenotype",
+        "score": 0.063
+       }
+      ]
+     }
+    ]
+   },
+   "ms": 255,
+   "by": "llm"
+  },
+  {
+   "name": "retrieve_subgraph",
+   "args": {
+    "seeds": [
+     "MONDO:0005005",
+     "HP:0000790"
+    ],
+    "question": "How does clear cell renal cell carcinoma lead to hematuria, and which tumor mechanisms are involved?"
+   },
+   "result": {
+    "nodes": [
+     {
+      "curie": "HP:0000790",
+      "name": "Hematuria",
+      "type": "phenotype",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "MONDO:0005005",
+      "name": "clear cell renal carcinoma",
+      "type": "disease",
+      "prize": 0.0,
+      "is_seed": true
+     },
+     {
+      "curie": "NCBIGene:84925",
+      "name": "SLC49A4",
+      "type": "gene",
+      "prize": 1.0,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0042310",
+      "name": "vasoconstriction",
+      "type": "biological_process",
+      "prize": 1.0,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0004714",
+      "name": "transmembrane receptor protein tyrosine kinase activity",
+      "type": "molecular_function",
+      "prize": 1.0,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005887",
+      "name": "integral component of plasma membrane",
+      "type": "cellular_component",
+      "prize": 1.0,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-6803207",
+      "name": "TP53 Regulates Transcription of Caspase Activators and Caspases",
+      "type": "pathway",
+      "prize": 1.0,
+      "is_seed": false
+     },
+     {
+      "curie": "NCIT:C135627",
+      "name": "belzutifan",
+      "type": "drug",
+      "prize": 1.0,
+      "is_seed": false
+     },
+     {
+      "curie": "NCIT:C62411",
+      "name": "Fuhrman Nuclear Grade",
+      "type": "phenotype",
+      "prize": 1.0,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB11800",
+      "name": "Tivozanib",
+      "type": "drug",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:283092",
+      "name": "OR4C13",
+      "type": "gene",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0042802",
+      "name": "identical protein binding",
+      "type": "molecular_function",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-156590",
+      "name": "Glutathione conjugation",
+      "type": "pathway",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0001998",
+      "name": "angiotensin-mediated vasoconstriction involved in regulation of systemic arterial blood pressure",
+      "type": "biological_process",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0009986",
+      "name": "cell surface",
+      "type": "cellular_component",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "NCIT:C39694",
+      "name": "Sarcomatoid Differentiation",
+      "type": "phenotype",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:81494",
+      "name": "CFHR5",
+      "type": "gene",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB08875",
+      "name": "Cabozantinib",
+      "type": "drug",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0002841",
+      "name": "negative regulation of T cell mediated immune response to tumor cell",
+      "type": "biological_process",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005125",
+      "name": "cytokine activity",
+      "type": "molecular_function",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0032957",
+      "name": "Dysmorphic hematuria",
+      "type": "phenotype",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0043025",
+      "name": "neuronal cell body",
+      "type": "cellular_component",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-379716",
+      "name": "Cytosolic tRNA aminoacylation",
+      "type": "pathway",
+      "prize": 0.9999,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB00523",
+      "name": "Alitretinoin",
+      "type": "drug",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:284013",
+      "name": "VMO1",
+      "type": "gene",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0097746",
+      "name": "blood vessel diameter maintenance",
+      "type": "biological_process",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0044877",
+      "name": "protein-containing complex binding",
+      "type": "molecular_function",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0043235",
+      "name": "receptor complex",
+      "type": "cellular_component",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-9662360",
+      "name": "Sensory processing of sound by inner hair cells of the cochlea",
+      "type": "pathway",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "NCIT:C39608",
+      "name": "Coagulative Tumor Necrosis",
+      "type": "phenotype",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:85443",
+      "name": "DCLK3",
+      "type": "gene",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB04854",
+      "name": "Febuxostat",
+      "type": "drug",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0002710",
+      "name": "negative regulation of T cell mediated immunity",
+      "type": "biological_process",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0019904",
+      "name": "protein domain specific binding",
+      "type": "molecular_function",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005789",
+      "name": "endoplasmic reticulum membrane",
+      "type": "cellular_component",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0006770",
+      "name": "Clear cell renal cell carcinoma",
+      "type": "phenotype",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-6785807",
+      "name": "Interleukin-4 and Interleukin-13 signaling",
+      "type": "pathway",
+      "prize": 0.9998,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:142685",
+      "name": "ASB15",
+      "type": "gene",
+      "prize": 0.9997,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB00520",
+      "name": "Caspofungin",
+      "type": "drug",
+      "prize": 0.9997,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0012614",
+      "name": "Abnormal urine cytology",
+      "type": "phenotype",
+      "prize": 0.9997,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0043114",
+      "name": "regulation of vascular permeability",
+      "type": "biological_process",
+      "prize": 0.9997,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-9662361",
+      "name": "Sensory processing of sound by outer hair cells of the cochlea",
+      "type": "pathway",
+      "prize": 0.9997,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0106311",
+      "name": "protein threonine kinase activity",
+      "type": "molecular_function",
+      "prize": 0.9997,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005925",
+      "name": "focal adhesion",
+      "type": "cellular_component",
+      "prize": 0.9997,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:4010",
+      "name": "LMX1B",
+      "type": "gene",
+      "prize": 0.9996,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB00770",
+      "name": "Alprostadil",
+      "type": "drug",
+      "prize": 0.9996,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0032211",
+      "name": "Increased urinary epithelial cell count",
+      "type": "phenotype",
+      "prize": 0.9996,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0030425",
+      "name": "dendrite",
+      "type": "cellular_component",
+      "prize": 0.9996,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0001994",
+      "name": "norepinephrine-epinephrine vasoconstriction involved in regulation of systemic arterial blood pressure",
+      "type": "biological_process",
+      "prize": 0.9996,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005516",
+      "name": "calmodulin binding",
+      "type": "molecular_function",
+      "prize": 0.9996,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-381753",
+      "name": "Olfactory Signaling Pathway",
+      "type": "pathway",
+      "prize": 0.9996,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:3882",
+      "name": "KRT32",
+      "type": "gene",
+      "prize": 0.9996,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB01141",
+      "name": "Micafungin",
+      "type": "drug",
+      "prize": 0.9996,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005102",
+      "name": "signaling receptor binding",
+      "type": "molecular_function",
+      "prize": 0.9996,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0045121",
+      "name": "membrane raft",
+      "type": "cellular_component",
+      "prize": 0.9996,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0012587",
+      "name": "Macroscopic hematuria",
+      "type": "phenotype",
+      "prize": 0.9996,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0042730",
+      "name": "fibrinolysis",
+      "type": "biological_process",
+      "prize": 0.9996,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-6809371",
+      "name": "Formation of the cornified envelope",
+      "type": "pathway",
+      "prize": 0.9996,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:7827",
+      "name": "NPHS2",
+      "type": "gene",
+      "prize": 0.9995,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB00459",
+      "name": "Acitretin",
+      "type": "drug",
+      "prize": 0.9995,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0009726",
+      "name": "Renal neoplasm",
+      "type": "phenotype",
+      "prize": 0.9995,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0048010",
+      "name": "vascular endothelial growth factor receptor signaling pathway",
+      "type": "biological_process",
+      "prize": 0.9995,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0019901",
+      "name": "protein kinase binding",
+      "type": "molecular_function",
+      "prize": 0.9995,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0030424",
+      "name": "axon",
+      "type": "cellular_component",
+      "prize": 0.9995,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-6805567",
+      "name": "Keratinization",
+      "type": "pathway",
+      "prize": 0.9995,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:343930",
+      "name": "MSGN1",
+      "type": "gene",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB06824",
+      "name": "Triethylenetetramine",
+      "type": "drug",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0042311",
+      "name": "vasodilation",
+      "type": "biological_process",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0000785",
+      "name": "chromatin",
+      "type": "cellular_component",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0002907",
+      "name": "Microscopic hematuria",
+      "type": "phenotype",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0042803",
+      "name": "protein homodimerization activity",
+      "type": "molecular_function",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-6798695",
+      "name": "Neutrophil degranulation",
+      "type": "pathway",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:374569",
+      "name": "ASPG",
+      "type": "gene",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0012615",
+      "name": "Cylindruria",
+      "type": "phenotype",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB00538",
+      "name": "Gadoversetamide",
+      "type": "drug",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0004672",
+      "name": "protein kinase activity",
+      "type": "molecular_function",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005783",
+      "name": "endoplasmic reticulum",
+      "type": "cellular_component",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0002034",
+      "name": "maintenance of blood vessel diameter homeostasis by renin-angiotensin",
+      "type": "biological_process",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-983168",
+      "name": "Antigen processing: Ubiquitination & Proteasome degradation",
+      "type": "pathway",
+      "prize": 0.9994,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB00929",
+      "name": "Misoprostol",
+      "type": "drug",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:114788",
+      "name": "CSMD3",
+      "type": "gene",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0031639",
+      "name": "plasminogen activation",
+      "type": "biological_process",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0003779",
+      "name": "actin binding",
+      "type": "molecular_function",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0048471",
+      "name": "perinuclear region of cytoplasm",
+      "type": "cellular_component",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-8951664",
+      "name": "Neddylation",
+      "type": "pathway",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:2952",
+      "name": "GSTT1",
+      "type": "gene",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB08947",
+      "name": "Iopamidol",
+      "type": "drug",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0019229",
+      "name": "regulation of vasoconstriction",
+      "type": "biological_process",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0045202",
+      "name": "synapse",
+      "type": "cellular_component",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-5673001",
+      "name": "RAF/MAP kinase cascade",
+      "type": "pathway",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0001937",
+      "name": "Microangiopathic hemolytic anemia",
+      "type": "phenotype",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005524",
+      "name": "ATP binding",
+      "type": "molecular_function",
+      "prize": 0.9993,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:53904",
+      "name": "MYO3A",
+      "type": "gene",
+      "prize": 0.9992,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB00659",
+      "name": "Acamprosate",
+      "type": "drug",
+      "prize": 0.9992,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0012211",
+      "name": "Abnormal renal physiology",
+      "type": "phenotype",
+      "prize": 0.9992,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0001516",
+      "name": "prostaglandin biosynthetic process",
+      "type": "biological_process",
+      "prize": 0.9992,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0045296",
+      "name": "cadherin binding",
+      "type": "molecular_function",
+      "prize": 0.9992,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005765",
+      "name": "lysosomal membrane",
+      "type": "cellular_component",
+      "prize": 0.9992,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-418594",
+      "name": "G alpha (i) signalling events",
+      "type": "pathway",
+      "prize": 0.9992,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB13189",
+      "name": "Calcitonin porcine",
+      "type": "drug",
+      "prize": 0.9991,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:374393",
+      "name": "FAM111B",
+      "type": "gene",
+      "prize": 0.9991,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0001666",
+      "name": "response to hypoxia",
+      "type": "biological_process",
+      "prize": 0.9991,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005179",
+      "name": "hormone activity",
+      "type": "molecular_function",
+      "prize": 0.9991,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005739",
+      "name": "mitochondrion",
+      "type": "cellular_component",
+      "prize": 0.9991,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-5689880",
+      "name": "Ub-specific processing proteases",
+      "type": "pathway",
+      "prize": 0.9991,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:91662",
+      "name": "NLRP12",
+      "type": "gene",
+      "prize": 0.9991,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB00385",
+      "name": "Valrubicin",
+      "type": "drug",
+      "prize": 0.9991,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0042493",
+      "name": "response to drug",
+      "type": "biological_process",
+      "prize": 0.9991,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0019899",
+      "name": "enzyme binding",
+      "type": "molecular_function",
+      "prize": 0.9991,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005654",
+      "name": "nucleoplasm",
+      "type": "cellular_component",
+      "prize": 0.9991,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-9010553",
+      "name": "Regulation of expression of SLITs and ROBOs",
+      "type": "pathway",
+      "prize": 0.9991,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB06773",
+      "name": "Human calcitonin",
+      "type": "drug",
+      "prize": 0.999,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0004930",
+      "name": "G protein-coupled receptor activity",
+      "type": "molecular_function",
+      "prize": 0.999,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0000139",
+      "name": "Golgi membrane",
+      "type": "cellular_component",
+      "prize": 0.999,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-2672351",
+      "name": "Stimuli-sensing channels",
+      "type": "pathway",
+      "prize": 0.999,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0032958",
+      "name": "Urinary oval fat bodies",
+      "type": "phenotype",
+      "prize": 0.999,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0071456",
+      "name": "cellular response to hypoxia",
+      "type": "biological_process",
+      "prize": 0.999,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB01179",
+      "name": "Podofilox",
+      "type": "drug",
+      "prize": 0.999,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:158584",
+      "name": "FAAH2",
+      "type": "gene",
+      "prize": 0.999,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0033674",
+      "name": "positive regulation of kinase activity",
+      "type": "biological_process",
+      "prize": 0.999,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-416476",
+      "name": "G alpha (q) signalling events",
+      "type": "pathway",
+      "prize": 0.999,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0032568",
+      "name": "Urinary mulberry cells",
+      "type": "phenotype",
+      "prize": 0.999,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0106310",
+      "name": "protein serine kinase activity",
+      "type": "molecular_function",
+      "prize": 0.999,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0016324",
+      "name": "apical plasma membrane",
+      "type": "cellular_component",
+      "prize": 0.999,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:5816",
+      "name": "PVALB",
+      "type": "gene",
+      "prize": 0.9989,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB09110",
+      "name": "Coenzyme M",
+      "type": "drug",
+      "prize": 0.9989,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0014829",
+      "name": "vascular associated smooth muscle contraction",
+      "type": "biological_process",
+      "prize": 0.9989,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0038023",
+      "name": "signaling receptor activity",
+      "type": "molecular_function",
+      "prize": 0.9989,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0043005",
+      "name": "neuron projection",
+      "type": "cellular_component",
+      "prize": 0.9989,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0004846",
+      "name": "Prolonged bleeding after surgery",
+      "type": "phenotype",
+      "prize": 0.9989,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-1442490",
+      "name": "Collagen degradation",
+      "type": "pathway",
+      "prize": 0.9989,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:79444",
+      "name": "BIRC7",
+      "type": "gene",
+      "prize": 0.9988,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB00125",
+      "name": "Arginine",
+      "type": "drug",
+      "prize": 0.9988,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0048661",
+      "name": "positive regulation of smooth muscle cell proliferation",
+      "type": "biological_process",
+      "prize": 0.9988,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0046872",
+      "name": "metal ion binding",
+      "type": "molecular_function",
+      "prize": 0.9988,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0043231",
+      "name": "intracellular membrane-bounded organelle",
+      "type": "cellular_component",
+      "prize": 0.9988,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-6791226",
+      "name": "Major pathway of rRNA processing in the nucleolus and cytosol",
+      "type": "pathway",
+      "prize": 0.9988,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0002664",
+      "name": "Adrenal Myelolipoma",
+      "type": "phenotype",
+      "prize": 0.9988,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB00109",
+      "name": "Enfuvirtide",
+      "type": "drug",
+      "prize": 0.9988,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:9745",
+      "name": "ZNF536",
+      "type": "gene",
+      "prize": 0.9988,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0045471",
+      "name": "response to ethanol",
+      "type": "biological_process",
+      "prize": 0.9988,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0019838",
+      "name": "growth factor binding",
+      "type": "molecular_function",
+      "prize": 0.9988,
+      "is_seed": false
+     },
+     {
+      "curie": "GO:0005788",
+      "name": "endoplasmic reticulum lumen",
+      "type": "cellular_component",
+      "prize": 0.9988,
+      "is_seed": false
+     },
+     {
+      "curie": "REACT:R-HSA-9013149",
+      "name": "RAC1 GTPase cycle",
+      "type": "pathway",
+      "prize": 0.9988,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0033726",
+      "name": "Lupus Nephritis",
+      "type": "phenotype",
+      "prize": 0.9988,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:95",
+      "name": "ACY1",
+      "type": "gene",
+      "prize": 0.9987,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB06799",
+      "name": "Methenamine",
+      "type": "drug",
+      "prize": 0.9987,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0000791",
+      "name": "Uric acid nephrolithiasis",
+      "type": "phenotype",
+      "prize": 0.9987,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:3035",
+      "name": "HARS1",
+      "type": "gene",
+      "prize": 0.9979,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:4879",
+      "name": "NPPB",
+      "type": "gene",
+      "prize": 0.9973,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:55781",
+      "name": "RIOK2",
+      "type": "gene",
+      "prize": 0.997,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:59272",
+      "name": "ACE2",
+      "type": "gene",
+      "prize": 0.9968,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0000093",
+      "name": "Proteinuria",
+      "type": "phenotype",
+      "prize": 0.9966,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0001919",
+      "name": "Acute kidney injury",
+      "type": "phenotype",
+      "prize": 0.9965,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0001873",
+      "name": "Thrombocytopenia",
+      "type": "phenotype",
+      "prize": 0.9953,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:1287",
+      "name": "COL4A5",
+      "type": "gene",
+      "prize": 0.9951,
+      "is_seed": false
+     },
+     {
+      "curie": "DRUGBANK:DB00577",
+      "name": "Valaciclovir",
+      "type": "drug",
+      "prize": 0.995,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:5328",
+      "name": "PLAU",
+      "type": "gene",
+      "prize": 0.993,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:5743",
+      "name": "PTGS2",
+      "type": "gene",
+      "prize": 0.9921,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:7157",
+      "name": "TP53",
+      "type": "gene",
+      "prize": 0.9918,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:1956",
+      "name": "EGFR",
+      "type": "gene",
+      "prize": 0.9903,
+      "is_seed": false
+     },
+     {
+      "curie": "HP:0002149",
+      "name": "Hyperuricemia",
+      "type": "phenotype",
+      "prize": 0.9903,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:5295",
+      "name": "PIK3R1",
+      "type": "gene",
+      "prize": 0.9897,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:7422",
+      "name": "VEGFA",
+      "type": "gene",
+      "prize": 0.9893,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:841",
+      "name": "CASP8",
+      "type": "gene",
+      "prize": 0.9892,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:10451",
+      "name": "VAV3",
+      "type": "gene",
+      "prize": 0.9888,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:2064",
+      "name": "ERBB2",
+      "type": "gene",
+      "prize": 0.9873,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:4609",
+      "name": "MYC",
+      "type": "gene",
+      "prize": 0.9869,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:351",
+      "name": "APP",
+      "type": "gene",
+      "prize": 0.986,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:2353",
+      "name": "FOS",
+      "type": "gene",
+      "prize": 0.9857,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:355",
+      "name": "FAS",
+      "type": "gene",
+      "prize": 0.9838,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:2932",
+      "name": "GSK3B",
+      "type": "gene",
+      "prize": 0.9834,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:3303",
+      "name": "HSPA1A",
+      "type": "gene",
+      "prize": 0.9813,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:2147",
+      "name": "F2",
+      "type": "gene",
+      "prize": 0.9809,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:4233",
+      "name": "MET",
+      "type": "gene",
+      "prize": 0.9807,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:358",
+      "name": "AQP1",
+      "type": "gene",
+      "prize": 0.9792,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:801",
+      "name": "CALM1",
+      "type": "gene",
+      "prize": 0.9787,
+      "is_seed": false
+     },
+     {
+      "curie": "NCBIGene:1017",
+      "name": "CDK2",
+      "type": "gene",
+      "prize": 0.9732,
+      "is_seed": false
+     }
+    ],
+    "edges": [
+     {
+      "edge_id": "E8158954",
+      "src_curie": "MONDO:0005005",
+      "rel": "dm_affects",
+      "dst_curie": "GO:0042310",
+      "origin": "dismech",
+      "pmids": [
+       "PMID:29931399"
+      ],
+      "quote": "[PMID:29931399] [INDIRECT EVIDENCE] [SUPPORT] The mechanism of action involves VSP inhibition, leading to decreased nitric oxide and increased endothelin production, which causes vasoconstriction, capillary rarefaction, and hypertension. --- Explanation: Places vasoconstriction between the mediator "
+     },
+     {
+      "edge_id": "E3064626",
+      "src_curie": "NCBIGene:81494",
+      "rel": "phenotype_protein",
+      "dst_curie": "HP:0000790",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E8103335",
+      "src_curie": "HP:0001873",
+      "rel": "dm_causes",
+      "dst_curie": "HP:0004846",
+      "origin": "dismech",
+      "pmids": [],
+      "quote": ""
+     },
+     {
+      "edge_id": "E8129177",
+      "src_curie": "HP:0033726",
+      "rel": "dm_causes",
+      "dst_curie": "HP:0000093",
+      "origin": "dismech",
+      "pmids": [],
+      "quote": ""
+     },
+     {
+      "edge_id": "E8129178",
+      "src_curie": "HP:0033726",
+      "rel": "dm_causes",
+      "dst_curie": "HP:0002907",
+      "origin": "dismech",
+      "pmids": [],
+      "quote": ""
+     },
+     {
+      "edge_id": "E8158929",
+      "src_curie": "MONDO:0005005",
+      "rel": "dm_has_phenotype",
+      "dst_curie": "HP:0009726",
+      "origin": "dismech",
+      "pmids": [],
+      "quote": ""
+     },
+     {
+      "edge_id": "E8158931",
+      "src_curie": "MONDO:0005005",
+      "rel": "dm_has_phenotype",
+      "dst_curie": "HP:0000790",
+      "origin": "dismech",
+      "pmids": [],
+      "quote": ""
+     },
+     {
+      "edge_id": "E8158934",
+      "src_curie": "MONDO:0005005",
+      "rel": "dm_has_phenotype",
+      "dst_curie": "HP:0002664",
+      "origin": "dismech",
+      "pmids": [
+       "PMID:39196544"
+      ],
+      "quote": "[PMID:39196544] [SUPPORT] Seventy percent of patients are diagnosed with stage I RCC and 11% of patients with stage IV. --- Explanation: A subset of RCC patients (11%) present with stage IV (metastatic) disease."
+     },
+     {
+      "edge_id": "E8158937",
+      "src_curie": "MONDO:0005005",
+      "rel": "dm_affects",
+      "dst_curie": "GO:0071456",
+      "origin": "dismech",
+      "pmids": [
+       "PMID:37085424"
+      ],
+      "quote": "[PMID:37085424] [INDIRECT EVIDENCE] [SUPPORT] These include somatic gene mutations such as VHL, PBRM1, SETD2, and BAP1 --- Explanation: This comprehensive review confirms VHL as the primary genomic biomarker and driver mutation in ccRCC."
+     },
+     {
+      "edge_id": "E8158941",
+      "src_curie": "MONDO:0005005",
+      "rel": "dm_affects",
+      "dst_curie": "GO:0048010",
+      "origin": "dismech",
+      "pmids": [],
+      "quote": ""
+     },
+     {
+      "edge_id": "E8158948",
+      "src_curie": "MONDO:0005005",
+      "rel": "dm_affects",
+      "dst_curie": "GO:0002710",
+      "origin": "dismech",
+      "pmids": [
+       "PMID:38762484"
+      ],
+      "quote": "[PMID:38762484] [INDIRECT EVIDENCE] [SUPPORT] The interaction of PD-1 and PD-L1 negatively regulates adaptive immune response mainly by inhibiting the activity of effector T cells while enhancing the function of immunosuppressive regulatory T cells (Tregs), largely contributing to the maintenance of"
+     },
+     {
+      "edge_id": "E8158955",
+      "src_curie": "MONDO:0005005",
+      "rel": "dm_affects",
+      "dst_curie": "GO:0097746",
+      "origin": "dismech",
+      "pmids": [
+       "PMID:29931399"
+      ],
+      "quote": "[PMID:29931399] [INDIRECT EVIDENCE] [SUPPORT] The mechanism of action involves VSP inhibition, leading to decreased nitric oxide and increased endothelin production, which causes vasoconstriction, capillary rarefaction, and hypertension. --- Explanation: Places vasoconstriction between the mediator "
+     },
+     {
+      "edge_id": "E8158961",
+      "src_curie": "DRUGBANK:DB08875",
+      "rel": "dm_treats_or_applied_or_studied_to_treat",
+      "dst_curie": "MONDO:0005005",
+      "origin": "dismech",
+      "pmids": [
+       "PMID:39196544"
+      ],
+      "quote": "[PMID:39196544] [INDIRECT EVIDENCE] [SUPPORT] For advanced or metastatic RCC, combinations of immune checkpoint inhibitors or the combination of immune checkpoint inhibitors with tyrosine kinase inhibitors are associated with tumor response of 42% to 71% --- Explanation: Tyrosine kinase inhibitors, "
+     },
+     {
+      "edge_id": "E8158963",
+      "src_curie": "NCIT:C135627",
+      "rel": "dm_treats_or_applied_or_studied_to_treat",
+      "dst_curie": "MONDO:0005005",
+      "origin": "dismech",
+      "pmids": [],
+      "quote": ""
+     },
+     {
+      "edge_id": "E8158968",
+      "src_curie": "MONDO:0005005",
+      "rel": "dm_has_phenotype",
+      "dst_curie": "HP:0006770",
+      "origin": "dismech",
+      "pmids": [
+       "PMID:39196544"
+      ],
+      "quote": "[PMID:39196544] [SUPPORT] Clear cell RCC is the most common histologic subtype --- Explanation: Abstract reports clear cell RCC as the most common histologic subtype."
+     },
+     {
+      "edge_id": "E8158969",
+      "src_curie": "MONDO:0005005",
+      "rel": "dm_has_phenotype",
+      "dst_curie": "NCIT:C39694",
+      "origin": "dismech",
+      "pmids": [
+       "PMID:11224597"
+      ],
+      "quote": "[PMID:11224597] [SUPPORT] sarcomatoid differentiation was 8% in conventional (clear cell) renal carcinoma --- Explanation: The series reports an 8% incidence of sarcomatoid differentiation in conventional (clear cell) renal carcinoma, establishing it as a recognized ccRCC morphologic feature."
+     },
+     {
+      "edge_id": "E8158970",
+      "src_curie": "MONDO:0005005",
+      "rel": "dm_has_phenotype",
+      "dst_curie": "NCIT:C39608",
+      "origin": "dismech",
+      "pmids": [
+       "PMID:17594714"
+      ],
+      "quote": "[PMID:17594714] [SUPPORT] Prognostic information conveyed by Ki-67 and coagulative tumor --- Explanation: The study identifies coagulative tumor necrosis as carrying independent prognostic information in ccRCC, supporting it as a reported histopathologic finding."
+     },
+     {
+      "edge_id": "E8158971",
+      "src_curie": "MONDO:0005005",
+      "rel": "dm_has_phenotype",
+      "dst_curie": "NCIT:C62411",
+      "origin": "dismech",
+      "pmids": [
+       "PMID:20804473"
+      ],
+      "quote": "[PMID:20804473] [SUPPORT] A modified, three-tiered Fuhrman grading system can be considered an --- Explanation: The study applies a modified Fuhrman nuclear grading system to clear-cell RCC for prognostication, supporting Fuhrman nuclear grade as a standard ccRCC grading finding."
+     },
+     {
+      "edge_id": "E8218708",
+      "src_curie": "HP:0012587",
+      "rel": "dm_causes",
+      "dst_curie": "HP:0001919",
+      "origin": "dismech",
+      "pmids": [],
+      "quote": ""
+     },
+     {
+      "edge_id": "E8290038",
+      "src_curie": "HP:0002149",
+      "rel": "dm_causes",
+      "dst_curie": "HP:0000791",
+      "origin": "dismech",
+      "pmids": [],
+      "quote": ""
+     },
+     {
+      "edge_id": "E50973",
+      "src_curie": "NCBIGene:5295",
+      "rel": "protein_protein",
+      "dst_curie": "NCBIGene:53904",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E383473",
+      "src_curie": "DRUGBANK:DB11800",
+      "rel": "indication",
+      "dst_curie": "MONDO:0005005",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E383501",
+      "src_curie": "DRUGBANK:DB06824",
+      "rel": "indication",
+      "dst_curie": "MONDO:0005005",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E2085837",
+      "src_curie": "DRUGBANK:DB06824",
+      "rel": "drug_drug",
+      "dst_curie": "DRUGBANK:DB00577",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E2955996",
+      "src_curie": "DRUGBANK:DB00770",
+      "rel": "drug_drug",
+      "dst_curie": "DRUGBANK:DB00520",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3063739",
+      "src_curie": "NCBIGene:4010",
+      "rel": "phenotype_protein",
+      "dst_curie": "HP:0000093",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3064002",
+      "src_curie": "NCBIGene:374569",
+      "rel": "phenotype_protein",
+      "dst_curie": "HP:0001873",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3065124",
+      "src_curie": "NCBIGene:81494",
+      "rel": "phenotype_protein",
+      "dst_curie": "HP:0012587",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3065764",
+      "src_curie": "HP:0012211",
+      "rel": "phenotype_phenotype",
+      "dst_curie": "HP:0000790",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3065765",
+      "src_curie": "HP:0012614",
+      "rel": "phenotype_phenotype",
+      "dst_curie": "HP:0000790",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3076186",
+      "src_curie": "HP:0012614",
+      "rel": "phenotype_phenotype",
+      "dst_curie": "HP:0012615",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3079326",
+      "src_curie": "HP:0012614",
+      "rel": "phenotype_phenotype",
+      "dst_curie": "HP:0032211",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3079668",
+      "src_curie": "HP:0012614",
+      "rel": "phenotype_phenotype",
+      "dst_curie": "HP:0032568",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3080203",
+      "src_curie": "HP:0000790",
+      "rel": "phenotype_phenotype",
+      "dst_curie": "HP:0032957",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3080204",
+      "src_curie": "HP:0012614",
+      "rel": "phenotype_phenotype",
+      "dst_curie": "HP:0032958",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3262920",
+      "src_curie": "NCBIGene:2952",
+      "rel": "disease_protein",
+      "dst_curie": "MONDO:0005005",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3262972",
+      "src_curie": "NCBIGene:3882",
+      "rel": "disease_protein",
+      "dst_curie": "MONDO:0005005",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3263240",
+      "src_curie": "NCBIGene:79444",
+      "rel": "disease_protein",
+      "dst_curie": "MONDO:0005005",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3263252",
+      "src_curie": "NCBIGene:84925",
+      "rel": "disease_protein",
+      "dst_curie": "MONDO:0005005",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3263272",
+      "src_curie": "NCBIGene:114788",
+      "rel": "disease_protein",
+      "dst_curie": "MONDO:0005005",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3263280",
+      "src_curie": "NCBIGene:142685",
+      "rel": "disease_protein",
+      "dst_curie": "MONDO:0005005",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3263288",
+      "src_curie": "NCBIGene:158584",
+      "rel": "disease_protein",
+      "dst_curie": "MONDO:0005005",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3263296",
+      "src_curie": "NCBIGene:283092",
+      "rel": "disease_protein",
+      "dst_curie": "MONDO:0005005",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3263300",
+      "src_curie": "NCBIGene:284013",
+      "rel": "disease_protein",
+      "dst_curie": "MONDO:0005005",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3263941",
+      "src_curie": "NCBIGene:85443",
+      "rel": "disease_protein",
+      "dst_curie": "MONDO:0005005",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3348719",
+      "src_curie": "DRUGBANK:DB00125",
+      "rel": "drug_effect",
+      "dst_curie": "HP:0001873",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3349598",
+      "src_curie": "DRUGBANK:DB09110",
+      "rel": "drug_effect",
+      "dst_curie": "HP:0001873",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3369564",
+      "src_curie": "DRUGBANK:DB08947",
+      "rel": "drug_effect",
+      "dst_curie": "HP:0000790",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3373608",
+      "src_curie": "DRUGBANK:DB06799",
+      "rel": "drug_effect",
+      "dst_curie": "HP:0000790",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3380824",
+      "src_curie": "DRUGBANK:DB01179",
+      "rel": "drug_effect",
+      "dst_curie": "HP:0000790",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3389588",
+      "src_curie": "DRUGBANK:DB00523",
+      "rel": "drug_effect",
+      "dst_curie": "HP:0001919",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3389706",
+      "src_curie": "DRUGBANK:DB00523",
+      "rel": "drug_effect",
+      "dst_curie": "HP:0001873",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3390640",
+      "src_curie": "DRUGBANK:DB00577",
+      "rel": "drug_effect",
+      "dst_curie": "HP:0001937",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3394881",
+      "src_curie": "DRUGBANK:DB00459",
+      "rel": "drug_effect",
+      "dst_curie": "HP:0000093",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3394994",
+      "src_curie": "DRUGBANK:DB00385",
+      "rel": "drug_effect",
+      "dst_curie": "HP:0000790",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3395224",
+      "src_curie": "DRUGBANK:DB00929",
+      "rel": "drug_effect",
+      "dst_curie": "HP:0001873",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3399732",
+      "src_curie": "DRUGBANK:DB00659",
+      "rel": "drug_effect",
+      "dst_curie": "HP:0001919",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3399793",
+      "src_curie": "DRUGBANK:DB00659",
+      "rel": "drug_effect",
+      "dst_curie": "HP:0002149",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3403070",
+      "src_curie": "DRUGBANK:DB00520",
+      "rel": "drug_effect",
+      "dst_curie": "HP:0001919",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3403897",
+      "src_curie": "DRUGBANK:DB04854",
+      "rel": "drug_effect",
+      "dst_curie": "HP:0000093",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3406799",
+      "src_curie": "DRUGBANK:DB00538",
+      "rel": "drug_effect",
+      "dst_curie": "HP:0001873",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3406933",
+      "src_curie": "DRUGBANK:DB01141",
+      "rel": "drug_effect",
+      "dst_curie": "HP:0001919",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3410556",
+      "src_curie": "DRUGBANK:DB13189",
+      "rel": "drug_effect",
+      "dst_curie": "HP:0000790",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3410645",
+      "src_curie": "DRUGBANK:DB06773",
+      "rel": "drug_effect",
+      "dst_curie": "HP:0000790",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3411328",
+      "src_curie": "DRUGBANK:DB00109",
+      "rel": "drug_effect",
+      "dst_curie": "HP:0001873",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3433581",
+      "src_curie": "GO:0042310",
+      "rel": "bioprocess_bioprocess",
+      "dst_curie": "GO:0014829",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3433583",
+      "src_curie": "GO:0042310",
+      "rel": "bioprocess_bioprocess",
+      "dst_curie": "GO:0001994",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3433589",
+      "src_curie": "GO:0042310",
+      "rel": "bioprocess_bioprocess",
+      "dst_curie": "GO:0001998",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3439413",
+      "src_curie": "GO:0097746",
+      "rel": "bioprocess_bioprocess",
+      "dst_curie": "GO:0002034",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3442893",
+      "src_curie": "GO:0002710",
+      "rel": "bioprocess_bioprocess",
+      "dst_curie": "GO:0002841",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3448843",
+      "src_curie": "GO:0001666",
+      "rel": "bioprocess_bioprocess",
+      "dst_curie": "GO:0071456",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3456717",
+      "src_curie": "GO:0097746",
+      "rel": "bioprocess_bioprocess",
+      "dst_curie": "GO:0042311",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3456718",
+      "src_curie": "GO:0097746",
+      "rel": "bioprocess_bioprocess",
+      "dst_curie": "GO:0019229",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3479286",
+      "src_curie": "GO:0042802",
+      "rel": "molfunc_molfunc",
+      "dst_curie": "GO:0042803",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3480561",
+      "src_curie": "GO:0043231",
+      "rel": "cellcomp_cellcomp",
+      "dst_curie": "GO:0005739",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3480565",
+      "src_curie": "GO:0043231",
+      "rel": "cellcomp_cellcomp",
+      "dst_curie": "GO:0005783",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3482307",
+      "src_curie": "GO:0043005",
+      "rel": "cellcomp_cellcomp",
+      "dst_curie": "GO:0030424",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3482315",
+      "src_curie": "GO:0043005",
+      "rel": "cellcomp_cellcomp",
+      "dst_curie": "GO:0030425",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3484297",
+      "src_curie": "NCBIGene:351",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0019899",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3484337",
+      "src_curie": "NCBIGene:1956",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0019899",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3484618",
+      "src_curie": "NCBIGene:79444",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0019899",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3484770",
+      "src_curie": "NCBIGene:2064",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0019838",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3484947",
+      "src_curie": "NCBIGene:2147",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0005102",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3501298",
+      "src_curie": "NCBIGene:85443",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0005524",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3501311",
+      "src_curie": "NCBIGene:91662",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0005524",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3501609",
+      "src_curie": "NCBIGene:95",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0042802",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3501655",
+      "src_curie": "NCBIGene:355",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0042802",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3501656",
+      "src_curie": "NCBIGene:358",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0042802",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3501823",
+      "src_curie": "NCBIGene:2064",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0042802",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3501896",
+      "src_curie": "NCBIGene:3035",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0042802",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3502000",
+      "src_curie": "NCBIGene:4233",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0042802",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3502116",
+      "src_curie": "NCBIGene:5816",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0042802",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3502286",
+      "src_curie": "NCBIGene:7422",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0042802",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3502857",
+      "src_curie": "NCBIGene:81494",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0042802",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3503171",
+      "src_curie": "NCBIGene:95",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0046872",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3503446",
+      "src_curie": "NCBIGene:4010",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0046872",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3503600",
+      "src_curie": "NCBIGene:5743",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0046872",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3503943",
+      "src_curie": "NCBIGene:9745",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0046872",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3504015",
+      "src_curie": "NCBIGene:10451",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0046872",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3504455",
+      "src_curie": "NCBIGene:55781",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0046872",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3504654",
+      "src_curie": "NCBIGene:79444",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0046872",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3508941",
+      "src_curie": "NCBIGene:4233",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0004714",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3511212",
+      "src_curie": "NCBIGene:53904",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0004672",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3511441",
+      "src_curie": "NCBIGene:5816",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0044877",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3514591",
+      "src_curie": "NCBIGene:2932",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0019901",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3515597",
+      "src_curie": "NCBIGene:53904",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0003779",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3517061",
+      "src_curie": "NCBIGene:1017",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0019904",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3517912",
+      "src_curie": "NCBIGene:1956",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0045296",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3519040",
+      "src_curie": "NCBIGene:53904",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0005516",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3519753",
+      "src_curie": "NCBIGene:355",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0038023",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3520487",
+      "src_curie": "NCBIGene:4879",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0005179",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3521462",
+      "src_curie": "NCBIGene:283092",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0004930",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3526764",
+      "src_curie": "NCBIGene:53904",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0106310",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3526810",
+      "src_curie": "NCBIGene:85443",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0106310",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3527163",
+      "src_curie": "NCBIGene:53904",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0106311",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3532568",
+      "src_curie": "NCBIGene:7422",
+      "rel": "molfunc_protein",
+      "dst_curie": "GO:0005125",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3571421",
+      "src_curie": "NCBIGene:1956",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005789",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3576180",
+      "src_curie": "NCBIGene:4233",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0009986",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3586402",
+      "src_curie": "NCBIGene:5295",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0048471",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3591949",
+      "src_curie": "NCBIGene:7827",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005887",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3593445",
+      "src_curie": "NCBIGene:7827",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0045121",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3595486",
+      "src_curie": "NCBIGene:84925",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0043231",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3596462",
+      "src_curie": "NCBIGene:84925",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005765",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3597653",
+      "src_curie": "NCBIGene:801",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005654",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3597663",
+      "src_curie": "NCBIGene:841",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005654",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3597698",
+      "src_curie": "NCBIGene:1017",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005654",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3597905",
+      "src_curie": "NCBIGene:2353",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005654",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3597953",
+      "src_curie": "NCBIGene:2932",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005654",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3598055",
+      "src_curie": "NCBIGene:3303",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005654",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3598209",
+      "src_curie": "NCBIGene:4609",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005654",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3598811",
+      "src_curie": "NCBIGene:7157",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005654",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3600681",
+      "src_curie": "NCBIGene:79444",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005654",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3601968",
+      "src_curie": "NCBIGene:7827",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005783",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3604664",
+      "src_curie": "NCBIGene:5816",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0043025",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3606838",
+      "src_curie": "NCBIGene:1956",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0000139",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3607671",
+      "src_curie": "NCBIGene:5816",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0030424",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3609567",
+      "src_curie": "NCBIGene:1956",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0045202",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3611689",
+      "src_curie": "NCBIGene:4010",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0000785",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3612382",
+      "src_curie": "NCBIGene:343930",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0000785",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3612389",
+      "src_curie": "NCBIGene:374393",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0000785",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3613475",
+      "src_curie": "NCBIGene:1956",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005925",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3614678",
+      "src_curie": "NCBIGene:4233",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0043235",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3615668",
+      "src_curie": "NCBIGene:1287",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005788",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3615700",
+      "src_curie": "NCBIGene:2147",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005788",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3615876",
+      "src_curie": "NCBIGene:59272",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0005788",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3617183",
+      "src_curie": "NCBIGene:358",
+      "rel": "cellcomp_protein",
+      "dst_curie": "GO:0016324",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3640831",
+      "src_curie": "NCBIGene:10451",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:0042493",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3641189",
+      "src_curie": "NCBIGene:5328",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:0001666",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3641425",
+      "src_curie": "NCBIGene:841",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:0045471",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3681121",
+      "src_curie": "NCBIGene:4879",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:0097746",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3681130",
+      "src_curie": "NCBIGene:59272",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:0097746",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3699419",
+      "src_curie": "NCBIGene:1956",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:0048661",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3705323",
+      "src_curie": "NCBIGene:4233",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:0033674",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3711223",
+      "src_curie": "NCBIGene:2147",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:0042730",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3715777",
+      "src_curie": "NCBIGene:5328",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:0031639",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3726999",
+      "src_curie": "NCBIGene:4879",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:0043114",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3743936",
+      "src_curie": "NCBIGene:5743",
+      "rel": "bioprocess_protein",
+      "dst_curie": "GO:0001516",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3791090",
+      "src_curie": "REACT:R-HSA-6805567",
+      "rel": "pathway_pathway",
+      "dst_curie": "REACT:R-HSA-6809371",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3793204",
+      "src_curie": "NCBIGene:10451",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-9013149",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3795967",
+      "src_curie": "NCBIGene:1287",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-1442490",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3795980",
+      "src_curie": "NCBIGene:1287",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-9010553",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3796643",
+      "src_curie": "NCBIGene:142685",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-8951664",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3796644",
+      "src_curie": "NCBIGene:142685",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-983168",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3799343",
+      "src_curie": "NCBIGene:2147",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-416476",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3801379",
+      "src_curie": "NCBIGene:2353",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-6785807",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3803753",
+      "src_curie": "NCBIGene:283092",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-381753",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3804486",
+      "src_curie": "NCBIGene:2952",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-156590",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3805258",
+      "src_curie": "NCBIGene:3035",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-379716",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3805948",
+      "src_curie": "NCBIGene:3303",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-6798695",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3806727",
+      "src_curie": "NCBIGene:351",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-418594",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3808049",
+      "src_curie": "NCBIGene:3882",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-6809371",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3809614",
+      "src_curie": "NCBIGene:4609",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-5689880",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3812386",
+      "src_curie": "NCBIGene:5295",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-5673001",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3812803",
+      "src_curie": "NCBIGene:53904",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-9662360",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3812804",
+      "src_curie": "NCBIGene:53904",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-9662361",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3815176",
+      "src_curie": "NCBIGene:55781",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-6791226",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3824275",
+      "src_curie": "NCBIGene:7157",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-6803207",
+      "origin": "primekg"
+     },
+     {
+      "edge_id": "E3827009",
+      "src_curie": "NCBIGene:801",
+      "rel": "pathway_protein",
+      "dst_curie": "REACT:R-HSA-2672351",
+      "origin": "primekg"
+     }
+    ],
+    "edge_ids": [
+     "E8158954",
+     "E3064626",
+     "E8103335",
+     "E8129177",
+     "E8129178",
+     "E8158929",
+     "E8158931",
+     "E8158934",
+     "E8158937",
+     "E8158941",
+     "E8158948",
+     "E8158955",
+     "E8158961",
+     "E8158963",
+     "E8158968",
+     "E8158969",
+     "E8158970",
+     "E8158971",
+     "E8218708",
+     "E8290038",
+     "E50973",
+     "E383473",
+     "E383501",
+     "E2085837",
+     "E2955996",
+     "E3063739",
+     "E3064002",
+     "E3065124",
+     "E3065764",
+     "E3065765",
+     "E3076186",
+     "E3079326",
+     "E3079668",
+     "E3080203",
+     "E3080204",
+     "E3262920",
+     "E3262972",
+     "E3263240",
+     "E3263252",
+     "E3263272",
+     "E3263280",
+     "E3263288",
+     "E3263296",
+     "E3263300",
+     "E3263941",
+     "E3348719",
+     "E3349598",
+     "E3369564",
+     "E3373608",
+     "E3380824",
+     "E3389588",
+     "E3389706",
+     "E3390640",
+     "E3394881",
+     "E3394994",
+     "E3395224",
+     "E3399732",
+     "E3399793",
+     "E3403070",
+     "E3403897",
+     "E3406799",
+     "E3406933",
+     "E3410556",
+     "E3410645",
+     "E3411328",
+     "E3433581",
+     "E3433583",
+     "E3433589",
+     "E3439413",
+     "E3442893",
+     "E3448843",
+     "E3456717",
+     "E3456718",
+     "E3479286",
+     "E3480561",
+     "E3480565",
+     "E3482307",
+     "E3482315",
+     "E3484297",
+     "E3484337",
+     "E3484618",
+     "E3484770",
+     "E3484947",
+     "E3501298",
+     "E3501311",
+     "E3501609",
+     "E3501655",
+     "E3501656",
+     "E3501823",
+     "E3501896",
+     "E3502000",
+     "E3502116",
+     "E3502286",
+     "E3502857",
+     "E3503171",
+     "E3503446",
+     "E3503600",
+     "E3503943",
+     "E3504015",
+     "E3504455",
+     "E3504654",
+     "E3508941",
+     "E3511212",
+     "E3511441",
+     "E3514591",
+     "E3515597",
+     "E3517061",
+     "E3517912",
+     "E3519040",
+     "E3519753",
+     "E3520487",
+     "E3521462",
+     "E3526764",
+     "E3526810",
+     "E3527163",
+     "E3532568",
+     "E3571421",
+     "E3576180",
+     "E3586402",
+     "E3591949",
+     "E3593445",
+     "E3595486",
+     "E3596462",
+     "E3597653",
+     "E3597663",
+     "E3597698",
+     "E3597905",
+     "E3597953",
+     "E3598055",
+     "E3598209",
+     "E3598811",
+     "E3600681",
+     "E3601968",
+     "E3604664",
+     "E3606838",
+     "E3607671",
+     "E3609567",
+     "E3611689",
+     "E3612382",
+     "E3612389",
+     "E3613475",
+     "E3614678",
+     "E3615668",
+     "E3615700",
+     "E3615876",
+     "E3617183",
+     "E3640831",
+     "E3641189",
+     "E3641425",
+     "E3681121",
+     "E3681130",
+     "E3699419",
+     "E3705323",
+     "E3711223",
+     "E3715777",
+     "E3726999",
+     "E3743936",
+     "E3791090",
+     "E3793204",
+     "E3795967",
+     "E3795980",
+     "E3796643",
+     "E3796644",
+     "E3799343",
+     "E3801379",
+     "E3803753",
+     "E3804486",
+     "E3805258",
+     "E3805948",
+     "E3806727",
+     "E3808049",
+     "E3809614",
+     "E3812386",
+     "E3812803",
+     "E3812804",
+     "E3815176",
+     "E3824275",
+     "E3827009"
+    ],
+    "triples_text": "[E8158954] clear cell renal carcinoma (disease) --dm_affects--> vasoconstriction (biological_process)\n[E3064626] CFHR5 (gene) --phenotype_protein--> Hematuria (phenotype)\n[E8103335] Thrombocytopenia (phenotype) --dm_causes--> Prolonged bleeding after surgery (phenotype)\n[E8129177] Lupus Nephritis (phenotype) --dm_causes--> Proteinuria (phenotype)\n[E8129178] Lupus Nephritis (phenotype) --dm_causes--> Microscopic hematuria (phenotype)\n[E8158929] clear cell renal carcinoma (disease) --dm_has_phenotype--> Renal neoplasm (phenotype)\n[E8158931] clear cell renal carcinoma (disease) --dm_has_phenotype--> Hematuria (phenotype)\n[E8158934] clear cell renal carcinoma (disease) --dm_has_phenotype--> Adrenal Myelolipoma (phenotype)\n[E8158937] clear cell renal carcinoma (disease) --dm_affects--> cellular response to hypoxia (biological_process)\n[E8158941] clear cell renal carcinoma (disease) --dm_affects--> vascular endothelial growth factor receptor signaling pathway (biological_process)\n[E8158948] clear cell renal carcinoma (disease) --dm_affects--> negative regulation of T cell mediated immunity (biological_process)\n[E8158955] clear cell renal carcinoma (disease) --dm_affects--> blood vessel diameter maintenance (biological_process)\n[E8158961] Cabozantinib (drug) --dm_treats_or_applied_or_studied_to_treat--> clear cell renal carcinoma (disease)\n[E8158963] belzutifan (drug) --dm_treats_or_applied_or_studied_to_treat--> clear cell renal carcinoma (disease)\n[E8158968] clear cell renal carcinoma (disease) --dm_has_phenotype--> Clear cell renal cell carcinoma (phenotype)\n[E8158969] clear cell renal carcinoma (disease) --dm_has_phenotype--> Sarcomatoid Differentiation (phenotype)\n[E8158970] clear cell renal carcinoma (disease) --dm_has_phenotype--> Coagulative Tumor Necrosis (phenotype)\n[E8158971] clear cell renal carcinoma (disease) --dm_has_phenotype--> Fuhrman Nuclear Grade (phenotype)\n[E8218708] Macroscopic hematuria (phenotype) --dm_causes--> Acute kidney injury (phenotype)\n[E8290038] Hyperuricemia (phenotype) --dm_causes--> Uric acid nephrolithiasis (phenotype)\n[E50973] PIK3R1 (gene) --protein_protein--> MYO3A (gene)\n[E383473] Tivozanib (drug) --indication--> clear cell renal carcinoma (disease)\n[E383501] Triethylenetetramine (drug) --indication--> clear cell renal carcinoma (disease)\n[E2085837] Triethylenetetramine (drug) --drug_drug--> Valaciclovir (drug)\n[E2955996] Alprostadil (drug) --drug_drug--> Caspofungin (drug)\n[E3063739] LMX1B (gene) --phenotype_protein--> Proteinuria (phenotype)\n[E3064002] ASPG (gene) --phenotype_protein--> Thrombocytopenia (phenotype)\n[E3065124] CFHR5 (gene) --phenotype_protein--> Macroscopic hematuria (phenotype)\n[E3065764] Abnormal renal physiology (phenotype) --phenotype_phenotype--> Hematuria (phenotype)\n[E3065765] Abnormal urine cytology (phenotype) --phenotype_phenotype--> Hematuria (phenotype)\n[E3076186] Abnormal urine cytology (phenotype) --phenotype_phenotype--> Cylindruria (phenotype)\n[E3079326] Abnormal urine cytology (phenotype) --phenotype_phenotype--> Increased urinary epithelial cell count (phenotype)\n[E3079668] Abnormal urine cytology (phenotype) --phenotype_phenotype--> Urinary mulberry cells (phenotype)\n[E3080203] Hematuria (phenotype) --phenotype_phenotype--> Dysmorphic hematuria (phenotype)\n[E3080204] Abnormal urine cytology (phenotype) --phenotype_phenotype--> Urinary oval fat bodies (phenotype)\n[E3262920] GSTT1 (gene) --disease_protein--> clear cell renal carcinoma (disease)\n[E3262972] KRT32 (gene) --disease_protein--> clear cell renal carcinoma (disease)\n[E3263240] BIRC7 (gene) --disease_protein--> clear cell renal carcinoma (disease)\n[E3263252] SLC49A4 (gene) --disease_protein--> clear cell renal carcinoma (disease)\n[E3263272] CSMD3 (gene) --disease_protein--> clear cell renal carcinoma (disease)\n[E3263280] ASB15 (gene) --disease_protein--> clear cell renal carcinoma (disease)\n[E3263288] FAAH2 (gene) --disease_protein--> clear cell renal carcinoma (disease)\n[E3263296] OR4C13 (gene) --disease_protein--> clear cell renal carcinoma (disease)\n[E3263300] VMO1 (gene) --disease_protein--> clear cell renal carcinoma (disease)\n[E3263941] DCLK3 (gene) --disease_protein--> clear cell renal carcinoma (disease)\n[E3348719] Arginine (drug) --drug_effect--> Thrombocytopenia (phenotype)\n[E3349598] Coenzyme M (drug) --drug_effect--> Thrombocytopenia (phenotype)\n[E3369564] Iopamidol (drug) --drug_effect--> Hematuria (phenotype)\n[E3373608] Methenamine (drug) --drug_effect--> Hematuria (phenotype)\n[E3380824] Podofilox (drug) --drug_effect--> Hematuria (phenotype)\n[E3389588] Alitretinoin (drug) --drug_effect--> Acute kidney injury (phenotype)\n[E3389706] Alitretinoin (drug) --drug_effect--> Thrombocytopenia (phenotype)\n[E3390640] Valaciclovir (drug) --drug_effect--> Microangiopathic hemolytic anemia (phenotype)\n[E3394881] Acitretin (drug) --drug_effect--> Proteinuria (phenotype)\n[E3394994] Valrubicin (drug) --drug_effect--> Hematuria (phenotype)\n[E3395224] Misoprostol (drug) --drug_effect--> Thrombocytopenia (phenotype)\n[E3399732] Acamprosate (drug) --drug_effect--> Acute kidney injury (phenotype)\n[E3399793] Acamprosate (drug) --drug_effect--> Hyperuricemia (phenotype)\n[E3403070] Caspofungin (drug) --drug_effect--> Acute kidney injury (phenotype)\n[E3403897] Febuxostat (drug) --drug_effect--> Proteinuria (phenotype)\n[E3406799] Gadoversetamide (drug) --drug_effect--> Thrombocytopenia (phenotype)\n[E3406933] Micafungin (drug) --drug_effect--> Acute kidney injury (phenotype)\n[E3410556] Calcitonin porcine (drug) --drug_effect--> Hematuria (phenotype)\n[E3410645] Human calcitonin (drug) --drug_effect--> Hematuria (phenotype)\n[E3411328] Enfuvirtide (drug) --drug_effect--> Thrombocytopenia (phenotype)\n[E3433581] vasoconstriction (biological_process) --bioprocess_bioprocess--> vascular associated smooth muscle contraction (biological_process)\n[E3433583] vasoconstriction (biological_process) --bioprocess_bioprocess--> norepinephrine-epinephrine vasoconstriction involved in regulation of systemic arterial blood pressure (biological_process)\n[E3433589] vasoconstriction (biological_process) --bioprocess_bioprocess--> angiotensin-mediated vasoconstriction involved in regulation of systemic arterial blood pressure (biological_process)\n[E3439413] blood vessel diameter maintenance (biological_process) --bioprocess_bioprocess--> maintenance of blood vessel diameter homeostasis by renin-angiotensin (biological_process)\n[E3442893] negative regulation of T cell mediated immunity (biological_process) --bioprocess_bioprocess--> negative regulation of T cell mediated immune response to tumor cell (biological_process)\n[E3448843] response to hypoxia (biological_process) --bioprocess_bioprocess--> cellular response to hypoxia (biological_process)\n[E3456717] blood vessel diameter maintenance (biological_process) --bioprocess_bioprocess--> vasodilation (biological_process)\n[E3456718] blood vessel diameter maintenance (biological_process) --bioprocess_bioprocess--> regulation of vasoconstriction (biological_process)\n[E3479286] identical protein binding (molecular_function) --molfunc_molfunc--> protein homodimerization activity (molecular_function)\n[E3480561] intracellular membrane-bounded organelle (cellular_component) --cellcomp_cellcomp--> mitochondrion (cellular_component)\n[E3480565] intracellular membrane-bounded organelle (cellular_component) --cellcomp_cellcomp--> endoplasmic reticulum (cellular_component)\n[E3482307] neuron projection (cellular_component) --cellcomp_cellcomp--> axon (cellular_component)\n[E3482315] neuron projection (cellular_component) --cellcomp_cellcomp--> dendrite (cellular_component)\n[E3484297] APP (gene) --molfunc_protein--> enzyme binding (molecular_function)\n[E3484337] EGFR (gene) --molfunc_protein--> enzyme binding (molecular_function)\n[E3484618] BIRC7 (gene) --molfunc_protein--> enzyme binding (molecular_function)\n[E3484770] ERBB2 (gene) --molfunc_protein--> growth factor binding (molecular_function)\n[E3484947] F2 (gene) --molfunc_protein--> signaling receptor binding (molecular_function)\n[E3501298] DCLK3 (gene) --molfunc_protein--> ATP binding (molecular_function)\n[E3501311] NLRP12 (gene) --molfunc_protein--> ATP binding (molecular_function)\n[E3501609] ACY1 (gene) --molfunc_protein--> identical protein binding (molecular_function)\n[E3501655] FAS (gene) --molfunc_protein--> identical protein binding (molecular_function)\n[E3501656] AQP1 (gene) --molfunc_protein--> identical protein binding (molecular_function)\n[E3501823] ERBB2 (gene) --molfunc_protein--> identical protein binding (molecular_function)\n[E3501896] HARS1 (gene) --molfunc_protein--> identical protein binding (molecular_function)\n[E3502000] MET (gene) --molfunc_protein--> identical protein binding (molecular_function)\n[E3502116] PVALB (gene) --molfunc_protein--> identical protein binding (molecular_function)\n[E3502286] VEGFA (gene) --molfunc_protein--> identical protein binding (molecular_function)\n[E3502857] CFHR5 (gene) --molfunc_protein--> identical protein binding (molecular_function)\n[E3503171] ACY1 (gene) --molfunc_protein--> metal ion binding (molecular_function)\n[E3503446] LMX1B (gene) --molfunc_protein--> metal ion binding (molecular_function)\n[E3503600] PTGS2 (gene) --molfunc_protein--> metal ion binding (molecular_function)\n[E3503943] ZNF536 (gene) --molfunc_protein--> metal ion binding (molecular_function)\n[E3504015] VAV3 (gene) --molfunc_protein--> metal ion binding (molecular_function)\n[E3504455] RIOK2 (gene) --molfunc_protein--> metal ion binding (molecular_function)\n[E3504654] BIRC7 (gene) --molfunc_protein--> metal ion binding (molecular_function)\n[E3508941] MET (gene) --molfunc_protein--> transmembrane receptor protein tyrosine kinase activity (molecular_function)\n[E3511212] MYO3A (gene) --molfunc_protein--> protein kinase activity (molecular_function)\n[E3511441] PVALB (gene) --molfunc_protein--> protein-containing complex binding (molecular_function)\n[E3514591] GSK3B (gene) --molfunc_protein--> protein kinase binding (molecular_function)\n[E3515597] MYO3A (gene) --molfunc_protein--> actin binding (molecular_function)\n[E3517061] CDK2 (gene) --molfunc_protein--> protein domain specific binding (molecular_function)\n[E3517912] EGFR (gene) --molfunc_protein--> cadherin binding (molecular_function)\n[E3519040] MYO3A (gene) --molfunc_protein--> calmodulin binding (molecular_function)\n[E3519753] FAS (gene) --molfunc_protein--> signaling receptor activity (molecular_function)\n[E3520487] NPPB (gene) --molfunc_protein--> hormone activity (molecular_function)\n[E3521462] OR4C13 (gene) --molfunc_protein--> G protein-coupled receptor activity (molecular_function)\n[E3526764] MYO3A (gene) --molfunc_protein--> protein serine kinase activity (molecular_function)\n[E3526810] DCLK3 (gene) --molfunc_protein--> protein serine kinase activity (molecular_function)\n[E3527163] MYO3A (gene) --molfunc_protein--> protein threonine kinase activity (molecular_function)\n[E3532568] VEGFA (gene) --molfunc_protein--> cytokine activity (molecular_function)\n[E3571421] EGFR (gene) --cellcomp_protein--> endoplasmic reticulum membrane (cellular_component)\n[E3576180] MET (gene) --cellcomp_protein--> cell surface (cellular_component)\n[E3586402] PIK3R1 (gene) --cellcomp_protein--> perinuclear region of cytoplasm (cellular_component)\n[E3591949] NPHS2 (gene) --cellcomp_protein--> integral component of plasma membrane (cellular_component)\n[E3593445] NPHS2 (gene) --cellcomp_protein--> membrane raft (cellular_component)\n[E3595486] SLC49A4 (gene) --cellcomp_protein--> intracellular membrane-bounded organelle (cellular_component)\n[E3596462] SLC49A4 (gene) --cellcomp_protein--> lysosomal membrane (cellular_component)\n[E3597653] CALM1 (gene) --cellcomp_protein--> nucleoplasm (cellular_component)\n[E3597663] CASP8 (gene) --cellcomp_protein--> nucleoplasm (cellular_component)\n[E3597698] CDK2 (gene) --cellcomp_protein--> nucleoplasm (cellular_component)\n[E3597905] FOS (gene) --cellcomp_protein--> nucleoplasm (cellular_component)\n[E3597953] GSK3B (gene) --cellcomp_protein--> nucleoplasm (cellular_component)\n[E3598055] HSPA1A (gene) --cellcomp_protein--> nucleoplasm (cellular_component)\n[E3598209] MYC (gene) --cellcomp_protein--> nucleoplasm (cellular_component)\n[E3598811] TP53 (gene) --cellcomp_protein--> nucleoplasm (cellular_component)\n[E3600681] BIRC7 (gene) --cellcomp_protein--> nucleoplasm (cellular_component)\n[E3601968] NPHS2 (gene) --cellcomp_protein--> endoplasmic reticulum (cellular_component)\n[E3604664] PVALB (gene) --cellcomp_protein--> neuronal cell body (cellular_component)\n[E3606838] EGFR (gene) --cellcomp_protein--> Golgi membrane (cellular_component)\n[E3607671] PVALB (gene) --cellcomp_protein--> axon (cellular_component)\n[E3609567] EGFR (gene) --cellcomp_protein--> synapse (cellular_component)\n[E3611689] LMX1B (gene) --cellcomp_protein--> chromatin (cellular_component)\n[E3612382] MSGN1 (gene) --cellcomp_protein--> chromatin (cellular_component)\n[E3612389] FAM111B (gene) --cellcomp_protein--> chromatin (cellular_component)\n[E3613475] EGFR (gene) --cellcomp_protein--> focal adhesion (cellular_component)\n[E3614678] MET (gene) --cellcomp_protein--> receptor complex (cellular_component)\n[E3615668] COL4A5 (gene) --cellcomp_protein--> endoplasmic reticulum lumen (cellular_component)\n[E3615700] F2 (gene) --cellcomp_protein--> endoplasmic reticulum lumen (cellular_component)\n[E3615876] ACE2 (gene) --cellcomp_protein--> endoplasmic reticulum lumen (cellular_component)\n[E3617183] AQP1 (gene) --cellcomp_protein--> apical plasma membrane (cellular_component)\n[E3640831] VAV3 (gene) --bioprocess_protein--> response to drug (biological_process)\n[E3641189] PLAU (gene) --bioprocess_protein--> response to hypoxia (biological_process)\n[E3641425] CASP8 (gene) --bioprocess_protein--> response to ethanol (biological_process)\n[E3681121] NPPB (gene) --bioprocess_protein--> blood vessel diameter maintenance (biological_process)\n[E3681130] ACE2 (gene) --bioprocess_protein--> blood vessel diameter maintenance (biological_process)\n[E3699419] EGFR (gene) --bioprocess_protein--> positive regulation of smooth muscle cell proliferation (biological_process)\n[E3705323] MET (gene) --bioprocess_protein--> positive regulation of kinase activity (biological_process)\n[E3711223] F2 (gene) --bioprocess_protein--> fibrinolysis (biological_process)\n[E3715777] PLAU (gene) --bioprocess_protein--> plasminogen activation (biological_process)\n[E3726999] NPPB (gene) --bioprocess_protein--> regulation of vascular permeability (biological_process)\n[E3743936] PTGS2 (gene) --bioprocess_protein--> prostaglandin biosynthetic process (biological_process)\n[E3791090] Keratinization (pathway) --pathway_pathway--> Formation of the cornified envelope (pathway)\n[E3793204] VAV3 (gene) --pathway_protein--> RAC1 GTPase cycle (pathway)\n[E3795967] COL4A5 (gene) --pathway_protein--> Collagen degradation (pathway)\n[E3795980] COL4A5 (gene) --pathway_protein--> Regulation of expression of SLITs and ROBOs (pathway)\n[E3796643] ASB15 (gene) --pathway_protein--> Neddylation (pathway)\n[E3796644] ASB15 (gene) --pathway_protein--> Antigen processing: Ubiquitination & Proteasome degradation (pathway)\n[E3799343] F2 (gene) --pathway_protein--> G alpha (q) signalling events (pathway)\n[E3801379] FOS (gene) --pathway_protein--> Interleukin-4 and Interleukin-13 signaling (pathway)\n[E3803753] OR4C13 (gene) --pathway_protein--> Olfactory Signaling Pathway (pathway)\n[E3804486] GSTT1 (gene) --pathway_protein--> Glutathione conjugation (pathway)\n[E3805258] HARS1 (gene) --pathway_protein--> Cytosolic tRNA aminoacylation (pathway)\n[E3805948] HSPA1A (gene) --pathway_protein--> Neutrophil degranulation (pathway)\n[E3806727] APP (gene) --pathway_protein--> G alpha (i) signalling events (pathway)\n[E3808049] KRT32 (gene) --pathway_protein--> Formation of the cornified envelope (pathway)\n[E3809614] MYC (gene) --pathway_protein--> Ub-specific processing proteases (pathway)\n[E3812386] PIK3R1 (gene) --pathway_protein--> RAF/MAP kinase cascade (pathway)\n[E3812803] MYO3A (gene) --pathway_protein--> Sensory processing of sound by inner hair cells of the cochlea (pathway)\n[E3812804] MYO3A (gene) --pathway_protein--> Sensory processing of sound by outer hair cells of the cochlea (pathway)\n[E3815176] RIOK2 (gene) --pathway_protein--> Major pathway of rRNA processing in the nucleolus and cytosol (pathway)\n[E3824275] TP53 (gene) --pathway_protein--> TP53 Regulates Transcription of Caspase Activators and Caspases (pathway)\n[E3827009] CALM1 (gene) --pathway_protein--> Stimuli-sensing channels (pathway)",
+    "meta": {
+     "retriever": "gnn_pcst",
+     "variant": "full",
+     "budget": 500,
+     "gnn_a_tag": "main",
+     "target_types": [
+      "gene",
+      "biological_process",
+      "molecular_function",
+      "cellular_component",
+      "drug",
+      "phenotype",
+      "pathway"
+     ],
+     "per_type": true,
+     "missing_seeds": [],
+     "seed_notes": [],
+     "n_candidates": 32767,
+     "alpha": 0.0,
+     "beta": 0.25,
+     "ppr": 1.0,
+     "hub": 0.25,
+     "lift": true,
+     "direct_go": true,
+     "anchor_edges": 2,
+     "adaptive_budget": true,
+     "budget_ceiling": 500,
+     "n_nonseed": 176
+    }
+   },
+   "ms": 1248,
+   "by": "llm"
+  },
+  {
+   "name": "get_mechanism",
+   "args": {
+    "disease_curie": "MONDO:0005005"
+   },
+   "result": {
+    "disease": "MONDO:0005005",
+    "name": "clear cell renal carcinoma",
+    "chains": [
+     {
+      "chain_id": "chain-1",
+      "steps": [
+       {
+        "mechanism": "dismech:Clear_Cell_Renal_Cell_Carcinoma#VHL_Tumor_Suppressor_Inactivation",
+        "label": "VHL Tumor Suppressor Inactivation",
+        "edge_id": "E8158972",
+        "pmids": [
+         "PMID:37085424"
+        ],
+        "quotes": [
+         "[PMID:37085424] [SUPPORT] These include somatic gene mutations such as VHL, PBRM1, SETD2, and BAP1 --- Explanation: This comprehensive review confirms VHL as the primary genomic biomarker and driver mutation in ccRCC."
+        ]
+       },
+       {
+        "mechanism": "dismech:Clear_Cell_Renal_Cell_Carcinoma#HIF_2_Stabilization",
+        "label": "HIF-2α Stabilization",
+        "edge_id": "E8158973",
+        "pmids": [],
+        "quotes": []
+       },
+       {
+        "mechanism": "dismech:Clear_Cell_Renal_Cell_Carcinoma#VEGF_Driven_Angiogenesis",
+        "label": "VEGF-Driven Angiogenesis",
+        "edge_id": "E8158975",
+        "pmids": [],
+        "quotes": []
+       }
+      ]
+     },
+     {
+      "chain_id": "chain-2",
+      "steps": [
+       {
+        "mechanism": "dismech:Clear_Cell_Renal_Cell_Carcinoma#Epigenetic_Dysregulation",
+        "label": "Epigenetic Dysregulation",
+        "edge_id": "E8158981",
+        "pmids": [
+         "PMID:37085424"
+        ],
+        "quotes": [
+         "[PMID:37085424] [SUPPORT] These include somatic gene mutations such as VHL, PBRM1, SETD2, and BAP1 --- Explanation: This review confirms PBRM1, SETD2, and BAP1 as recurrent genomic biomarkers in ccRCC contributing to epigenetic dysregulation."
+        ]
+       },
+       {
+        "mechanism": "dismech:Clear_Cell_Renal_Cell_Carcinoma#Growth_Factor_Pathway_Activation",
+        "label": "Growth Factor Pathway Activation",
+        "edge_id": "E8158982",
+        "pmids": [],
+        "quotes": []
+       }
+      ]
+     },
+     {
+      "chain_id": "chain-3",
+      "steps": [
+       {
+        "mechanism": "dismech:Clear_Cell_Renal_Cell_Carcinoma#Immune_Evasion_via_PD_L1_and_Immunosuppressive_Microenvironment",
+        "label": "Immune Evasion via PD-L1 and Immunosuppressive Microenvironment",
+        "edge_id": "E8158983",
+        "pmids": [
+         "PMID:38762484"
+        ],
+        "quotes": [
+         "[PMID:38762484] [SUPPORT] The interaction of PD-1 and PD-L1 negatively regulates adaptive immune response mainly by inhibiting the activity of effector T cells while enhancing the function of immunosuppressive regulatory T cells (Tregs), largely contributing to the maintenance of immune homeostasis that prevents dysregulated immunity and harmful immune responses. However, cancer cells exploit the PD-1/PD-L1 axis to cause immune escape in cancer development and progression. --- Explanation: Review describing how tumors including ccRCC exploit PD-1/PD-L1 signaling to suppress anti-tumor immunity, relevant to the highly immune-infiltrated ccRCC microenvironment."
+        ]
+       }
+      ]
+     },
+     {
+      "chain_id": "chain-4",
+      "steps": [
+       {
+        "mechanism": "dismech:Clear_Cell_Renal_Cell_Carcinoma#VSP_Inhibitor_Blockade_of_Systemic_Endothelial_VEGF_Signaling",
+        "label": "VSP Inhibitor Blockade of Systemic Endothelial VEGF Signaling",
+        "edge_id": "E8158984",
+        "pmids": [
+         "PMID:21527770",
+         "PMID:36621810"
+        ],
+        "quotes": [
+         "[PMID:21527770] [SUPPORT] Hypertension (HTN) is an on-target effect of the vascular endothelial growth factor pathway inhibitor, sunitinib. --- Explanation: States in the renal-cell-carcinoma setting that the blood-pressure effect of sunitinib is on-target VEGF pathway inhibition, which is exactly what this trigger node asserts for the ccRCC treatment context.|[PMID:36621810] [SUPPORT] One of the most common side effects of these drugs is hypertension, especially in patients treated with vascular endothelial growth factor inhibitors, as well as tyrosine kinase inhibitors and proteasome inhibitors. --- Explanation: Establishes VEGF pathway inhibition as the leading anticancer-drug route to hypertension, generalizing the ccRCC observation to the drug class. Evidence source is OTHER because this is a scientific statement / review."
+        ]
+       },
+       {
+        "mechanism": "dismech:Clear_Cell_Renal_Cell_Carcinoma#Treatment_Emergent_Vasoconstriction_and_Increased_Peripheral_Vascular_Resistance",
+        "label": "Treatment-Emergent Vasoconstriction and Increased Peripheral Vascular Resistance",
+        "edge_id": "E8158985",
+        "pmids": [],
+        "quotes": []
+       }
+      ]
+     },
+     {
+      "chain_id": "chain-5",
+      "steps": [
+       {
+        "mechanism": "dismech:Clear_Cell_Renal_Cell_Carcinoma#Metabolic_Reprogramming_and_Aerobic_Glycolysis",
+        "label": "Metabolic Reprogramming and Aerobic Glycolysis",
+        "edge_id": "E8158980",
+        "pmids": [
+         "PMID:23792563"
+        ],
+        "quotes": [
+         "[PMID:23792563] [SUPPORT] Aggressive cancers demonstrated evidence of a metabolic shift, involving downregulation of genes involved in the TCA cycle, decreased AMPK and PTEN protein levels, upregulation of the pentose phosphate pathway and the glutamine transporter genes, increased acetyl-CoA carboxylase protein --- Explanation: The TCGA molecular characterization of more than 400 ccRCC tumors documents a recurrent metabolic shift (TCA-cycle downregulation, pentose-phosphate-pathway and glutamine-transporter upregulation) that correlates with stage and severity, supporting aerobic-glycolysis-directed metabolic reprogramming.|[DOI:10.1186/s12967-024-04848-x] [SUPPORT] Clear cell renal cell carcinoma is a prototypical tumor characterized by metabolic reprogramming --- Explanation: Single-cell and spatial transcriptomic metabolic profiling identifies ccRCC as a prototypical metabolic-reprogramming tumor, with the tumor epicenter showing elevated glycolysis."
+        ]
+       }
+      ]
+     }
+    ],
+    "genes": [
+     "NCBIGene:55193",
+     "NCBIGene:7428",
+     "NCBIGene:8314"
+    ],
+    "drugs": [
+     "DRUGBANK:DB01268",
+     "DRUGBANK:DB06589",
+     "DRUGBANK:DB06626",
+     "DRUGBANK:DB08875",
+     "NCIT:C135627"
+    ],
+    "drug_evidence": [
+     {
+      "curie": "DRUGBANK:DB01268",
+      "name": "Sunitinib",
+      "relation": "dm_treats_or_applied_or_studied_to_treat",
+      "edge_id": "E8158958",
+      "pmids": [
+       "PMID:39196544"
+      ],
+      "quotes": [
+       "[PMID:39196544] [INDIRECT EVIDENCE] [SUPPORT] For advanced or metastatic RCC, combinations of immune checkpoint inhibitors or the combination of immune checkpoint inhibitors with tyrosine kinase inhibitors are associated with tumor response of 42% to 71% --- Explanation: Tyrosine kinase inhibitors, combined with immune checkpoint inhibitors, are a standard systemic option for advanced/metastatic RCC."
+      ]
+     },
+     {
+      "curie": "DRUGBANK:DB06589",
+      "name": "Pazopanib",
+      "relation": "dm_treats_or_applied_or_studied_to_treat",
+      "edge_id": "E8158959",
+      "pmids": [
+       "PMID:39196544"
+      ],
+      "quotes": [
+       "[PMID:39196544] [INDIRECT EVIDENCE] [SUPPORT] For advanced or metastatic RCC, combinations of immune checkpoint inhibitors or the combination of immune checkpoint inhibitors with tyrosine kinase inhibitors are associated with tumor response of 42% to 71% --- Explanation: Tyrosine kinase inhibitors, combined with immune checkpoint inhibitors, are a standard systemic option for advanced/metastatic RCC."
+      ]
+     },
+     {
+      "curie": "DRUGBANK:DB06626",
+      "name": "Axitinib",
+      "relation": "dm_treats_or_applied_or_studied_to_treat",
+      "edge_id": "E8158960",
+      "pmids": [
+       "PMID:39196544"
+      ],
+      "quotes": [
+       "[PMID:39196544] [INDIRECT EVIDENCE] [SUPPORT] For advanced or metastatic RCC, combinations of immune checkpoint inhibitors or the combination of immune checkpoint inhibitors with tyrosine kinase inhibitors are associated with tumor response of 42% to 71% --- Explanation: Tyrosine kinase inhibitors, combined with immune checkpoint inhibitors, are a standard systemic option for advanced/metastatic RCC."
+      ]
+     },
+     {
+      "curie": "DRUGBANK:DB08875",
+      "name": "Cabozantinib",
+      "relation": "dm_treats_or_applied_or_studied_to_treat",
+      "edge_id": "E8158961",
+      "pmids": [
+       "PMID:39196544"
+      ],
+      "quotes": [
+       "[PMID:39196544] [INDIRECT EVIDENCE] [SUPPORT] For advanced or metastatic RCC, combinations of immune checkpoint inhibitors or the combination of immune checkpoint inhibitors with tyrosine kinase inhibitors are associated with tumor response of 42% to 71% --- Explanation: Tyrosine kinase inhibitors, combined with immune checkpoint inhibitors, are a standard systemic option for advanced/metastatic RCC."
+      ]
+     },
+     {
+      "curie": "NCIT:C135627",
+      "name": "belzutifan",
+      "relation": "dm_treats_or_applied_or_studied_to_treat",
+      "edge_id": "E8158963",
+      "pmids": [],
+      "quotes": []
+     }
+    ]
+   },
+   "ms": 33,
+   "by": "llm"
+  }
+ ],
+ "evidence": {
+  "edge_ids": [
+   "E8158954",
+   "E3064626",
+   "E8103335",
+   "E8129177",
+   "E8129178",
+   "E8158929",
+   "E8158931",
+   "E8158934",
+   "E8158937",
+   "E8158941",
+   "E8158948",
+   "E8158955",
+   "E8158961",
+   "E8158963",
+   "E8158968",
+   "E8158969",
+   "E8158970",
+   "E8158971",
+   "E8218708",
+   "E8290038",
+   "E50973",
+   "E383473",
+   "E383501",
+   "E2085837",
+   "E2955996",
+   "E3063739",
+   "E3064002",
+   "E3065124",
+   "E3065764",
+   "E3065765",
+   "E3076186",
+   "E3079326",
+   "E3079668",
+   "E3080203",
+   "E3080204",
+   "E3262920",
+   "E3262972",
+   "E3263240",
+   "E3263252",
+   "E3263272",
+   "E3263280",
+   "E3263288",
+   "E3263296",
+   "E3263300",
+   "E3263941",
+   "E3348719",
+   "E3349598",
+   "E3369564",
+   "E3373608",
+   "E3380824",
+   "E3389588",
+   "E3389706",
+   "E3390640",
+   "E3394881",
+   "E3394994",
+   "E3395224",
+   "E3399732",
+   "E3399793",
+   "E3403070",
+   "E3403897",
+   "E3406799",
+   "E3406933",
+   "E3410556",
+   "E3410645",
+   "E3411328",
+   "E3433581",
+   "E3433583",
+   "E3433589",
+   "E3439413",
+   "E3442893",
+   "E3448843",
+   "E3456717",
+   "E3456718",
+   "E3479286",
+   "E3480561",
+   "E3480565",
+   "E3482307",
+   "E3482315",
+   "E3484297",
+   "E3484337",
+   "E3484618",
+   "E3484770",
+   "E3484947",
+   "E3501298",
+   "E3501311",
+   "E3501609",
+   "E3501655",
+   "E3501656",
+   "E3501823",
+   "E3501896",
+   "E3502000",
+   "E3502116",
+   "E3502286",
+   "E3502857",
+   "E3503171",
+   "E3503446",
+   "E3503600",
+   "E3503943",
+   "E3504015",
+   "E3504455",
+   "E3504654",
+   "E3508941",
+   "E3511212",
+   "E3511441",
+   "E3514591",
+   "E3515597",
+   "E3517061",
+   "E3517912",
+   "E3519040",
+   "E3519753",
+   "E3520487",
+   "E3521462",
+   "E3526764",
+   "E3526810",
+   "E3527163",
+   "E3532568",
+   "E3571421",
+   "E3576180",
+   "E3586402",
+   "E3591949",
+   "E3593445",
+   "E3595486",
+   "E3596462",
+   "E3597653",
+   "E3597663",
+   "E3597698",
+   "E3597905",
+   "E3597953",
+   "E3598055",
+   "E3598209",
+   "E3598811",
+   "E3600681",
+   "E3601968",
+   "E3604664",
+   "E3606838",
+   "E3607671",
+   "E3609567",
+   "E3611689",
+   "E3612382",
+   "E3612389",
+   "E3613475",
+   "E3614678",
+   "E3615668",
+   "E3615700",
+   "E3615876",
+   "E3617183",
+   "E3640831",
+   "E3641189",
+   "E3641425",
+   "E3681121",
+   "E3681130",
+   "E3699419",
+   "E3705323",
+   "E3711223",
+   "E3715777",
+   "E3726999",
+   "E3743936",
+   "E3791090",
+   "E3793204",
+   "E3795967",
+   "E3795980",
+   "E3796643",
+   "E3796644",
+   "E3799343",
+   "E3801379",
+   "E3803753",
+   "E3804486",
+   "E3805258",
+   "E3805948",
+   "E3806727",
+   "E3808049",
+   "E3809614",
+   "E3812386",
+   "E3812803",
+   "E3812804",
+   "E3815176",
+   "E3824275",
+   "E3827009",
+   "E8158972",
+   "E8158973",
+   "E8158975",
+   "E8158981",
+   "E8158982",
+   "E8158983",
+   "E8158984",
+   "E8158985",
+   "E8158980",
+   "E8158958",
+   "E8158959",
+   "E8158960"
+  ],
+  "pmids": [
+   "PMID:37085424",
+   "PMID:38762484",
+   "PMID:21527770",
+   "PMID:36621810",
+   "PMID:23792563",
+   "PMID:39196544"
+  ]
+ },
+ "draft": "**Summary**  \nClear cell renal cell carcinoma (ccRCC) is directly annotated with hematuria as a clinical phenotype [E8158931]. The tumor’s hallmark VHL–HIF–VEGF axis drives abnormal angiogenesis and vascular remodeling, producing fragile, leaky vessels that rupture into the urinary tract. Concurrently, ccRCC disrupts normal blood‑vessel diameter maintenance and vasoconstriction pathways [E8158954, E8158955], further predisposing to hemorrhage.\n\n**Evidence paths**  \n- ccRCC → *has phenotype* → Hematuria [E8158931]  \n- ccRCC → *affects* → vasoconstriction [E8158954] → *bioprocess* → vascular smooth muscle contraction, angiotensin‑mediated vasoconstriction [E3433583, E3433589]  \n- ccRCC → *affects* → blood vessel diameter maintenance [E8158955] → *bioprocess* → renin‑angiotensin homeostasis, vasodilation, regulation of vasoconstriction [E3439413, E3456717, E3456718]  \n- ccRCC → *affects* → cellular response to hypoxia [E8158937] and VEGF receptor signaling [E8158941]  \n- NPPB (natriuretic peptide B) → *bioprocess* → blood vessel diameter maintenance [E3681121] and regulation of vascular permeability [E3726999]  \n- CFHR5 → *phenotype* → Hematuria / Macroscopic hematuria [E3064626, E3065124]  \n- Abnormal renal physiology → *phenotype* → Hematuria [E3065764]\n\n**Mechanism**  \n1. **VHL inactivation** stabilizes HIF‑2α [PMID:37085424]  \n2. **HIF‑2α stabilization** drives VEGF‑dependent angiogenesis [PMID:37085424]  \n3. **VEGF‑driven angiogenesis** creates disorganized, permeable tumor vessels [PMID:37085424]  \n4. **Epigenetic dysregulation** activates growth‑factor pathways [PMID:37085424]  \n5. **Metabolic reprogramming** (aerobic glycolysis) supports tumor growth [PMID:23792563]  \n6. **Immune evasion** via PD‑L1 sustains the vascular niche [PMID:38762484]  \n7. **VEGF blockade therapy** can paradoxically cause vasoconstriction and increased vascular resistance [PMID:21527770, PMID:36621810]\n\n**Targets / drugs**  \n- **VEGF/VEGFR axis** (bevacizumab, sunitinib, pazopanib, axitinib, cabozantinib, tivozanib) – directly target the angiogenesis driver [E8158958–E8158961, E383473]  \n- **HIF‑2α** (belzutifan) – upstream inhibitor of the hypoxic response [E8158963]  \n- **MET** – receptor tyrosine kinase implicated in ccRCC [E3508941, E3502000]  \n- **VEGFA** – cytokine activity and identical protein binding [E3532568, E3502286]  \n- **NPPB** – regulates vascular permeability and vessel diameter [E3681121, E3726999]  \n- **CFHR5** – complement factor linked to hematuria phenotypes [E3064626, E3065124, E3502857]  \n\n*Model‑ranked suggestions (from tumor protein dysregulation) would be listed here if a specific patient were provided.*\n\n**Testable hypothesis**  \nHypothesis: The hematuria in ccRCC is primarily caused by VEGF‑driven neoangiogenesis producing structurally defective vessels that rupture under normal urinary flow, and this bleeding is exacerbated by tumor‑mediated dysregulation of vasoconstriction and vascular permeability pathways (NPPB, renin‑angiotensin).  \nExperiment: In a VHL‑deficient ccRCC xenograft model, quantify urinary red‑blood‑cell counts and renal vascular integrity (micro‑CT angiography, Evans blue extravasation) before and after treatment with a VEGFR tyrosine‑kinase inhibitor versus a HIF‑2α inhibitor, and correlate with NPPB and angiotensin‑receptor expression in tumor vessels.\n\n**Caveats**  \n- The graph provides associative links (phenotype annotations, pathway memberships) but no direct causal edges from a specific molecular event to hematuria.  \n- CFHR5 and NPPB associations are correlative; functional validation in ccRCC is not in the graph.  \n- Drug–phenotype edges (e.g., iopamidol → hematuria) reflect drug side effects, not tumor mechanisms.  \n- No patient‑specific data were used; this is a disease‑level summary.",
+ "claims": [
+  {
+   "claim_id": "c1",
+   "text": "Clear cell renal cell carcinoma (ccRCC) is directly annotated with hematuria as a clinical phenotype.",
+   "support": {
+    "edge_ids": [
+     "E8158931"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "Clear cell renal cell carcinoma (ccRCC) is directly annotated with hematuria as a clinical phenotype [E8158931].",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c2",
+   "text": "The tumor’s hallmark VHL–HIF–VEGF axis drives abnormal angiogenesis and vascular remodeling, producing fragile, leaky vessels that rupture into the urinary tract.",
+   "support": {
+    "edge_ids": [],
+    "pmids": []
+   },
+   "status": "removed",
+   "quote": "The tumor’s hallmark VHL–HIF–VEGF axis drives abnormal angiogenesis and vascular remodeling, producing fragile, leaky vessels that rupture into the urinary tract.",
+   "unmatched_ids": [],
+   "entity_match": false,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c3",
+   "text": "Concurrently, ccRCC disrupts normal blood‑vessel diameter maintenance and vasoconstriction pathways, further predisposing to hemorrhage.",
+   "support": {
+    "edge_ids": [
+     "E8158954",
+     "E8158955"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "Concurrently, ccRCC disrupts normal blood‑vessel diameter maintenance and vasoconstriction pathways [E8158954, E8158955], further predisposing to hemorrhage.",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c4",
+   "text": "ccRCC → *has phenotype* → Hematuria",
+   "support": {
+    "edge_ids": [
+     "E8158931"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "ccRCC → *has phenotype* → Hematuria [E8158931]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c5",
+   "text": "ccRCC → *affects* → vasoconstriction → *bioprocess* → vascular smooth muscle contraction, angiotensin‑mediated vasoconstriction",
+   "support": {
+    "edge_ids": [
+     "E8158954",
+     "E3433583",
+     "E3433589"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "ccRCC → *affects* → vasoconstriction [E8158954] → *bioprocess* → vascular smooth muscle contraction, angiotensin‑mediated vasoconstriction [E3433583, E3433589]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c6",
+   "text": "ccRCC → *affects* → blood vessel diameter maintenance → *bioprocess* → renin‑angiotensin homeostasis, vasodilation, regulation of vasoconstriction",
+   "support": {
+    "edge_ids": [
+     "E8158955",
+     "E3439413",
+     "E3456717",
+     "E3456718"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "ccRCC → *affects* → blood vessel diameter maintenance [E8158955] → *bioprocess* → renin‑angiotensin homeostasis, vasodilation, regulation of vasoconstriction [E3439413, E3456717, E3456718]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c7",
+   "text": "ccRCC → *affects* → cellular response to hypoxia and VEGF receptor signaling",
+   "support": {
+    "edge_ids": [
+     "E8158937",
+     "E8158941"
+    ],
+    "pmids": []
+   },
+   "status": "removed",
+   "quote": "ccRCC → *affects* → cellular response to hypoxia [E8158937] and VEGF receptor signaling [E8158941]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [
+    "E8158941"
+   ],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c8",
+   "text": "NPPB (natriuretic peptide B) → *bioprocess* → blood vessel diameter maintenance and regulation of vascular permeability",
+   "support": {
+    "edge_ids": [
+     "E3681121",
+     "E3726999"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "NPPB (natriuretic peptide B) → *bioprocess* → blood vessel diameter maintenance [E3681121] and regulation of vascular permeability [E3726999]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c9",
+   "text": "CFHR5 → *phenotype* → Hematuria / Macroscopic hematuria",
+   "support": {
+    "edge_ids": [
+     "E3064626",
+     "E3065124"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "CFHR5 → *phenotype* → Hematuria / Macroscopic hematuria [E3064626, E3065124]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c10",
+   "text": "Abnormal renal physiology → *phenotype* → Hematuria",
+   "support": {
+    "edge_ids": [
+     "E3065764"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "Abnormal renal physiology → *phenotype* → Hematuria [E3065764]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c11",
+   "text": "**VHL inactivation** stabilizes HIF‑2α",
+   "support": {
+    "edge_ids": [],
+    "pmids": [
+     "PMID:37085424"
+    ]
+   },
+   "status": "supported",
+   "quote": "**VHL inactivation** stabilizes HIF‑2α [PMID:37085424]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c12",
+   "text": "**HIF‑2α stabilization** drives VEGF‑dependent angiogenesis",
+   "support": {
+    "edge_ids": [],
+    "pmids": [
+     "PMID:37085424"
+    ]
+   },
+   "status": "supported",
+   "quote": "**HIF‑2α stabilization** drives VEGF‑dependent angiogenesis [PMID:37085424]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c13",
+   "text": "**VEGF‑driven angiogenesis** creates disorganized, permeable tumor vessels",
+   "support": {
+    "edge_ids": [],
+    "pmids": [
+     "PMID:37085424"
+    ]
+   },
+   "status": "supported",
+   "quote": "**VEGF‑driven angiogenesis** creates disorganized, permeable tumor vessels [PMID:37085424]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c14",
+   "text": "**Epigenetic dysregulation** activates growth‑factor pathways",
+   "support": {
+    "edge_ids": [],
+    "pmids": [
+     "PMID:37085424"
+    ]
+   },
+   "status": "supported",
+   "quote": "**Epigenetic dysregulation** activates growth‑factor pathways [PMID:37085424]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c15",
+   "text": "**Metabolic reprogramming** (aerobic glycolysis) supports tumor growth",
+   "support": {
+    "edge_ids": [],
+    "pmids": [
+     "PMID:23792563"
+    ]
+   },
+   "status": "supported",
+   "quote": "**Metabolic reprogramming** (aerobic glycolysis) supports tumor growth [PMID:23792563]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c16",
+   "text": "**Immune evasion** via PD‑L1 sustains the vascular niche",
+   "support": {
+    "edge_ids": [],
+    "pmids": [
+     "PMID:38762484"
+    ]
+   },
+   "status": "supported",
+   "quote": "**Immune evasion** via PD‑L1 sustains the vascular niche [PMID:38762484]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c17",
+   "text": "**VEGF blockade therapy** can paradoxically cause vasoconstriction and increased vascular resistance",
+   "support": {
+    "edge_ids": [],
+    "pmids": [
+     "PMID:21527770",
+     "PMID:36621810"
+    ]
+   },
+   "status": "supported",
+   "quote": "**VEGF blockade therapy** can paradoxically cause vasoconstriction and increased vascular resistance [PMID:21527770, PMID:36621810]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c18",
+   "text": "**VEGF/VEGFR axis** (bevacizumab, sunitinib, pazopanib, axitinib, cabozantinib, tivozanib) – directly target the angiogenesis driver",
+   "support": {
+    "edge_ids": [
+     "E8158958",
+     "E8158961",
+     "E383473"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "**VEGF/VEGFR axis** (bevacizumab, sunitinib, pazopanib, axitinib, cabozantinib, tivozanib) – directly target the angiogenesis driver [E8158958–E8158961, E383473]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c19",
+   "text": "**HIF‑2α** (belzutifan) – upstream inhibitor of the hypoxic response",
+   "support": {
+    "edge_ids": [
+     "E8158963"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "**HIF‑2α** (belzutifan) – upstream inhibitor of the hypoxic response [E8158963]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c20",
+   "text": "**MET** – receptor tyrosine kinase implicated in ccRCC",
+   "support": {
+    "edge_ids": [
+     "E3508941",
+     "E3502000"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "**MET** – receptor tyrosine kinase implicated in ccRCC [E3508941, E3502000]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c21",
+   "text": "**VEGFA** – cytokine activity and identical protein binding",
+   "support": {
+    "edge_ids": [
+     "E3532568",
+     "E3502286"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "**VEGFA** – cytokine activity and identical protein binding [E3532568, E3502286]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c22",
+   "text": "**NPPB** – regulates vascular permeability and vessel diameter",
+   "support": {
+    "edge_ids": [
+     "E3681121",
+     "E3726999"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "**NPPB** – regulates vascular permeability and vessel diameter [E3681121, E3726999]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c23",
+   "text": "**CFHR5** – complement factor linked to hematuria phenotypes",
+   "support": {
+    "edge_ids": [
+     "E3064626",
+     "E3065124",
+     "E3502857"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "**CFHR5** – complement factor linked to hematuria phenotypes [E3064626, E3065124, E3502857]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c24",
+   "text": "Model‑ranked suggestions (from tumor protein dysregulation) would be listed here if a specific patient were provided.*",
+   "support": {
+    "edge_ids": [],
+    "pmids": []
+   },
+   "status": "removed",
+   "quote": "Model‑ranked suggestions (from tumor protein dysregulation) would be listed here if a specific patient were provided.*",
+   "unmatched_ids": [],
+   "entity_match": false,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c25",
+   "text": "Hypothesis: The hematuria in ccRCC is primarily caused by VEGF‑driven neoangiogenesis producing structurally defective vessels that rupture under normal urinary flow, and this bleeding is exacerbated by tumor‑mediated dysregulation of vasoconstriction and vascular permeability pathways (NPPB, renin‑angiotensin).",
+   "support": {
+    "edge_ids": [],
+    "pmids": []
+   },
+   "status": "hypothesis",
+   "quote": "Hypothesis: The hematuria in ccRCC is primarily caused by VEGF‑driven neoangiogenesis producing structurally defective vessels that rupture under normal urinary flow, and this bleeding is exacerbated by tumor‑mediated dysregulation of vasoconstriction and vascular permeability pathways (NPPB, renin‑angiotensin).",
+   "unmatched_ids": [],
+   "entity_match": false,
+   "mismatched_ids": [],
+   "model_output_only": false
+  }
+ ],
+ "answer": "**Summary**\nClear cell renal cell carcinoma (ccRCC) is directly annotated with hematuria as a clinical phenotype [E8158931].  Concurrently, ccRCC disrupts normal blood‑vessel diameter maintenance and vasoconstriction pathways [E8158954, E8158955], further predisposing to hemorrhage.\n\n**Evidence paths**\n- ccRCC → *has phenotype* → Hematuria [E8158931]\n- ccRCC → *affects* → vasoconstriction [E8158954] → *bioprocess* → vascular smooth muscle contraction, angiotensin‑mediated vasoconstriction [E3433583, E3433589]\n- ccRCC → *affects* → blood vessel diameter maintenance [E8158955] → *bioprocess* → renin‑angiotensin homeostasis, vasodilation, regulation of vasoconstriction [E3439413, E3456717, E3456718]\n- NPPB (natriuretic peptide B) → *bioprocess* → blood vessel diameter maintenance [E3681121] and regulation of vascular permeability [E3726999]\n- CFHR5 → *phenotype* → Hematuria / Macroscopic hematuria [E3064626, E3065124]\n- Abnormal renal physiology → *phenotype* → Hematuria [E3065764]\n\n**Mechanism**\n1. **VHL inactivation** stabilizes HIF‑2α [PMID:37085424]\n2. **HIF‑2α stabilization** drives VEGF‑dependent angiogenesis [PMID:37085424]\n3. **VEGF‑driven angiogenesis** creates disorganized, permeable tumor vessels [PMID:37085424]\n4. **Epigenetic dysregulation** activates growth‑factor pathways [PMID:37085424]\n5. **Metabolic reprogramming** (aerobic glycolysis) supports tumor growth [PMID:23792563]\n6. **Immune evasion** via PD‑L1 sustains the vascular niche [PMID:38762484]\n7. **VEGF blockade therapy** can paradoxically cause vasoconstriction and increased vascular resistance [PMID:21527770, PMID:36621810]\n\n**Targets / drugs**\n- **VEGF/VEGFR axis** (bevacizumab, sunitinib, pazopanib, axitinib, cabozantinib, tivozanib) – directly target the angiogenesis driver [E8158958–E8158961, E383473]\n- **HIF‑2α** (belzutifan) – upstream inhibitor of the hypoxic response [E8158963]\n- **MET** – receptor tyrosine kinase implicated in ccRCC [E3508941, E3502000]\n- **VEGFA** – cytokine activity and identical protein binding [E3532568, E3502286]\n- **NPPB** – regulates vascular permeability and vessel diameter [E3681121, E3726999]\n- **CFHR5** – complement factor linked to hematuria phenotypes [E3064626, E3065124, E3502857]\n\n**Testable hypothesis**\nHypothesis: The hematuria in ccRCC is primarily caused by VEGF‑driven neoangiogenesis producing structurally defective vessels that rupture under normal urinary flow, and this bleeding is exacerbated by tumor‑mediated dysregulation of vasoconstriction and vascular permeability pathways (NPPB, renin‑angiotensin).\nExperiment: In a VHL‑deficient ccRCC xenograft model, quantify urinary red‑blood‑cell counts and renal vascular integrity (micro‑CT angiography, Evans blue extravasation) before and after treatment with a VEGFR tyrosine‑kinase inhibitor versus a HIF‑2α inhibitor, and correlate with NPPB and angiotensin‑receptor expression in tumor vessels.\n\n**Caveats**\n- The graph provides associative links (phenotype annotations, pathway memberships) but no direct causal edges from a specific molecular event to hematuria.\n- CFHR5 and NPPB associations are correlative; functional validation in ccRCC is not in the graph.\n- Drug–phenotype edges (e.g., iopamidol → hematuria) reflect drug side effects, not tumor mechanisms.\n- No patient‑specific data were used; this is a disease‑level summary.\n\n_Verifier: removed 3 claim(s) that had no supporting edge or PMID._",
+ "verifier": {
+  "n_claims": 25,
+  "n_supported": 21,
+  "n_hypothesis": 1,
+  "n_removed": 3,
+  "n_supported_entity_match": 21,
+  "n_supported_model": 0,
+  "n_claims_mismatched": 1,
+  "n_non_claims": 5,
+  "non_claims": [
+   {
+    "text": "Experiment: In a VHL‑deficient ccRCC xenograft model, quantify urinary red‑blood‑cell counts and renal vascular integrity (micro‑CT angiography, Evans blue extravasation) before and after treatment with a VEGFR tyrosine‑kinase inhibitor versus a HIF‑2α inhibitor, and correlate with NPPB and angiotensin‑receptor expression in tumor vessels.",
+    "reason": "experiment",
+    "quote": "Experiment: In a VHL‑deficient ccRCC xenograft model, quantify urinary red‑blood‑cell counts and renal vascular integrity (micro‑CT angiography, Evans blue extravasation) before and after treatment with a VEGFR tyrosine‑kinase inhibitor versus a HIF‑2α inhibitor, and correlate with NPPB and angiotensin‑receptor expression in tumor vessels."
+   },
+   {
+    "text": "The graph provides associative links (phenotype annotations, pathway memberships) but no direct causal edges from a specific molecular event to hematuria.",
+    "reason": "caveat",
+    "quote": "The graph provides associative links (phenotype annotations, pathway memberships) but no direct causal edges from a specific molecular event to hematuria."
+   },
+   {
+    "text": "CFHR5 and NPPB associations are correlative; functional validation in ccRCC is not in the graph.",
+    "reason": "caveat",
+    "quote": "CFHR5 and NPPB associations are correlative; functional validation in ccRCC is not in the graph."
+   },
+   {
+    "text": "Drug–phenotype edges (e.g., iopamidol → hematuria) reflect drug side effects, not tumor mechanisms.",
+    "reason": "caveat",
+    "quote": "Drug–phenotype edges (e.g., iopamidol → hematuria) reflect drug side effects, not tumor mechanisms."
+   },
+   {
+    "text": "No patient‑specific data were used; this is a disease‑level summary.",
+    "reason": "caveat",
+    "quote": "No patient‑specific data were used; this is a disease‑level summary."
+   }
+  ],
+  "strict": true
+ },
+ "verifier_splitter": "deterministic",
+ "notes": [],
+ "elapsed_s": 26.35,
+ "llm_calls": [
+  {
+   "purpose": "agent",
+   "s": 1.35,
+   "cached": false,
+   "attempt": 1,
+   "finish_reason": "tool_calls",
+   "prompt_tokens": 1913,
+   "completion_tokens": 135,
+   "reasoning_tokens": 97
+  },
+  {
+   "purpose": "agent",
+   "s": 9.08,
+   "cached": false,
+   "attempt": 1,
+   "finish_reason": "tool_calls",
+   "prompt_tokens": 2297,
+   "completion_tokens": 210,
+   "reasoning_tokens": 131
+  },
+  {
+   "purpose": "agent",
+   "s": 1.62,
+   "cached": false,
+   "attempt": 1,
+   "finish_reason": "tool_calls",
+   "prompt_tokens": 8323,
+   "completion_tokens": 66,
+   "reasoning_tokens": 27
+  },
+  {
+   "purpose": "agent",
+   "s": 12.76,
+   "cached": false,
+   "attempt": 1,
+   "finish_reason": "stop",
+   "prompt_tokens": 9123,
+   "completion_tokens": 1603,
+   "reasoning_tokens": 381
+  }
+ ],
+ "subgraph_sizes": [
+  {
+   "by": "llm",
+   "requested_budget": null,
+   "budget": 500,
+   "adaptive": true,
+   "n_nodes": 178,
+   "n_edges": 178
+  }
+ ],
+ "e3_batch": {
+  "kind": "disease",
+  "trap": false,
+  "category": "mechanism"
+ },
+ "reverified": {
+  "from": "eval\\traces\\e3_v1_agent\\D01.json",
+  "at": "2026-11-07T21:29:01",
+  "verifier_sha": "54177496ec62",
+  "previous_verifier": {
+   "n_claims": 25,
+   "n_supported": 21,
+   "n_hypothesis": 1,
+   "n_removed": 3,
+   "n_supported_entity_match": 21,
+   "n_supported_model": 0,
+   "n_claims_mismatched": 1,
+   "n_non_claims": 5,
+   "non_claims": [
+    {
+     "text": "Experiment: In a VHL‑deficient ccRCC xenograft model, quantify urinary red‑blood‑cell counts and renal vascular integrity (micro‑CT angiography, Evans blue extravasation) before and after treatment with a VEGFR tyrosine‑kinase inhibitor versus a HIF‑2α inhibitor, and correlate with NPPB and angiotensin‑receptor expression in tumor vessels.",
+     "reason": "experiment",
+     "quote": "Experiment: In a VHL‑deficient ccRCC xenograft model, quantify urinary red‑blood‑cell counts and renal vascular integrity (micro‑CT angiography, Evans blue extravasation) before and after treatment with a VEGFR tyrosine‑kinase inhibitor versus a HIF‑2α inhibitor, and correlate with NPPB and angiotensin‑receptor expression in tumor vessels."
+    },
+    {
+     "text": "The graph provides associative links (phenotype annotations, pathway memberships) but no direct causal edges from a specific molecular event to hematuria.",
+     "reason": "caveat",
+     "quote": "The graph provides associative links (phenotype annotations, pathway memberships) but no direct causal edges from a specific molecular event to hematuria."
+    },
+    {
+     "text": "CFHR5 and NPPB associations are correlative; functional validation in ccRCC is not in the graph.",
+     "reason": "caveat",
+     "quote": "CFHR5 and NPPB associations are correlative; functional validation in ccRCC is not in the graph."
+    },
+    {
+     "text": "Drug–phenotype edges (e.g., iopamidol → hematuria) reflect drug side effects, not tumor mechanisms.",
+     "reason": "caveat",
+     "quote": "Drug–phenotype edges (e.g., iopamidol → hematuria) reflect drug side effects, not tumor mechanisms."
+    },
+    {
+     "text": "No patient‑specific data were used; this is a disease‑level summary.",
+     "reason": "caveat",
+     "quote": "No patient‑specific data were used; this is a disease‑level summary."
+    }
+   ],
+   "strict": true
+  }
+ }
+}

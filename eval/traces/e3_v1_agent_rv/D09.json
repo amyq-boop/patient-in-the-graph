@@ -1,0 +1,1397 @@
+{
+ "contract_version": "1",
+ "run_id": "e3_v1_agent_rv",
+ "qid": "D09",
+ "mode": "agent",
+ "patient_id": null,
+ "question": "What mechanism explains cystic fibrosis, and what do CFTR modulators correct?",
+ "model": "nvidia/nemotron-3-ultra-550b-a55b",
+ "variant": "full",
+ "tool_calls": [
+  {
+   "name": "resolve_terms",
+   "args": {
+    "texts": [
+     "cystic fibrosis",
+     "CFTR modulator",
+     "CFTR"
+    ]
+   },
+   "result": {
+    "results": [
+     {
+      "text": "cystic fibrosis",
+      "matches": [
+       {
+        "curie": "MONDO:0009061",
+        "name": "cystic fibrosis",
+        "type": "disease",
+        "score": 1.0
+       },
+       {
+        "curie": "MONDO:0009062",
+        "name": "cystic fibrosis-gastritis-megaloblastic anemia syndrome",
+        "type": "disease",
+        "score": 0.15
+       },
+       {
+        "curie": "MONDO:0005413",
+        "name": "cystic fibrosis associated meconium ileus",
+        "type": "disease",
+        "score": 0.13
+       }
+      ]
+     },
+     {
+      "text": "CFTR modulator",
+      "matches": [
+       {
+        "curie": "NCBIGene:1080",
+        "name": "CFTR",
+        "type": "gene",
+        "score": 0.841
+       }
+      ]
+     },
+     {
+      "text": "CFTR",
+      "matches": [
+       {
+        "curie": "NCBIGene:1080",
+        "name": "CFTR",
+        "type": "gene",
+        "score": 1.0
+       }
+      ]
+     }
+    ]
+   },
+   "ms": 956,
+   "by": "llm"
+  },
+  {
+   "name": "get_mechanism",
+   "args": {
+    "disease_curie": "MONDO:0009061"
+   },
+   "result": {
+    "disease": "MONDO:0009061",
+    "name": "cystic fibrosis",
+    "chains": [
+     {
+      "chain_id": "chain-1",
+      "steps": [
+       {
+        "mechanism": "dismech:Cystic_Fibrosis#CFTR_Dysfunction",
+        "label": "CFTR Dysfunction",
+        "edge_id": "E8170510",
+        "pmids": [
+         "PMID:9922375"
+        ],
+        "quotes": [
+         "[PMID:9922375] [SUPPORT] The cystic fibrosis transmembrane conductance regulator (CFTR) is a unique member of the ABC transporter family that forms a novel Cl- channel. It is located predominantly in the apical membrane of epithelia where it mediates transepithelial salt and liquid movement. Dysfunction of CFTR causes the genetic disease cystic fibrosis. --- Explanation: Comprehensive review establishes CFTR as chloride channel whose dysfunction causes cystic fibrosis.|[PMID:9922375] [SUPPORT] The CFTR is composed of five domains: two membrane-spanning domains (MSDs), two nucleotide-binding domains (NBDs), and a regulatory (R) domain. --- Explanation: Describes the five-domain architecture of CFTR critical to understanding mutation effects."
+        ]
+       },
+       {
+        "mechanism": "dismech:Cystic_Fibrosis#Airway_Surface_Liquid_Depletion",
+        "label": "Airway Surface Liquid Depletion",
+        "edge_id": "E8170511",
+        "pmids": [
+         "PMID:23878362"
+        ],
+        "quotes": [
+         "[PMID:23878362] [SUPPORT] CF lungs are characterized by viscous, dehydrated mucus, persistent neutrophilia and chronic infections. ENaC is negatively regulated by CFTR and, in patients with CF, the absence of CFTR results in a double hit of reduced Cl-/HCO3- and H2O secretion as well as ENaC hyperactivity and increased Na+ and H2O absorption. --- Explanation: CFTR loss with reduced Cl-/HCO3- secretion is linked to airway dehydration."
+        ]
+       },
+       {
+        "mechanism": "dismech:Cystic_Fibrosis#Impaired_Mucociliary_Clearance",
+        "label": "Impaired Mucociliary Clearance",
+        "edge_id": "E8170526",
+        "pmids": [
+         "PMID:23878362"
+        ],
+        "quotes": [
+         "[PMID:23878362] [SUPPORT] Together, these effects are hypothesized to trigger mucus dehydration, resulting in a failure to clear mucus. --- Explanation: Supports the mechanistic link between airway dehydration and defective mucus clearance."
+        ]
+       },
+       {
+        "mechanism": "dismech:Cystic_Fibrosis#Mucus_Plugging",
+        "label": "Mucus Plugging",
+        "edge_id": "E8170530",
+        "pmids": [
+         "PMID:27140670"
+        ],
+        "quotes": [
+         "[PMID:27140670] [SUPPORT] Functional failure of CFTR results in mucus retention and chronic infection and subsequently in local airway inflammation that is harmful to the lungs. --- Explanation: Human clinical review supports airway mucus retention as a direct downstream step toward mucus plugging."
+        ]
+       },
+       {
+        "mechanism": "dismech:Cystic_Fibrosis#Small_Airway_Obstruction",
+        "label": "Small-Airway Obstruction",
+        "edge_id": "E8170533",
+        "pmids": [
+         "PMID:33526571"
+        ],
+        "quotes": [
+         "[PMID:33526571] [SUPPORT] Clinical characteristics include progressive obstructive lung disease, sinusitis, exocrine pancreatic insufficiency leading to malabsorption and malnutrition, liver and pancreatic dysfunction, and male infertility. --- Explanation: Supports progressive obstructive airway physiology as a downstream consequence of CF airway disease."
+        ]
+       },
+       {
+        "mechanism": "dismech:Cystic_Fibrosis#Bronchiectasis",
+        "label": "Bronchiectasis",
+        "edge_id": "E8170537",
+        "pmids": [
+         "PMID:30986316"
+        ],
+        "quotes": [
+         "[PMID:30986316] [SUPPORT] This latter feature results in progressive bronchiectasis and ultimately respiratory failure, which is the leading cause of death in patients with CF. --- Explanation: Supports progression from chronic airway disease to bronchiectasis."
+        ]
+       },
+       {
+        "mechanism": "dismech:Cystic_Fibrosis#Respiratory_Failure",
+        "label": "Respiratory Failure",
+        "edge_id": "E8170551",
+        "pmids": [
+         "PMID:30986316"
+        ],
+        "quotes": [
+         "[PMID:30986316] [SUPPORT] This latter feature results in progressive bronchiectasis and ultimately respiratory failure, which is the leading cause of death in patients with CF. --- Explanation: Supports direct progression from advanced bronchiectasis to respiratory failure."
+        ]
+       }
+      ]
+     },
+     {
+      "chain_id": "chain-2",
+      "steps": [
+       {
+        "mechanism": "dismech:Cystic_Fibrosis#ENaC_Hyperactivity_and_Sodium_Hyperabsorption",
+        "label": "ENaC Hyperactivity and Sodium Hyperabsorption",
+        "edge_id": "E8170523",
+        "pmids": [
+         "PMID:23878362"
+        ],
+        "quotes": [
+         "[PMID:23878362] [SUPPORT] CF lungs are characterized by viscous, dehydrated mucus, persistent neutrophilia and chronic infections. ENaC is negatively regulated by CFTR and, in patients with CF, the absence of CFTR results in a double hit of reduced Cl-/HCO3- and H2O secretion as well as ENaC hyperactivity and increased Na+ and H2O absorption. --- Explanation: Supports ENaC hyperactivity and increased Na+/water absorption in CF airway epithelium."
+        ]
+       }
+      ]
+     },
+     {
+      "chain_id": "chain-3",
+      "steps": [
+       {
+        "mechanism": "dismech:Cystic_Fibrosis#Airway_Surface_Liquid_Acidification",
+        "label": "Airway Surface Liquid Acidification",
+        "edge_id": "E8170527",
+        "pmids": [
+         "PMID:22763554",
+         "PMID:27114540",
+         "PMID:38573173"
+        ],
+        "quotes": [
+         "[PMID:22763554] [SUPPORT] We found that the ASL pH was more acidic in CF pigs, and reducing pH inhibited the antimicrobial activity of ASL. --- Explanation: Measures the acidification directly in newborn CF pigs and shows that pH itself, rather than any downstream consequence of infection, suppresses the antimicrobial activity of the airway surface liquid.|[PMID:27114540] [SUPPORT] Thus, in contrast to Cl(-) secretion, the amount of CFTR is rate-limiting for HCO3 (-) secretion and for correcting host defense abnormalities. --- Explanation: Porcine airway epithelia with graded proportions of CFTR-expressing cells show that bicarbonate secretion, airway surface liquid pH and antimicrobial activity scale with CFTR abundance, whereas chloride secretion saturates early. This supports bicarbonate as a dose-limiting arm in this system; it does not establish the same hierarchy across human tissues and genotypes.|[PMID:38573173] [SUPPORT] cAMP-stimulated non-CF ionocytes do not secrete Na+ or Cl- into the ASL, but rather modulate its pH by secreting bicarbonate via CFTR-linked Cl-/bicarbonate exchange. --- Explanation: Single-cell ion-transport measurements in primary human bronchial epithelium assign the pH-setting function to pulmonary ionocytes acting through CFTR-linked bicarbonate exchange, and the bulk fluid-secretion function to club cells. This separates the pH arm from the volume arm in human cells and identifies which cell type carries it."
+        ]
+       }
+      ]
+     },
+     {
+      "chain_id": "chain-4",
+      "steps": [
+       {
+        "mechanism": "dismech:Cystic_Fibrosis#Chronic_Bacterial_Infection",
+        "label": "Chronic Bacterial Infection",
+        "edge_id": "E8170538",
+        "pmids": [
+         "PMID:30986316"
+        ],
+        "quotes": [
+         "[PMID:30986316] [SUPPORT] Cystic fibrosis (CF) is an autosomal recessive disease characterized by pancreatic insufficiency and chronic endobronchial airway infection. --- Explanation: Clinical review identifies chronic endobronchial infection as a defining characteristic of CF."
+        ]
+       }
+      ]
+     },
+     {
+      "chain_id": "chain-5",
+      "steps": [
+       {
+        "mechanism": "dismech:Cystic_Fibrosis#Macrophage_CFTR_Dysfunction",
+        "label": "Macrophage CFTR Dysfunction",
+        "edge_id": "E8170542",
+        "pmids": [
+         "PMID:36265882"
+        ],
+        "quotes": [
+         "[PMID:36265882] [SUPPORT] CF MDM phagocytosis, intracellular killing of CF pathogens and efferocytosis of apoptotic neutrophils were partially restored by ETI, but inflammatory cytokine production remained unchanged. --- Explanation: Blood-derived macrophages from 56 people with cystic fibrosis, assayed before and during modulator therapy, show CFTR-dependent effector deficits. That correction is partial and does not extend to cytokine production is the reason this node is curated as a parallel arm of uncertain weight rather than a fully corrected one."
+        ]
+       }
+      ]
+     },
+     {
+      "chain_id": "chain-6",
+      "steps": [
+       {
+        "mechanism": "dismech:Cystic_Fibrosis#Neutrophilic_Airway_Inflammation",
+        "label": "Neutrophilic Airway Inflammation",
+        "edge_id": "E8170544",
+        "pmids": [
+         "PMID:29258516"
+        ],
+        "quotes": [
+         "[PMID:29258516] [SUPPORT] The role of neutrophil elastase (NE) is poorly understood in bronchiectasis because of the lack of preclinical data and so most of the assumptions made about NE inhibitor potential benefit is based on data from CF. --- Explanation: Review confirms neutrophil elastase as a key marker of inflammation in CF and bronchiectasis."
+        ]
+       }
+      ]
+     },
+     {
+      "chain_id": "chain-7",
+      "steps": [
+       {
+        "mechanism": "dismech:Cystic_Fibrosis#Neutrophil_Elastase_Mediated_Tissue_Injury",
+        "label": "Neutrophil Elastase-Mediated Tissue Injury",
+        "edge_id": "E8170546",
+        "pmids": [
+         "PMID:29258516"
+        ],
+        "quotes": [
+         "[PMID:29258516] [SUPPORT] In this review sputum NE has proved useful as an inflammatory marker both in stable state bronchiectasis and during exacerbations and local or systemic antibiotic treatment. --- Explanation: Supports persistent NE activity as a biologically relevant marker in chronic suppurative airway disease with CF-based mechanistic context."
+        ]
+       }
+      ]
+     },
+     {
+      "chain_id": "chain-8",
+      "steps": [
+       {
+        "mechanism": "dismech:Cystic_Fibrosis#Airway_Remodeling",
+        "label": "Airway Remodeling",
+        "edge_id": "E8170548",
+        "pmids": [
+         "PMID:30986316"
+        ],
+        "quotes": [
+         "[PMID:30986316] [SUPPORT] This latter feature results in progressive bronchiectasis and ultimately respiratory failure, which is the leading cause of death in patients with CF. --- Explanation: Supports progressive structural airway deterioration in CF lung disease."
+        ]
+       }
+      ]
+     },
+     {
+      "chain_id": "chain-9",
+      "steps": [
+       {
+        "mechanism": "dismech:Cystic_Fibrosis#Impaired_Pancreatic_Organogenesis",
+        "label": "Impaired Pancreatic Organogenesis",
+        "edge_id": "E8170556",
+        "pmids": [
+         "PMID:42262528"
+        ],
+        "quotes": [
+         "[PMID:42262528] [SUPPORT] An emerging body of evidence supports that CFRD may have developmental origins, as people with CF present with pancreatic pathology and glucose abnormalities as early as in utero. This therefore suggests that the CF transmembrane conductance regulator (CFTR) gene mutations that cause CF may impair pancreatic organogenesis, thus leading to CFRD. --- Explanation: Primary literature establishes developmental origins of CF pancreatic pathology, with evidence of pancreatic dysfunction in utero."
+        ]
+       }
+      ]
+     },
+     {
+      "chain_id": "chain-10",
+      "steps": [
+       {
+        "mechanism": "dismech:Cystic_Fibrosis#Pancreatic_Duct_Obstruction",
+        "label": "Pancreatic Duct Obstruction",
+        "edge_id": "E8170558",
+        "pmids": [
+         "PMID:33526571"
+        ],
+        "quotes": [
+         "[PMID:33526571] [SUPPORT] Clinical characteristics include progressive obstructive lung disease, sinusitis, exocrine pancreatic insufficiency leading to malabsorption and malnutrition, liver and pancreatic dysfunction, and male infertility. --- Explanation: Pediatric review confirms pancreatic insufficiency and dysfunction as core CF manifestations."
+        ]
+       }
+      ]
+     },
+     {
+      "chain_id": "chain-11",
+      "steps": [
+       {
+        "mechanism": "dismech:Cystic_Fibrosis#Exocrine_Pancreatic_Tissue_Destruction",
+        "label": "Exocrine Pancreatic Tissue Destruction",
+        "edge_id": "E8170561",
+        "pmids": [
+         "PMID:33526571"
+        ],
+        "quotes": [
+         "[PMID:33526571] [SUPPORT] Clinical characteristics include progressive obstructive lung disease, sinusitis, exocrine pancreatic insufficiency leading to malabsorption and malnutrition, liver and pancreatic dysfunction, and male infertility. --- Explanation: Supports destructive pancreatic dysfunction as part of the CF multiorgan phenotype."
+        ]
+       }
+      ]
+     },
+     {
+      "chain_id": "chain-12",
+      "steps": [
+       {
+        "mechanism": "dismech:Cystic_Fibrosis#Exocrine_Pancreatic_Insufficiency",
+        "label": "Exocrine Pancreatic Insufficiency",
+        "edge_id": "E8170564",
+        "pmids": [
+         "PMID:30986316"
+        ],
+        "quotes": [
+         "[PMID:30986316] [SUPPORT] Cystic fibrosis (CF) is an autosomal recessive disease characterized by pancreatic insufficiency and chronic endobronchial airway infection. --- Explanation: Clinical review identifies pancreatic insufficiency as a defining characteristic of cystic fibrosis."
+        ]
+       }
+      ]
+     },
+     {
+      "chain_id": "chain-13",
+      "steps": [
+       {
+        "mechanism": "dismech:Cystic_Fibrosis#Fat_Malabsorption",
+        "label": "Fat Malabsorption",
+        "edge_id": "E8170568",
+        "pmids": [
+         "PMID:33526571"
+        ],
+        "quotes": [
+         "[PMID:33526571] [SUPPORT] Clinical characteristics include progressive obstructive lung disease, sinusitis, exocrine pancreatic insufficiency leading to malabsorption and malnutrition, liver and pancreatic dysfunction, and male infertility. --- Explanation: Pediatric review confirms malabsorption as a clinical characteristic of CF."
+        ]
+       }
+      ]
+     },
+     {
+      "chain_id": "chain-14",
+      "steps": [
+       {
+        "mechanism": "dismech:Cystic_Fibrosis#Fat_Soluble_Vitamin_Deficiency",
+        "label": "Fat-Soluble Vitamin Deficiency",
+        "edge_id": "E8170572",
+        "pmids": [
+         "PMID:33526571"
+        ],
+        "quotes": [
+         "[PMID:33526571] [SUPPORT] Clinical characteristics include progressive obstructive lung disease, sinusitis, exocrine pancreatic insufficiency leading to malabsorption and malnutrition, liver and pancreatic dysfunction, and male infertility. --- Explanation: Malabsorption leads to vitamin deficiencies as part of the CF nutritional phenotype."
+        ]
+       }
+      ]
+     },
+     {
+      "chain_id": "chain-15",
+      "steps": [
+       {
+        "mechanism": "dismech:Cystic_Fibrosis#Protein_Calorie_Malnutrition",
+        "label": "Protein-Calorie Malnutrition",
+        "edge_id": "E8170574",
+        "pmids": [
+         "PMID:33178516"
+        ],
+        "quotes": [
+         "[PMID:33178516] [SUPPORT] It classically presents in childhood with chronic productive cough, malabsorption causing steatorrhea, and failure to thrive. --- Explanation: Case report review confirms malabsorption and failure to thrive as classic CF presentations."
+        ]
+       }
+      ]
+     },
+     {
+      "chain_id": "chain-16",
+      "steps": [
+       {
+        "mechanism": "dismech:Cystic_Fibrosis#CF_Related_Diabetes",
+        "label": "CF-Related Diabetes",
+        "edge_id": "E8170581",
+        "pmids": [
+         "PMID:30986316"
+        ],
+        "quotes": [
+         "[PMID:30986316] [SUPPORT] Other complications include sinusitis, diabetes mellitus, bowel obstruction, hepatobiliary disease, hyponatremic dehydration, and infertility. --- Explanation: Clinical review lists diabetes mellitus among established complications of CF."
+        ]
+       }
+      ]
+     },
+     {
+      "chain_id": "chain-17",
+      "steps": [
+       {
+        "mechanism": "dismech:Cystic_Fibrosis#Intestinal_Obstruction",
+        "label": "Intestinal Obstruction",
+        "edge_id": "E8170582",
+        "pmids": [
+         "PMID:30986316"
+        ],
+        "quotes": [
+         "[PMID:30986316] [SUPPORT] Other complications include sinusitis, diabetes mellitus, bowel obstruction, hepatobiliary disease, hyponatremic dehydration, and infertility. --- Explanation: Clinical review lists bowel obstruction among established complications of CF."
+        ]
+       }
+      ]
+     },
+     {
+      "chain_id": "chain-18",
+      "steps": [
+       {
+        "mechanism": "dismech:Cystic_Fibrosis#Hepatobiliary_Obstruction",
+        "label": "Hepatobiliary Obstruction",
+        "edge_id": "E8170585",
+        "pmids": [
+         "PMID:30986316"
+        ],
+        "quotes": [
+         "[PMID:30986316] [SUPPORT] Other complications include sinusitis, diabetes mellitus, bowel obstruction, hepatobiliary disease, hyponatremic dehydration, and infertility. --- Explanation: Clinical review lists hepatobiliary disease among established complications of CF."
+        ]
+       }
+      ]
+     },
+     {
+      "chain_id": "chain-19",
+      "steps": [
+       {
+        "mechanism": "dismech:Cystic_Fibrosis#Sweat_Gland_Dysfunction",
+        "label": "Sweat Gland Dysfunction",
+        "edge_id": "E8170588",
+        "pmids": [
+         "PMID:30986316"
+        ],
+        "quotes": [
+         "[PMID:30986316] [SUPPORT] Diagnosis of CF is confirmed by demonstration of elevated sweat chloride. --- Explanation: Elevated sweat chloride reflects defective CFTR-mediated chloride reabsorption in sweat ducts."
+        ]
+       }
+      ]
+     },
+     {
+      "chain_id": "chain-20",
+      "steps": [
+       {
+        "mechanism": "dismech:Cystic_Fibrosis#Hyponatremic_Dehydration",
+        "label": "Hyponatremic Dehydration",
+        "edge_id": "E8170590",
+        "pmids": [
+         "PMID:30986316"
+        ],
+        "quotes": [
+         "[PMID:30986316] [SUPPORT] Other complications include sinusitis, diabetes mellitus, bowel obstruction, hepatobiliary disease, hyponatremic dehydration, and infertility. --- Explanation: Clinical review lists hyponatremic dehydration among established cystic fibrosis complications."
+        ]
+       }
+      ]
+     },
+     {
+      "chain_id": "chain-21",
+      "steps": [
+       {
+        "mechanism": "dismech:Cystic_Fibrosis#Vas_Deferens_Agenesis",
+        "label": "Vas Deferens Agenesis",
+        "edge_id": "E8170591",
+        "pmids": [
+         "PMID:30986316"
+        ],
+        "quotes": [
+         "[PMID:30986316] [SUPPORT] Other complications include sinusitis, diabetes mellitus, bowel obstruction, hepatobiliary disease, hyponatremic dehydration, and infertility. --- Explanation: Clinical review confirms infertility as an established complication of CF."
+        ]
+       }
+      ]
+     },
+     {
+      "chain_id": "chain-22",
+      "steps": [
+       {
+        "mechanism": "dismech:Cystic_Fibrosis#Sinonasal_Disease",
+        "label": "Sinonasal Disease",
+        "edge_id": "E8170593",
+        "pmids": [
+         "PMID:30986316"
+        ],
+        "quotes": [
+         "[PMID:30986316] [SUPPORT] Other complications include sinusitis, diabetes mellitus, bowel obstruction, hepatobiliary disease, hyponatremic dehydration, and infertility. --- Explanation: Clinical review lists sinusitis among established complications of CF."
+        ]
+       }
+      ]
+     },
+     {
+      "chain_id": "chain-23",
+      "steps": [
+       {
+        "mechanism": "dismech:Cystic_Fibrosis#CF_Bone_Disease",
+        "label": "CF Bone Disease",
+        "edge_id": "E8170596",
+        "pmids": [
+         "PMID:15613415"
+        ],
+        "quotes": [
+         "[PMID:15613415] [SUPPORT] Prevention and treatment of CF-related bone disease must address the myriad risk factors (decreased absorption of fat-soluble vitamins due to pancreatic insufficiency, altered sex hormone production, chronic lung infection with increased levels of bone-active cytokines, physical inactivity, and glucocorticoid therapy) for poor bone health. --- Explanation: Consensus summary listing the converging risk factors in this node. It names bone-active cytokines without specifying IL-6 or TNF-alpha, and does not discuss a direct CFTR effect on osteoblasts, which the description marks as possible.|[PMID:15613415] [SUPPORT] Some studies have observed that 50-75% of adults have low bone density and increased rates of fractures. --- Explanation: Supports the statement that low bone density is common in adults with CF."
+        ]
+       }
+      ]
+     }
+    ],
+    "genes": [
+     "NCBIGene:1080"
+    ],
+    "drugs": [
+     "CHEBI:145810",
+     "DRUGBANK:DB00003",
+     "DRUGBANK:DB01586",
+     "DRUGBANK:DB08820",
+     "DRUGBANK:DB09153",
+     "DRUGBANK:DB11712",
+     "DRUGBANK:DB15444"
+    ],
+    "drug_evidence": [
+     {
+      "curie": "DRUGBANK:DB15444",
+      "name": "Elexacaftor",
+      "relation": "dm_treats_or_applied_or_studied_to_treat",
+      "edge_id": "E8170483",
+      "pmids": [
+       "PMID:31697873",
+       "PMID:41702741",
+       "PMID:42033769",
+       "PMID:41738096"
+      ],
+      "quotes": [
+       "[PMID:31697873] [INDIRECT EVIDENCE] [SUPPORT] Elexacaftor-tezacaftor-ivacaftor, relative to placebo, resulted in a percentage of predicted FEV1 that was 13.8 points higher at 4 weeks and 14.3 points higher through 24 weeks, a rate of pulmonary exacerbations that was 63% lower --- Explanation: Phase 3 RCT demonstrates significant improvement in lung function and 63% reduction in pulmonary exacerbations with Trikafta.|[PMID:31697873] [INDIRECT EVIDENCE] [SUPPORT] a respiratory domain score on the Cystic Fibrosis Questionnaire-Revised...that was 20.2 points higher, and a sweat chloride concentration that was 41.8 mmol per liter lower --- Explanation: Trikafta also improves quality of life scores and reduces sweat chloride, a biomarker of CFTR function.|[PMID:41702741] [INDIRECT EVIDENCE] [SUPPORT] The introduction of CFTR modulators such as elexacaftor/tezacaftor/ivacaftor (ETI) has significantly altered the nutritional trajectory of children with cystic fibrosis (cwCF). --- Explanation: Consensus-based guidance recognizes elexacaftor/tezacaftor/ivacaftor as the CFTR modulator that has altered the clinical and nutritional trajectory of children with cystic fibrosis.|[PMID:42033769] [INDIRECT EVIDENCE] [SUPPORT] Among 11,151 PwCF included in the ppFEV1 analysis, we found a mean ppFEV1 increase of 9.9 (95% CI 9.6-10.2) between the pre- and post-ETI initiation periods over three years. --- Explanation: Registry effectiveness analysis showing that the lung-function benefit seen in the randomized trials is sustained for three years at population scale. The design is observational, so secular trend and selection are not excluded.|[PMID:42033769] [INDIRECT EVIDENCE] [SUPPORT] Only 32% had an improvement in both FEV1 and BMI, indicating that not all PwCF respond uniformly to ETI therapy. --- Explanation: Qualifies the population-level result: fewer than a third of participants with both measurements improved on both, so the mean effect should not be read as a uniform individual response.|[PMID:41738096] [INDIRECT EVIDENCE] [SUPPORT] In FRT cells, 518 of 620 (84%) rare variants responded to elexacaftor/tezacaftor/ivacaftor. --- Explanation: Theratyping of rare exonic CFTR variants expressed in Fischer rat thyroid cells is the in vitro basis for extending this therapy beyond F508del genotypes; the accompanying trial provides the clinical arm of that claim."
+      ]
+     },
+     {
+      "curie": "DRUGBANK:DB11712",
+      "name": "Tezacaftor",
+      "relation": "dm_treats_or_applied_or_studied_to_treat",
+      "edge_id": "E8170484",
+      "pmids": [
+       "PMID:31697873",
+       "PMID:41702741",
+       "PMID:42033769",
+       "PMID:41738096"
+      ],
+      "quotes": [
+       "[PMID:31697873] [INDIRECT EVIDENCE] [SUPPORT] Elexacaftor-tezacaftor-ivacaftor, relative to placebo, resulted in a percentage of predicted FEV1 that was 13.8 points higher at 4 weeks and 14.3 points higher through 24 weeks, a rate of pulmonary exacerbations that was 63% lower --- Explanation: Phase 3 RCT demonstrates significant improvement in lung function and 63% reduction in pulmonary exacerbations with Trikafta.|[PMID:31697873] [INDIRECT EVIDENCE] [SUPPORT] a respiratory domain score on the Cystic Fibrosis Questionnaire-Revised...that was 20.2 points higher, and a sweat chloride concentration that was 41.8 mmol per liter lower --- Explanation: Trikafta also improves quality of life scores and reduces sweat chloride, a biomarker of CFTR function.|[PMID:41702741] [INDIRECT EVIDENCE] [SUPPORT] The introduction of CFTR modulators such as elexacaftor/tezacaftor/ivacaftor (ETI) has significantly altered the nutritional trajectory of children with cystic fibrosis (cwCF). --- Explanation: Consensus-based guidance recognizes elexacaftor/tezacaftor/ivacaftor as the CFTR modulator that has altered the clinical and nutritional trajectory of children with cystic fibrosis.|[PMID:42033769] [INDIRECT EVIDENCE] [SUPPORT] Among 11,151 PwCF included in the ppFEV1 analysis, we found a mean ppFEV1 increase of 9.9 (95% CI 9.6-10.2) between the pre- and post-ETI initiation periods over three years. --- Explanation: Registry effectiveness analysis showing that the lung-function benefit seen in the randomized trials is sustained for three years at population scale. The design is observational, so secular trend and selection are not excluded.|[PMID:42033769] [INDIRECT EVIDENCE] [SUPPORT] Only 32% had an improvement in both FEV1 and BMI, indicating that not all PwCF respond uniformly to ETI therapy. --- Explanation: Qualifies the population-level result: fewer than a third of participants with both measurements improved on both, so the mean effect should not be read as a uniform individual response.|[PMID:41738096] [INDIRECT EVIDENCE] [SUPPORT] In FRT cells, 518 of 620 (84%) rare variants responded to elexacaftor/tezacaftor/ivacaftor. --- Explanation: Theratyping of rare exonic CFTR variants expressed in Fischer rat thyroid cells is the in vitro basis for extending this therapy beyond F508del genotypes; the accompanying trial provides the clinical arm of that claim."
+      ]
+     },
+     {
+      "curie": "DRUGBANK:DB08820",
+      "name": "Ivacaftor",
+      "relation": "dm_treats_or_applied_or_studied_to_treat",
+      "edge_id": "E8170485",
+      "pmids": [
+       "PMID:31697873",
+       "PMID:41702741",
+       "PMID:42033769",
+       "PMID:41738096"
+      ],
+      "quotes": [
+       "[PMID:31697873] [INDIRECT EVIDENCE] [SUPPORT] Elexacaftor-tezacaftor-ivacaftor, relative to placebo, resulted in a percentage of predicted FEV1 that was 13.8 points higher at 4 weeks and 14.3 points higher through 24 weeks, a rate of pulmonary exacerbations that was 63% lower --- Explanation: Phase 3 RCT demonstrates significant improvement in lung function and 63% reduction in pulmonary exacerbations with Trikafta.|[PMID:31697873] [INDIRECT EVIDENCE] [SUPPORT] a respiratory domain score on the Cystic Fibrosis Questionnaire-Revised...that was 20.2 points higher, and a sweat chloride concentration that was 41.8 mmol per liter lower --- Explanation: Trikafta also improves quality of life scores and reduces sweat chloride, a biomarker of CFTR function.|[PMID:41702741] [INDIRECT EVIDENCE] [SUPPORT] The introduction of CFTR modulators such as elexacaftor/tezacaftor/ivacaftor (ETI) has significantly altered the nutritional trajectory of children with cystic fibrosis (cwCF). --- Explanation: Consensus-based guidance recognizes elexacaftor/tezacaftor/ivacaftor as the CFTR modulator that has altered the clinical and nutritional trajectory of children with cystic fibrosis.|[PMID:42033769] [INDIRECT EVIDENCE] [SUPPORT] Among 11,151 PwCF included in the ppFEV1 analysis, we found a mean ppFEV1 increase of 9.9 (95% CI 9.6-10.2) between the pre- and post-ETI initiation periods over three years. --- Explanation: Registry effectiveness analysis showing that the lung-function benefit seen in the randomized trials is sustained for three years at population scale. The design is observational, so secular trend and selection are not excluded.|[PMID:42033769] [INDIRECT EVIDENCE] [SUPPORT] Only 32% had an improvement in both FEV1 and BMI, indicating that not all PwCF respond uniformly to ETI therapy. --- Explanation: Qualifies the population-level result: fewer than a third of participants with both measurements improved on both, so the mean effect should not be read as a uniform individual response.|[PMID:41738096] [INDIRECT EVIDENCE] [SUPPORT] In FRT cells, 518 of 620 (84%) rare variants responded to elexacaftor/tezacaftor/ivacaftor. --- Explanation: Theratyping of rare exonic CFTR variants expressed in Fischer rat thyroid cells is the in vitro basis for extending this therapy beyond F508del genotypes; the accompanying trial provides the clinical arm of that claim."
+      ]
+     },
+     {
+      "curie": "DRUGBANK:DB00003",
+      "name": "Dornase alfa",
+      "relation": "dm_treats_or_applied_or_studied_to_treat",
+      "edge_id": "E8170490",
+      "pmids": [
+       "PMID:8874241"
+      ],
+      "quotes": [
+       "[PMID:8874241] [INDIRECT EVIDENCE] [SUPPORT] Dornase alfa improved the mean percent change in FEV1 from baseline by 9.4% compared with 2.1% for placebo (p < 0.001). --- Explanation: Randomized controlled trial demonstrates significant improvement in lung function with dornase alfa."
+      ]
+     },
+     {
+      "curie": "DRUGBANK:DB09153",
+      "name": "Sodium chloride",
+      "relation": "dm_treats_or_applied_or_studied_to_treat",
+      "edge_id": "E8170492",
+      "pmids": [
+       "PMID:16421365",
+       "PMID:16421364"
+      ],
+      "quotes": [
+       "[PMID:16421365] [INDIRECT EVIDENCE] [SUPPORT] In vitro data suggested that sustained hydration of airway surfaces was responsible for the sustained improvement in mucus clearance, whereas inhibition of osmotically driven water transport by amiloride accounted for the observed loss of clinical benefit. --- Explanation: Randomized trial in 24 patients linking the sustained increase in mucus clearance to osmotic hydration of the airway surface, which is the mechanism in the description.|[PMID:16421364] [INDIRECT EVIDENCE] [SUPPORT] The hypertonic-saline group also had significantly fewer pulmonary exacerbations (relative reduction, 56 percent; P=0.02) --- Explanation: 48-week randomized trial in 164 patients showing clinical benefit of adjunctive 7% saline.|[PMID:16421364] [INDIRECT EVIDENCE] [SUPPORT] Hypertonic saline preceded by a bronchodilator is an inexpensive, safe, and effective additional therapy for patients with cystic fibrosis. --- Explanation: Supports use as adjunctive therapy."
+      ]
+     },
+     {
+      "curie": "CHEBI:145810",
+      "name": "insulin",
+      "relation": "dm_treats_or_applied_or_studied_to_treat",
+      "edge_id": "E8170498",
+      "pmids": [
+       "PMID:21115772"
+      ],
+      "quotes": [
+       "[PMID:21115772] [INDIRECT EVIDENCE] [SUPPORT] Patients with CFRD should be treated with insulin therapy. --- Explanation: ADA/CFF guideline recommendation supporting insulin as the recommended treatment.|[PMID:21115772] [INDIRECT EVIDENCE] [SUPPORT] Oral diabetes agents are not as effective as insulin in improving nutritional and metabolic outcomes in CFRD and are not recommended outside the context of clinical research trials. --- Explanation: Supports the statement that oral agents are not recommended. The guideline gives lower efficacy as the reason.|[PMID:21115772] [INDIRECT EVIDENCE] [SUPPORT] There is evidence that CF patients on insulin therapy who achieve glycemic control demonstrate improvement in weight, protein anabolism, pulmonary function, and survival. --- Explanation: Supports the nutritional and lung function benefits of insulin."
+      ]
+     },
+     {
+      "curie": "DRUGBANK:DB01586",
+      "name": "Ursodeoxycholic acid",
+      "relation": "dm_treats_or_applied_or_studied_to_treat",
+      "edge_id": "E8170500",
+      "pmids": [
+       "PMID:28891588"
+      ],
+      "quotes": [
+       "[PMID:28891588] [INDIRECT EVIDENCE] [SUPPORT] There were no data available for analysis for long-term outcomes such as death or need for liver transplantation. --- Explanation: Cochrane review of randomized trials supporting the statement that long-term clinical benefit is unproven.|[PMID:28891588] [INDIRECT EVIDENCE] [SUPPORT] There is currently insufficient evidence to justify its routine use in cystic fibrosis. --- Explanation: Supports the limited evidence base for UDCA in CF liver disease."
+      ]
+     }
+    ]
+   },
+   "ms": 51,
+   "by": "llm"
+  }
+ ],
+ "evidence": {
+  "edge_ids": [
+   "E8170510",
+   "E8170511",
+   "E8170526",
+   "E8170530",
+   "E8170533",
+   "E8170537",
+   "E8170551",
+   "E8170523",
+   "E8170527",
+   "E8170538",
+   "E8170542",
+   "E8170544",
+   "E8170546",
+   "E8170548",
+   "E8170556",
+   "E8170558",
+   "E8170561",
+   "E8170564",
+   "E8170568",
+   "E8170572",
+   "E8170574",
+   "E8170581",
+   "E8170582",
+   "E8170585",
+   "E8170588",
+   "E8170590",
+   "E8170591",
+   "E8170593",
+   "E8170596",
+   "E8170483",
+   "E8170484",
+   "E8170485",
+   "E8170490",
+   "E8170492",
+   "E8170498",
+   "E8170500"
+  ],
+  "pmids": [
+   "PMID:9922375",
+   "PMID:23878362",
+   "PMID:27140670",
+   "PMID:33526571",
+   "PMID:30986316",
+   "PMID:22763554",
+   "PMID:27114540",
+   "PMID:38573173",
+   "PMID:36265882",
+   "PMID:29258516",
+   "PMID:42262528",
+   "PMID:33178516",
+   "PMID:15613415",
+   "PMID:31697873",
+   "PMID:41702741",
+   "PMID:42033769",
+   "PMID:41738096",
+   "PMID:8874241",
+   "PMID:16421365",
+   "PMID:16421364",
+   "PMID:21115772",
+   "PMID:28891588"
+  ]
+ },
+ "draft": "**Summary**  \nCystic fibrosis is driven by loss‑of‑function mutations in CFTR, which initiates a cascade beginning with CFTR dysfunction → airway surface liquid depletion → impaired mucociliary clearance → mucus plugging → small‑airway obstruction → bronchiectasis → respiratory failure [E8170510][E8170511][E8170526][E8170530][E8170533][E8170537][E8170551]. Parallel pathways include ENaC hyperactivity and sodium hyperabsorption [E8170523], airway surface liquid acidification [E8170527], chronic bacterial infection [E8170538], neutrophilic inflammation and elastase‑mediated tissue injury [E8170544][E8170546], and multi‑organ involvement (pancreatic, intestinal, hepatobiliary, sweat gland, etc.) [E8170556][E8170558][E8170561][E8170564][E8170568][E8170572][E8170574][E8170581][E8170582][E8170585][E8170588][E8170590][E8170591][E8170593][E8170596]. CFTR modulators (elexacaftor, tezacaftor, ivacaftor) are approved drugs that treat cystic fibrosis by targeting the underlying CFTR defect [E8170483][E8170484][E8170485].\n\n**Evidence paths**  \n- CFTR dysfunction → airway surface liquid depletion → impaired mucociliary clearance → mucus plugging → small‑airway obstruction → bronchiectasis → respiratory failure [E8170510][E8170511][E8170526][E8170530][E8170533][E8170537][E8170551]  \n- CFTR dysfunction → ENaC hyperactivity and sodium hyperabsorption [E8170523]  \n- CFTR dysfunction → airway surface liquid acidification [E8170527]  \n- Airway surface liquid depletion → chronic bacterial infection → neutrophilic airway inflammation → neutrophil elastase‑mediated tissue injury → airway remodeling [E8170538][E8170544][E8170546][E8170548]  \n- CFTR dysfunction → impaired pancreatic organogenesis → pancreatic duct obstruction → exocrine pancreatic tissue destruction → exocrine pancreatic insufficiency → fat malabsorption → fat‑soluble vitamin deficiency → protein‑calorie malnutrition [E8170556][E8170558][E8170561][E8170564][E8170568][E8170572][E8170574]  \n- CFTR dysfunction → CF‑related diabetes, intestinal obstruction, hepatobiliary obstruction, sweat gland dysfunction, hyponatremic dehydration, vas deferens agenesis, sinonasal disease, CF bone disease [E8170581][E8170582][E8170585][E8170588][E8170590][E8170591][E8170593][E8170596]  \n- Elexacaftor, tezacaftor, ivacaftor → treat cystic fibrosis [E8170483][E8170484][E8170485]\n\n**Mechanism** (dismech steps with PMIDs)  \n1. CFTR Dysfunction (PMID:9922375) [E8170510]  \n2. Airway Surface Liquid Depletion (PMID:23878362) [E8170511]  \n3. Impaired Mucociliary Clearance (PMID:23878362) [E8170526]  \n4. Mucus Plugging (PMID:27140670) [E8170530]  \n5. Small‑Airway Obstruction (PMID:33526571) [E8170533]  \n6. Bronchiectasis (PMID:30986316) [E8170537]  \n7. Respiratory Failure (PMID:30986316) [E8170551]  \n8. ENaC Hyperactivity and Sodium Hyperabsorption (PMID:23878362) [E8170523]  \n9. Airway Surface Liquid Acidification (PMID:22763554, 27114540, 38573173) [E8170527]  \n10. Chronic Bacterial Infection (PMID:30986316) [E8170538]  \n11. Macrophage CFTR Dysfunction (PMID:36265882) [E8170542]  \n12. Neutrophilic Airway Inflammation (PMID:29258516) [E8170544]  \n13. Neutrophil Elastase‑Mediated Tissue Injury (PMID:29258516) [E8170546]  \n14. Airway Remodeling (PMID:30986316) [E8170548]  \n… (additional organ‑specific chains follow the same pattern)\n\n**Targets / drugs**  \n- **CFTR** (NCBIGene:1080) – the primary disease target; loss‑of‑function initiates all downstream chains [E8170510].  \n- **CFTR modulators (model‑ranked by therapeutic intent)**:  \n  - Elexacaftor – treats cystic fibrosis (PMID:31697873, 41702741, 42033769, 41738096) [E8170483]  \n  - Tezacaftor – treats cystic fibrosis (same PMIDs) [E8170484]  \n  - Ivacaftor – treats cystic fibrosis (same PMIDs) [E8170485]  \nThese modulators correct the folding, trafficking, and/or gating of mutant CFTR protein, thereby restoring chloride/bicarbonate transport and reducing ENaC hyperactivity, which reverses airway surface liquid depletion and the subsequent pathogenic cascade.\n\n**Testable hypothesis**  \nHypothesis: In CFTR‑mutant airway epithelia, combined elexacaftor/tezacaftor/ivacaftor therapy restores airway surface liquid pH and volume sufficiently to normalize mucociliary clearance and reduce neutrophil elastase activity, thereby slowing airway remodeling.  \nExperiment: Treat primary human bronchial epithelial cells from CF patients (F508del homozygous) with the triple combination; measure ASL height, pH, mucociliary transport rate, neutrophil elastase activity, and markers of remodeling (e.g., MMP‑9, TGF‑β) over 28 days at air‑liquid interface.\n\n**Caveats**  \n- The mechanism chains are curated from literature; not every step has been validated in all CFTR genotypes.  \n- CFTR modulators are mutation‑specific; their efficacy varies by genotype (e.g., F508del vs. gating mutations).  \n- The graph does not contain quantitative pharmacodynamic data (e.g., % CFTR function restored) or long‑term clinical outcome correlations.  \n- Other approved drugs listed (dornase alfa, hypertonic saline, insulin, ursodeoxycholic acid) address downstream complications, not the primary CFTR defect.",
+ "claims": [
+  {
+   "claim_id": "c1",
+   "text": "Cystic fibrosis is driven by loss‑of‑function mutations in CFTR, which initiates a cascade beginning with CFTR dysfunction → airway surface liquid depletion → impaired mucociliary clearance → mucus plugging → small‑airway obstruction → bronchiectasis → respiratory failure.",
+   "support": {
+    "edge_ids": [
+     "E8170510",
+     "E8170511",
+     "E8170526",
+     "E8170530",
+     "E8170533",
+     "E8170537",
+     "E8170551"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "Cystic fibrosis is driven by loss‑of‑function mutations in CFTR, which initiates a cascade beginning with CFTR dysfunction → airway surface liquid depletion → impaired mucociliary clearance → mucus plugging → small‑airway obstruction → bronchiectasis → respiratory failure [E8170510][E8170511][E8170526][E8170530][E8170533][E8170537][E8170551].",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c2",
+   "text": "Parallel pathways include ENaC hyperactivity and sodium hyperabsorption, airway surface liquid acidification, chronic bacterial infection, neutrophilic inflammation and elastase‑mediated tissue injury, and multi‑organ involvement (pancreatic, intestinal, hepatobiliary, sweat gland, etc.).",
+   "support": {
+    "edge_ids": [
+     "E8170523",
+     "E8170527",
+     "E8170538",
+     "E8170544",
+     "E8170546",
+     "E8170556",
+     "E8170558",
+     "E8170561",
+     "E8170564",
+     "E8170568",
+     "E8170572",
+     "E8170574",
+     "E8170581",
+     "E8170582",
+     "E8170585",
+     "E8170588",
+     "E8170590",
+     "E8170591",
+     "E8170593",
+     "E8170596"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "Parallel pathways include ENaC hyperactivity and sodium hyperabsorption [E8170523], airway surface liquid acidification [E8170527], chronic bacterial infection [E8170538], neutrophilic inflammation and elastase‑mediated tissue injury [E8170544][E8170546], and multi‑organ involvement (pancreatic, intestinal, hepatobiliary, sweat gland, etc.) [E8170556][E8170558][E8170561][E8170564][E8170568][E8170572][E8170574][E8170581][E8170582][E8170585][E8170588][E8170590][E8170591][E8170593][E8170596].",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c3",
+   "text": "CFTR modulators (elexacaftor, tezacaftor, ivacaftor) are approved drugs that treat cystic fibrosis by targeting the underlying CFTR defect.",
+   "support": {
+    "edge_ids": [
+     "E8170483",
+     "E8170484",
+     "E8170485"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "CFTR modulators (elexacaftor, tezacaftor, ivacaftor) are approved drugs that treat cystic fibrosis by targeting the underlying CFTR defect [E8170483][E8170484][E8170485].",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c4",
+   "text": "CFTR dysfunction → airway surface liquid depletion → impaired mucociliary clearance → mucus plugging → small‑airway obstruction → bronchiectasis → respiratory failure",
+   "support": {
+    "edge_ids": [
+     "E8170510",
+     "E8170511",
+     "E8170526",
+     "E8170530",
+     "E8170533",
+     "E8170537",
+     "E8170551"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "CFTR dysfunction → airway surface liquid depletion → impaired mucociliary clearance → mucus plugging → small‑airway obstruction → bronchiectasis → respiratory failure [E8170510][E8170511][E8170526][E8170530][E8170533][E8170537][E8170551]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c5",
+   "text": "CFTR dysfunction → ENaC hyperactivity and sodium hyperabsorption",
+   "support": {
+    "edge_ids": [
+     "E8170523"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "CFTR dysfunction → ENaC hyperactivity and sodium hyperabsorption [E8170523]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c6",
+   "text": "CFTR dysfunction → airway surface liquid acidification",
+   "support": {
+    "edge_ids": [
+     "E8170527"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "CFTR dysfunction → airway surface liquid acidification [E8170527]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c7",
+   "text": "Airway surface liquid depletion → chronic bacterial infection → neutrophilic airway inflammation → neutrophil elastase‑mediated tissue injury → airway remodeling",
+   "support": {
+    "edge_ids": [
+     "E8170538",
+     "E8170544",
+     "E8170546",
+     "E8170548"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "Airway surface liquid depletion → chronic bacterial infection → neutrophilic airway inflammation → neutrophil elastase‑mediated tissue injury → airway remodeling [E8170538][E8170544][E8170546][E8170548]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c8",
+   "text": "CFTR dysfunction → impaired pancreatic organogenesis → pancreatic duct obstruction → exocrine pancreatic tissue destruction → exocrine pancreatic insufficiency → fat malabsorption → fat‑soluble vitamin deficiency → protein‑calorie malnutrition",
+   "support": {
+    "edge_ids": [
+     "E8170556",
+     "E8170558",
+     "E8170561",
+     "E8170564",
+     "E8170568",
+     "E8170572",
+     "E8170574"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "CFTR dysfunction → impaired pancreatic organogenesis → pancreatic duct obstruction → exocrine pancreatic tissue destruction → exocrine pancreatic insufficiency → fat malabsorption → fat‑soluble vitamin deficiency → protein‑calorie malnutrition [E8170556][E8170558][E8170561][E8170564][E8170568][E8170572][E8170574]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c9",
+   "text": "CFTR dysfunction → CF‑related diabetes, intestinal obstruction, hepatobiliary obstruction, sweat gland dysfunction, hyponatremic dehydration, vas deferens agenesis, sinonasal disease, CF bone disease",
+   "support": {
+    "edge_ids": [
+     "E8170581",
+     "E8170582",
+     "E8170585",
+     "E8170588",
+     "E8170590",
+     "E8170591",
+     "E8170593",
+     "E8170596"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "CFTR dysfunction → CF‑related diabetes, intestinal obstruction, hepatobiliary obstruction, sweat gland dysfunction, hyponatremic dehydration, vas deferens agenesis, sinonasal disease, CF bone disease [E8170581][E8170582][E8170585][E8170588][E8170590][E8170591][E8170593][E8170596]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c10",
+   "text": "Elexacaftor, tezacaftor, ivacaftor → treat cystic fibrosis",
+   "support": {
+    "edge_ids": [
+     "E8170483",
+     "E8170484",
+     "E8170485"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "Elexacaftor, tezacaftor, ivacaftor → treat cystic fibrosis [E8170483][E8170484][E8170485]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c11",
+   "text": "CFTR Dysfunction",
+   "support": {
+    "edge_ids": [
+     "E8170510"
+    ],
+    "pmids": [
+     "PMID:9922375"
+    ]
+   },
+   "status": "supported",
+   "quote": "CFTR Dysfunction (PMID:9922375) [E8170510]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c12",
+   "text": "Airway Surface Liquid Depletion",
+   "support": {
+    "edge_ids": [
+     "E8170511"
+    ],
+    "pmids": [
+     "PMID:23878362"
+    ]
+   },
+   "status": "supported",
+   "quote": "Airway Surface Liquid Depletion (PMID:23878362) [E8170511]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c13",
+   "text": "Impaired Mucociliary Clearance",
+   "support": {
+    "edge_ids": [
+     "E8170526"
+    ],
+    "pmids": [
+     "PMID:23878362"
+    ]
+   },
+   "status": "supported",
+   "quote": "Impaired Mucociliary Clearance (PMID:23878362) [E8170526]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c14",
+   "text": "Mucus Plugging",
+   "support": {
+    "edge_ids": [
+     "E8170530"
+    ],
+    "pmids": [
+     "PMID:27140670"
+    ]
+   },
+   "status": "supported",
+   "quote": "Mucus Plugging (PMID:27140670) [E8170530]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c15",
+   "text": "Small‑Airway Obstruction",
+   "support": {
+    "edge_ids": [
+     "E8170533"
+    ],
+    "pmids": [
+     "PMID:33526571"
+    ]
+   },
+   "status": "supported",
+   "quote": "Small‑Airway Obstruction (PMID:33526571) [E8170533]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c16",
+   "text": "Bronchiectasis",
+   "support": {
+    "edge_ids": [
+     "E8170537"
+    ],
+    "pmids": [
+     "PMID:30986316"
+    ]
+   },
+   "status": "supported",
+   "quote": "Bronchiectasis (PMID:30986316) [E8170537]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c17",
+   "text": "Respiratory Failure",
+   "support": {
+    "edge_ids": [
+     "E8170551"
+    ],
+    "pmids": [
+     "PMID:30986316"
+    ]
+   },
+   "status": "supported",
+   "quote": "Respiratory Failure (PMID:30986316) [E8170551]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c18",
+   "text": "ENaC Hyperactivity and Sodium Hyperabsorption",
+   "support": {
+    "edge_ids": [
+     "E8170523"
+    ],
+    "pmids": [
+     "PMID:23878362"
+    ]
+   },
+   "status": "supported",
+   "quote": "ENaC Hyperactivity and Sodium Hyperabsorption (PMID:23878362) [E8170523]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c19",
+   "text": "Airway Surface Liquid Acidification",
+   "support": {
+    "edge_ids": [
+     "E8170527"
+    ],
+    "pmids": [
+     "PMID:22763554",
+     "PMID:27114540",
+     "PMID:38573173"
+    ]
+   },
+   "status": "supported",
+   "quote": "Airway Surface Liquid Acidification (PMID:22763554, 27114540, 38573173) [E8170527]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c20",
+   "text": "Chronic Bacterial Infection",
+   "support": {
+    "edge_ids": [
+     "E8170538"
+    ],
+    "pmids": [
+     "PMID:30986316"
+    ]
+   },
+   "status": "supported",
+   "quote": "Chronic Bacterial Infection (PMID:30986316) [E8170538]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c21",
+   "text": "Macrophage CFTR Dysfunction",
+   "support": {
+    "edge_ids": [
+     "E8170542"
+    ],
+    "pmids": [
+     "PMID:36265882"
+    ]
+   },
+   "status": "supported",
+   "quote": "Macrophage CFTR Dysfunction (PMID:36265882) [E8170542]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c22",
+   "text": "Neutrophilic Airway Inflammation",
+   "support": {
+    "edge_ids": [
+     "E8170544"
+    ],
+    "pmids": [
+     "PMID:29258516"
+    ]
+   },
+   "status": "supported",
+   "quote": "Neutrophilic Airway Inflammation (PMID:29258516) [E8170544]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c23",
+   "text": "Neutrophil Elastase‑Mediated Tissue Injury",
+   "support": {
+    "edge_ids": [
+     "E8170546"
+    ],
+    "pmids": [
+     "PMID:29258516"
+    ]
+   },
+   "status": "supported",
+   "quote": "Neutrophil Elastase‑Mediated Tissue Injury (PMID:29258516) [E8170546]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c24",
+   "text": "Airway Remodeling",
+   "support": {
+    "edge_ids": [
+     "E8170548"
+    ],
+    "pmids": [
+     "PMID:30986316"
+    ]
+   },
+   "status": "supported",
+   "quote": "Airway Remodeling (PMID:30986316) [E8170548]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c25",
+   "text": "… (additional organ‑specific chains follow the same pattern)",
+   "support": {
+    "edge_ids": [],
+    "pmids": []
+   },
+   "status": "removed",
+   "quote": "… (additional organ‑specific chains follow the same pattern)",
+   "unmatched_ids": [],
+   "entity_match": false,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c26",
+   "text": "**CFTR** (NCBIGene:1080) – the primary disease target; loss‑of‑function initiates all downstream chains.",
+   "support": {
+    "edge_ids": [
+     "E8170510"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "**CFTR** (NCBIGene:1080) – the primary disease target; loss‑of‑function initiates all downstream chains [E8170510].",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c28",
+   "text": "Elexacaftor – treats cystic fibrosis",
+   "support": {
+    "edge_ids": [
+     "E8170483"
+    ],
+    "pmids": [
+     "PMID:31697873",
+     "PMID:41702741",
+     "PMID:42033769",
+     "PMID:41738096"
+    ]
+   },
+   "status": "supported",
+   "quote": "Elexacaftor – treats cystic fibrosis (PMID:31697873, 41702741, 42033769, 41738096) [E8170483]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c29",
+   "text": "Tezacaftor – treats cystic fibrosis (same PMIDs)",
+   "support": {
+    "edge_ids": [
+     "E8170484"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "Tezacaftor – treats cystic fibrosis (same PMIDs) [E8170484]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c30",
+   "text": "Ivacaftor – treats cystic fibrosis (same PMIDs)",
+   "support": {
+    "edge_ids": [
+     "E8170485"
+    ],
+    "pmids": []
+   },
+   "status": "supported",
+   "quote": "Ivacaftor – treats cystic fibrosis (same PMIDs) [E8170485]",
+   "unmatched_ids": [],
+   "entity_match": true,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c31",
+   "text": "These modulators correct the folding, trafficking, and/or gating of mutant CFTR protein, thereby restoring chloride/bicarbonate transport and reducing ENaC hyperactivity, which reverses airway surface liquid depletion and the subsequent pathogenic cascade.",
+   "support": {
+    "edge_ids": [],
+    "pmids": []
+   },
+   "status": "removed",
+   "quote": "These modulators correct the folding, trafficking, and/or gating of mutant CFTR protein, thereby restoring chloride/bicarbonate transport and reducing ENaC hyperactivity, which reverses airway surface liquid depletion and the subsequent pathogenic cascade.",
+   "unmatched_ids": [],
+   "entity_match": false,
+   "mismatched_ids": [],
+   "model_output_only": false
+  },
+  {
+   "claim_id": "c32",
+   "text": "Hypothesis: In CFTR‑mutant airway epithelia, combined elexacaftor/tezacaftor/ivacaftor therapy restores airway surface liquid pH and volume sufficiently to normalize mucociliary clearance and reduce neutrophil elastase activity, thereby slowing airway remodeling.",
+   "support": {
+    "edge_ids": [],
+    "pmids": []
+   },
+   "status": "hypothesis",
+   "quote": "Hypothesis: In CFTR‑mutant airway epithelia, combined elexacaftor/tezacaftor/ivacaftor therapy restores airway surface liquid pH and volume sufficiently to normalize mucociliary clearance and reduce neutrophil elastase activity, thereby slowing airway remodeling.",
+   "unmatched_ids": [],
+   "entity_match": false,
+   "mismatched_ids": [],
+   "model_output_only": false
+  }
+ ],
+ "answer": "**Summary**\nCystic fibrosis is driven by loss‑of‑function mutations in CFTR, which initiates a cascade beginning with CFTR dysfunction → airway surface liquid depletion → impaired mucociliary clearance → mucus plugging → small‑airway obstruction → bronchiectasis → respiratory failure [E8170510][E8170511][E8170526][E8170530][E8170533][E8170537][E8170551]. Parallel pathways include ENaC hyperactivity and sodium hyperabsorption [E8170523], airway surface liquid acidification [E8170527], chronic bacterial infection [E8170538], neutrophilic inflammation and elastase‑mediated tissue injury [E8170544][E8170546], and multi‑organ involvement (pancreatic, intestinal, hepatobiliary, sweat gland, etc.) [E8170556][E8170558][E8170561][E8170564][E8170568][E8170572][E8170574][E8170581][E8170582][E8170585][E8170588][E8170590][E8170591][E8170593][E8170596]. CFTR modulators (elexacaftor, tezacaftor, ivacaftor) are approved drugs that treat cystic fibrosis by targeting the underlying CFTR defect [E8170483][E8170484][E8170485].\n\n**Evidence paths**\n- CFTR dysfunction → airway surface liquid depletion → impaired mucociliary clearance → mucus plugging → small‑airway obstruction → bronchiectasis → respiratory failure [E8170510][E8170511][E8170526][E8170530][E8170533][E8170537][E8170551]\n- CFTR dysfunction → ENaC hyperactivity and sodium hyperabsorption [E8170523]\n- CFTR dysfunction → airway surface liquid acidification [E8170527]\n- Airway surface liquid depletion → chronic bacterial infection → neutrophilic airway inflammation → neutrophil elastase‑mediated tissue injury → airway remodeling [E8170538][E8170544][E8170546][E8170548]\n- CFTR dysfunction → impaired pancreatic organogenesis → pancreatic duct obstruction → exocrine pancreatic tissue destruction → exocrine pancreatic insufficiency → fat malabsorption → fat‑soluble vitamin deficiency → protein‑calorie malnutrition [E8170556][E8170558][E8170561][E8170564][E8170568][E8170572][E8170574]\n- CFTR dysfunction → CF‑related diabetes, intestinal obstruction, hepatobiliary obstruction, sweat gland dysfunction, hyponatremic dehydration, vas deferens agenesis, sinonasal disease, CF bone disease [E8170581][E8170582][E8170585][E8170588][E8170590][E8170591][E8170593][E8170596]\n- Elexacaftor, tezacaftor, ivacaftor → treat cystic fibrosis [E8170483][E8170484][E8170485]\n\n**Mechanism** (dismech steps with PMIDs)\n1. CFTR Dysfunction (PMID:9922375) [E8170510]\n2. Airway Surface Liquid Depletion (PMID:23878362) [E8170511]\n3. Impaired Mucociliary Clearance (PMID:23878362) [E8170526]\n4. Mucus Plugging (PMID:27140670) [E8170530]\n5. Small‑Airway Obstruction (PMID:33526571) [E8170533]\n6. Bronchiectasis (PMID:30986316) [E8170537]\n7. Respiratory Failure (PMID:30986316) [E8170551]\n8. ENaC Hyperactivity and Sodium Hyperabsorption (PMID:23878362) [E8170523]\n9. Airway Surface Liquid Acidification (PMID:22763554, 27114540, 38573173) [E8170527]\n10. Chronic Bacterial Infection (PMID:30986316) [E8170538]\n11. Macrophage CFTR Dysfunction (PMID:36265882) [E8170542]\n12. Neutrophilic Airway Inflammation (PMID:29258516) [E8170544]\n13. Neutrophil Elastase‑Mediated Tissue Injury (PMID:29258516) [E8170546]\n14. Airway Remodeling (PMID:30986316) [E8170548]\n\n**Targets / drugs**\n- **CFTR** (NCBIGene:1080) – the primary disease target; loss‑of‑function initiates all downstream chains [E8170510].\n- **CFTR modulators (model‑ranked by therapeutic intent)**:\n  - Elexacaftor – treats cystic fibrosis (PMID:31697873, 41702741, 42033769, 41738096) [E8170483]\n  - Tezacaftor – treats cystic fibrosis (same PMIDs) [E8170484]\n  - Ivacaftor – treats cystic fibrosis (same PMIDs) [E8170485]\n\n**Testable hypothesis**\nHypothesis: In CFTR‑mutant airway epithelia, combined elexacaftor/tezacaftor/ivacaftor therapy restores airway surface liquid pH and volume sufficiently to normalize mucociliary clearance and reduce neutrophil elastase activity, thereby slowing airway remodeling.\nExperiment: Treat primary human bronchial epithelial cells from CF patients (F508del homozygous) with the triple combination; measure ASL height, pH, mucociliary transport rate, neutrophil elastase activity, and markers of remodeling (e.g., MMP‑9, TGF‑β) over 28 days at air‑liquid interface.\n\n**Caveats**\n- The mechanism chains are curated from literature; not every step has been validated in all CFTR genotypes.\n- CFTR modulators are mutation‑specific; their efficacy varies by genotype (e.g., F508del vs. gating mutations).\n- The graph does not contain quantitative pharmacodynamic data (e.g., % CFTR function restored) or long‑term clinical outcome correlations.\n- Other approved drugs listed (dornase alfa, hypertonic saline, insulin, ursodeoxycholic acid) address downstream complications, not the primary CFTR defect.\n\n_Verifier: removed 2 claim(s) that had no supporting edge or PMID._",
+ "verifier": {
+  "n_claims": 31,
+  "n_supported": 28,
+  "n_hypothesis": 1,
+  "n_removed": 2,
+  "n_supported_entity_match": 28,
+  "n_supported_model": 0,
+  "n_claims_mismatched": 0,
+  "n_non_claims": 5,
+  "non_claims": [
+   {
+    "text": "Experiment: Treat primary human bronchial epithelial cells from CF patients (F508del homozygous) with the triple combination; measure ASL height, pH, mucociliary transport rate, neutrophil elastase activity, and markers of remodeling (e.g., MMP‑9, TGF‑β) over 28 days at air‑liquid interface.",
+    "reason": "experiment",
+    "quote": "Experiment: Treat primary human bronchial epithelial cells from CF patients (F508del homozygous) with the triple combination; measure ASL height, pH, mucociliary transport rate, neutrophil elastase activity, and markers of remodeling (e.g., MMP‑9, TGF‑β) over 28 days at air‑liquid interface."
+   },
+   {
+    "text": "The mechanism chains are curated from literature; not every step has been validated in all CFTR genotypes.",
+    "reason": "caveat",
+    "quote": "The mechanism chains are curated from literature; not every step has been validated in all CFTR genotypes."
+   },
+   {
+    "text": "CFTR modulators are mutation‑specific; their efficacy varies by genotype (e.g., F508del vs. gating mutations).",
+    "reason": "caveat",
+    "quote": "CFTR modulators are mutation‑specific; their efficacy varies by genotype (e.g., F508del vs. gating mutations)."
+   },
+   {
+    "text": "The graph does not contain quantitative pharmacodynamic data (e.g., % CFTR function restored) or long‑term clinical outcome correlations.",
+    "reason": "caveat",
+    "quote": "The graph does not contain quantitative pharmacodynamic data (e.g., % CFTR function restored) or long‑term clinical outcome correlations."
+   },
+   {
+    "text": "Other approved drugs listed (dornase alfa, hypertonic saline, insulin, ursodeoxycholic acid) address downstream complications, not the primary CFTR defect.",
+    "reason": "caveat",
+    "quote": "Other approved drugs listed (dornase alfa, hypertonic saline, insulin, ursodeoxycholic acid) address downstream complications, not the primary CFTR defect."
+   }
+  ],
+  "strict": true
+ },
+ "verifier_splitter": "deterministic",
+ "notes": [],
+ "elapsed_s": 27.96,
+ "llm_calls": [
+  {
+   "purpose": "agent",
+   "s": 1.52,
+   "cached": false,
+   "attempt": 1,
+   "finish_reason": "tool_calls",
+   "prompt_tokens": 1911,
+   "completion_tokens": 113,
+   "reasoning_tokens": 73
+  },
+  {
+   "purpose": "agent",
+   "s": 1.06,
+   "cached": false,
+   "attempt": 1,
+   "finish_reason": "tool_calls",
+   "prompt_tokens": 2220,
+   "completion_tokens": 105,
+   "reasoning_tokens": 66
+  },
+  {
+   "purpose": "agent",
+   "s": 24.36,
+   "cached": false,
+   "attempt": 1,
+   "finish_reason": "stop",
+   "prompt_tokens": 4159,
+   "completion_tokens": 2446,
+   "reasoning_tokens": 510
+  }
+ ],
+ "subgraph_sizes": [],
+ "e3_batch": {
+  "kind": "disease",
+  "trap": false,
+  "category": "generalization"
+ },
+ "reverified": {
+  "from": "eval\\traces\\e3_v1_agent\\D09.json",
+  "at": "2026-11-07T21:29:01",
+  "verifier_sha": "54177496ec62",
+  "previous_verifier": {
+   "n_claims": 31,
+   "n_supported": 28,
+   "n_hypothesis": 1,
+   "n_removed": 2,
+   "n_supported_entity_match": 28,
+   "n_supported_model": 0,
+   "n_claims_mismatched": 0,
+   "n_non_claims": 5,
+   "non_claims": [
+    {
+     "text": "Experiment: Treat primary human bronchial epithelial cells from CF patients (F508del homozygous) with the triple combination; measure ASL height, pH, mucociliary transport rate, neutrophil elastase activity, and markers of remodeling (e.g., MMP‑9, TGF‑β) over 28 days at air‑liquid interface.",
+     "reason": "experiment",
+     "quote": "Experiment: Treat primary human bronchial epithelial cells from CF patients (F508del homozygous) with the triple combination; measure ASL height, pH, mucociliary transport rate, neutrophil elastase activity, and markers of remodeling (e.g., MMP‑9, TGF‑β) over 28 days at air‑liquid interface."
+    },
+    {
+     "text": "The mechanism chains are curated from literature; not every step has been validated in all CFTR genotypes.",
+     "reason": "caveat",
+     "quote": "The mechanism chains are curated from literature; not every step has been validated in all CFTR genotypes."
+    },
+    {
+     "text": "CFTR modulators are mutation‑specific; their efficacy varies by genotype (e.g., F508del vs. gating mutations).",
+     "reason": "caveat",
+     "quote": "CFTR modulators are mutation‑specific; their efficacy varies by genotype (e.g., F508del vs. gating mutations)."
+    },
+    {
+     "text": "The graph does not contain quantitative pharmacodynamic data (e.g., % CFTR function restored) or long‑term clinical outcome correlations.",
+     "reason": "caveat",
+     "quote": "The graph does not contain quantitative pharmacodynamic data (e.g., % CFTR function restored) or long‑term clinical outcome correlations."
+    },
+    {
+     "text": "Other approved drugs listed (dornase alfa, hypertonic saline, insulin, ursodeoxycholic acid) address downstream complications, not the primary CFTR defect.",
+     "reason": "caveat",
+     "quote": "Other approved drugs listed (dornase alfa, hypertonic saline, insulin, ursodeoxycholic acid) address downstream complications, not the primary CFTR defect."
+    }
+   ],
+   "strict": true
+  }
+ }
+}
