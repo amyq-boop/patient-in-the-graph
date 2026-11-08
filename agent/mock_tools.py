@@ -99,7 +99,8 @@ def rank_for_patient(patient_id: str, node_type: str, k: int = 10) -> dict:
     items = [{"curie": c, "name": _N[c][0], "score": round(0.9 - 0.1 * i, 2), "rank": i + 1,
               "evidence_id": f"rank:{patient_id}:{node_type}:{c}"}
              for i, c in enumerate(pool[:k])]
-    return {"patient_id": patient_id, "node_type": node_type, "items": items}
+    extra = {"scoring": "cohort_relative", "filter": "drugs with an indication edge"} if node_type == "drug" else {"scoring": "model_score"}
+    return {"patient_id": patient_id, "node_type": node_type, "basis": "tumor_proteins", **extra, "items": items}
 
 
 def retrieve_subgraph(question: str, seeds: list[str], budget: int = DEFAULT_BUDGET,

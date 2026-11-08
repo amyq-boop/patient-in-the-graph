@@ -52,6 +52,14 @@ RANK_BASIS = os.environ.get("BIOHACK_RANK_BASIS", "tumor")
 if RANK_BASIS not in ("tumor", "all"):
     raise ValueError(f"BIOHACK_RANK_BASIS={RANK_BASIS!r}; expected tumor or all")
 
+# How rank_for_patient ranks drugs. "cohort" (default): only drugs with an indication edge in the current variant
+# (a stand-in for approved; nodes.parquet has no approval status), ranked by how much more they score for this
+# patient than for the rest of the cohort. With the raw GNN score, hub compounds (iron, arachidonic acid, copper,
+# ATP, heparin) topped most patients' lists whatever their tumor looked like. "raw" = the GNN score, all drugs.
+RANK_DRUGS = os.environ.get("BIOHACK_RANK_DRUGS", "cohort")
+if RANK_DRUGS not in ("cohort", "raw"):
+    raise ValueError(f"BIOHACK_RANK_DRUGS={RANK_DRUGS!r}; expected cohort or raw")
+
 _TT = os.environ.get("BIOHACK_TARGET_TYPES", "agent")
 TARGET_TYPES = (None if _TT == "e1" else
                 ("gene", "biological_process", "molecular_function", "cellular_component",

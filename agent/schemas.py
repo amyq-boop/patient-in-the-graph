@@ -27,7 +27,8 @@ TOOLS = [
         "split into tumor_drivers (tumor proteins) and clinical_drivers (recorded phenotypes) with their shares.",
         {"patient_id": _S}, ["patient_id"]),
     _fn("rank_for_patient",
-        "GNN-A ranking of the genes, pathways or drugs most relevant to this patient.",
+        "GNN-A ranking of the genes, pathways or drugs most relevant to this patient's tumor proteins. "
+        "Drugs are approved drugs ranked by how much more they score for this patient than for the rest of the cohort.",
         {"patient_id": _S, "node_type": {"type": "string", "enum": ["gene", "pathway", "drug"]},
          "k": {"type": "integer", "description": "How many (default 10)"}},
         ["patient_id", "node_type"]),
