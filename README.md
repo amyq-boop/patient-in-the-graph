@@ -49,20 +49,6 @@ Large files like `graph.pt` go in the shared Drive, not git.
 
 Shared constants are set **once** in `common/contracts.py`, and any change is announced in Slack. Already settled: `CCRCC_ID = MONDO:0005005` and `PRIMARY_LABEL = y_stage`; the text-embedding model is whatever `feat_text.pt` used (MiniLM today). Still open: `LLM_MODEL`.
 
-## Timeline (Sat 11/7 to Sun 11/8)
-These checkpoints are suggestions; adjust them to fit sleep.
-
-| When | Checkpoint |
-|---|---|
-| **Sat 1:00 PM** | Everyone has read CONTRACTS.md; roles filled in |
-| **Sat 3:00 PM** | WS2 publishes patient tables + `folds.parquet` (frozen after this); eval questions written |
-| Sat 4-6 PM | Mentor office hours / pitch practice |
-| **Sat 7:00 PM** | **One question runs end to end** (the agent calls at least one real tool, and the trace validates) |
-| **Sun 1:00 AM** | **Feature freeze.** Cut in this order: STaRK, Translator, MIMIC, learned edge scorer |
-| **Sun 9:00 AM** | E1-E4 numbers final; demo traces cached (3 patients x 5 questions); backup video recorded |
-| **Sun 12:00 PM** | **Deliverable submission deadline** |
-| Sun 1:15 PM | Pitches |
-
 ## Working rules
 - **Mocks first.** Agent and Demo don't wait on Graph or GNN; when a real piece is ready, swap it in behind the same function.
 - **Run `python -m common.validate <area>` before you announce an output.** A file that fails validation hasn't shipped yet.

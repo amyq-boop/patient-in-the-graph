@@ -2,13 +2,11 @@
 
 The team is 4 people at Nucleate Pittsburgh BioHack 2026 (NVIDIA Bioinformatics track). An LLM agent answers questions about a real ccRCC patient from CPTAC, using a PrimeKG + dismech knowledge graph and GNNs. Every claim must cite a graph edge or a dismech PMID.
 
-**Deliverables are due Sun 11/8 at 12:00 PM ET, with feature freeze at Sun 1:00 AM.** A working, honest demo matters more than completeness.
-
 Several teammates run their own Claude sessions against this repo at the same time, sometimes in the same clone. Most of the rules below exist so those sessions don't break each other's work.
 
 ## Read first
 - **`CONTRACTS.md`** defines every interface between workstreams: IDs, file columns, tool return shapes, the trace format and the eval files. Sections 1–4 describe code that already exists, and sections 5–8 are specs for what's still to build.
-- **`README.md`** has setup, roles, the timeline and the data notes.
+- **`README.md`** has setup, roles and the data notes.
 - **`common/contracts.py`** holds the paths, constants, graph variants and ID helpers. Import from it instead of hard-coding paths or strings.
 
 ## Rules
