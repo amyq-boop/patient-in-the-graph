@@ -24,10 +24,11 @@ def _run(draft, edges, names=None, strict=True, monkeypatch=None):
 
 
 def test_range_expands_in_either_order_and_dash():
-    assert cited_ids("chain [E10–E12]") == ["E10", "E11", "E12"]
-    assert cited_ids("chain [E12-E10, E7]") == ["E7", "E10", "E11", "E12"]
-    assert cited_ids("chain (E10 – 12)") == ["E10", "E11", "E12"]
-    assert cited_ids("too long [E1–E99]") == []                     # longer than RANGE_MAX: cites nothing
+    # support lists a range as written (its two ends): only IDs that appear in the sentence (e4_case_study checks)
+    assert cited_ids("chain [E10–E12]") == ["E10", "E12"]
+    assert cited_ids("chain [E12-E10, E7]") == ["E7", "E12", "E10"]
+    assert cited_ids("chain (E10 – 12)") == ["E10", "E12"]
+    assert cited_ids("too long [E1–E99]") == ["E1", "E99"]  # dropped by verify: longer than RANGE_MAX
     assert cited_ids("mutation p.E545K [pt:P1:somatic_mutation:NCBIGene:5290]") == ["pt:P1:somatic_mutation:NCBIGene:5290"]
 
 
@@ -37,7 +38,7 @@ def test_range_counts_only_if_every_id_is_in_evidence(monkeypatch):
              "- Ten approved drugs treat it [E1–E99].")
     claims, answer, stats, _ = _run(draft, ["E10", "E11", "E12", "E20", "E23"], strict=False, monkeypatch=monkeypatch)
     c1, c2, c3 = claims
-    assert c1["status"] == "supported" and c1["support"]["edge_ids"] == ["E10", "E11", "E12"]
+    assert c1["status"] == "supported" and c1["support"]["edge_ids"] == ["E10", "E12"]
     assert c1["range_citations"] == [{"range": "E10–E12", "ids": ["E10", "E11", "E12"], "ok": True}]
     # E21, E22 were never retrieved: the whole range is void, endpoints included
     assert c2["status"] == "removed" and c2["support"]["edge_ids"] == [] and c2["unmatched_ids"] == ["E20–E23"]
@@ -49,6 +50,16 @@ def test_range_counts_only_if_every_id_is_in_evidence(monkeypatch):
 def test_id_cited_on_its_own_survives_a_failed_range(monkeypatch):
     claims, _, _, _ = _run("- TP53 loss drives EMT [E20–E23, E20].", ["E20", "E23"], strict=False, monkeypatch=monkeypatch)
     assert claims[0]["status"] == "supported" and claims[0]["support"]["edge_ids"] == ["E20"]
+
+
+def test_support_ids_appear_in_the_quote(monkeypatch):
+    """eval/e4_case_study.supported_claims requires every support ID to be written in the claim's quote."""
+    from eval.e4_case_study import cited_in_quote
+    claims, _, _, _ = _run("- PDE2A inhibitors [E336698–E336702]; ATIC [E1–E7]; AFDN [E9].",
+                           [f"E{i}" for i in range(336698, 336703)] + ["E9", "E1"], strict=False, monkeypatch=monkeypatch)
+    c = claims[0]
+    assert c["status"] == "supported" and set(c["support"]["edge_ids"]) <= cited_in_quote(c["quote"])
+    assert c["support"]["edge_ids"] == ["E9", "E336698", "E336702"]  # failed ATIC range: E1 dropped too
 
 
 def test_claims_without_ranges_are_unchanged(monkeypatch):

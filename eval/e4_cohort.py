@@ -10,6 +10,8 @@ eval/e4_case_study.py stays the single, human-reviewed case (eval/results/e4.jso
     python -m eval.e4_cohort --sample 5             # 6. hand-check sheet -> eval/results/e4_cohort_handcheck.csv
     python -m eval.e4_cohort --agreement            #    human vs auto agreement, once the sheet is filled in
     python -m eval.e4_cohort --run --variant full   # 7. optional ceiling on the unmasked graph -> e4_cohort_full/
+    python -m eval.e4_cohort --reverify             #    re-check saved drafts with the current verifier (no LLM)
+                                                    #    -> e4_cohort_rv/ and eval/results/e4_cohort_rv.{json,csv}
 
 Settings are fixed for every patient: BIOHACK_VARIANT=e4 (full for the ceiling), BIOHACK_MOCK=0, VERIFIER_STRICT=1,
 VERIFIER_SPLITTER=rules, AGENT_DRUG_TARGETS=0 (the setup E3, the demo and the single E4 case used). Conflicting
@@ -225,6 +227,29 @@ def run_cohort(plan, variant="e4", workers=3, limit=None, out_dir=None, force=Fa
     return out
 
 
+def reverify_cohort(src, dst):
+    """Re-run only the verifier on each saved draft (deterministic with VERIFIER_SPLITTER=rules: no LLM). The draft,
+    tool calls and evidence are unchanged; claims, answer and verifier stats are replaced, and the trace records
+    where it came from and the previous stats. The original folder is not touched."""
+    from agent import graph_agent
+    from agent.verifier import verify
+    dst.mkdir(parents=True, exist_ok=True)
+    n = 0
+    for f in sorted(p for p in Path(src).glob("*.json") if not p.name.startswith("_")):
+        t = json.loads(f.read_text(encoding="utf-8"))
+        calls = t.get("tool_calls", [])
+        claims, answer, stats, splitter = verify(t["draft"], t["evidence"], None,
+                                                 edge_names=graph_agent._edge_names(calls))
+        new = {**t, "claims": claims, "answer": answer, "verifier": stats, "verifier_splitter": splitter,
+               "reverified": {"from": f"{Path(src).name}/{f.name}", "at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                              "git_commit": git("rev-parse", "--short", "HEAD"), "verifier_sha": sha_file(ROOT / "agent" / "verifier.py"),
+                              "previous_verifier": {k: v for k, v in t.get("verifier", {}).items() if k != "non_claims"}}}
+        write_json(dst / f.name, new)
+        n += 1
+    log(f"re-verified {n} trace(s): {src} -> {dst}")
+    return n
+
+
 def _prompt_sha(prompts):
     from agent import config as C
     return hashlib.sha256(prompts.agent_system("ccrcc", C.drug_targets_enabled("ccrcc")).encode()).hexdigest()[:16]
@@ -428,6 +453,7 @@ def main(argv=None):
     g.add_argument("--score", action="store_true", help="audit + score existing traces")
     g.add_argument("--sample", type=int, metavar="N", help="write a hand-check sheet for N patients")
     g.add_argument("--agreement", action="store_true", help="human vs auto agreement on the filled sheet")
+    g.add_argument("--reverify", action="store_true", help="re-check saved drafts with the current verifier, then score")
     ap.add_argument("--variant", choices=["e4", "full"], default="e4", help="full = unmasked ceiling")
     ap.add_argument("--workers", type=int, default=3)
     ap.add_argument("--limit", type=int, help="smoke run on the first N planned patients (-> e4_cohort_smoke/)")
@@ -449,6 +475,10 @@ def main(argv=None):
     plan = load_plan()
     ceiling = a.variant == "full"
     tdir = Path(a.out_dir) if a.out_dir else TRACE_DIRS["smoke" if a.limit else ("full" if ceiling else "e4")]
+    if a.reverify:
+        apply_settings(a.variant)
+        src, tdir = tdir, tdir.with_name(tdir.name + "_rv")
+        reverify_cohort(src, tdir)
     if a.run:
         if a.limit is None and not plan_committed():
             sys.exit(f"{PLAN} is not committed (or has changes). Commit the pre-registration before the full run; "
@@ -460,7 +490,7 @@ def main(argv=None):
         return 0
     sub = {**plan, "patients": plan["patients"][: a.limit]} if a.limit else plan
     summary, rows, details = score_cohort(sub, tdir, ceiling=ceiling)
-    stem = "e4_cohort" + ("_full" if ceiling else "") + ("_smoke" if a.limit else "")
+    stem = "e4_cohort" + ("_full" if ceiling else "") + ("_smoke" if a.limit else "") + ("_rv" if a.reverify else "")
     j, c = write_results(summary, rows, details, stem)
     o = summary["overall"]
     log(f"\n{summary['n_valid']}/{summary['n_traces']} valid traces ({summary['n_leaky']} leaky, "

@@ -7,7 +7,8 @@
    the claim's own sentence count, so the splitter can't add any.
    Citations count in [brackets] or (parentheses); a group naming a PMID makes its bare numbers PMIDs too.
    A range like [E12–E15] stands for every ID in it (at most RANGE_MAX), and it supports a claim only if all of
-   them are in evidence; otherwise none of it counts (edge rows are not ordered by mechanism chain, so a range
+   them are in evidence; otherwise none of it counts. Support lists the range as written (E12, E15); the members
+   are in the claim's range_citations (edge rows are not ordered by mechanism chain, so a range
    over a chain's first and last edge usually spans edges the agent never saw).
 3. Unsupported claims become "hypothesis" if the draft framed them that way, else "removed".
 4. The answer is the draft with removed claims cut out and unverified hypotheses labelled.
@@ -112,8 +113,8 @@ def _parse_citations(text):
         for m in CITE_TOKEN.finditer(inner):
             if m.group(1) is not None:
                 lo, hi = sorted((int(m.group(1)), int(m.group(2))))
-                ranges.append({"range": m.group(0), "ids": [f"E{i}" for i in range(lo, hi + 1)]
-                               if hi - lo + 1 <= RANGE_MAX else []})
+                ranges.append({"range": m.group(0), "ends": [f"E{m.group(1)}", f"E{m.group(2)}"],
+                               "ids": [f"E{i}" for i in range(lo, hi + 1)] if hi - lo + 1 <= RANGE_MAX else []})
             else:
                 singles.append(norm_id(m.group(0)))
         if re.search(r"(?i)\bPMID:", inner):
@@ -124,9 +125,11 @@ def _parse_citations(text):
 def cited_ids(text):
     """Edge IDs and PMIDs cited in [brackets] or (parentheses), e.g. [E12, E7], (E12), [PMID:123, 456] or
     [pt:C3L-1:protein_up:NCBIGene:7]. In a group that names a PMID, the bare numbers after it are PMIDs too.
-    A range [E12–E14] is expanded to E12, E13, E14 (see _check_ranges for when it counts)."""
+    A range [E12–E14] contributes the IDs as written, E12 and E14: claim support only ever lists IDs that appear
+    in the sentence (CONTRACTS §8, and eval/e4_case_study checks it). Its members are in range_citations, and
+    _check_ranges decides whether the range counts at all."""
     singles, ranges = _parse_citations(text)
-    return list(dict.fromkeys(singles + [x for r in ranges for x in r["ids"]]))
+    return list(dict.fromkeys(singles + [x for r in ranges for x in r["ends"]]))
 
 
 def _check_ranges(text, ev_edges):
@@ -136,9 +139,9 @@ def _check_ranges(text, ev_edges):
     out, drop = [], set()
     for r in ranges:
         ok = bool(r["ids"]) and all(x in ev_edges for x in r["ids"])
-        out.append({**r, "ok": ok})
+        out.append({"range": r["range"], "ids": r["ids"], "ok": ok})
         if not ok:
-            drop |= set(r["ids"]) - set(singles)
+            drop |= (set(r["ids"]) | set(r["ends"])) - set(singles)
     return out, drop
 
 
