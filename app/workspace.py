@@ -10,6 +10,7 @@ labeled. Nothing on screen is computed into a new claim: every value comes from 
 from __future__ import annotations
 
 import html
+import re
 import math
 import time
 
@@ -424,14 +425,24 @@ def _ask_bar(pid, qid, qs, v, cl, score_note):
         q = st.text_input("Ask", placeholder="Ask about this patient", label_visibility="collapsed")
         if st.form_submit_button("Ask") and q.strip():
             it = RV.intent_of(q)
-            if it == "subgroup" and cl:
+            match = data.closest_cached(pid, q)
+            if not match and re.search(r"\bdrugs?\b|\btarget", q.lower()):  # the verified "what would you target?" run
+                match = next((x for x in data.cached_questions(pid) if "target" in x["question"].lower()), None)
+            if match and match["qid"] != qid:  # a verified run answers this question: load it and play it
+                st.session_state[f"ws_q_{pid}"] = match["qid"]
+                st.session_state["ws_play"] = True
+                hist.append((q, f"Playing the verified run for “{match['question']}”."))
+                st.rerun()
+            if match:
+                ans = f"That is the run on screen: “{match['question']}”. Its answer is in the Insight panel above."
+            elif it == "subgroup" and cl:
                 ans = PV.subgroup_explain(cl, pid)
-            elif it:
+            elif it and it != "drugs":  # an unmatched drug question gets the list of runs, not a drug list
                 ans = RV.explain(it, v, score_note)
             else:
-                res = data.chat(pid, q)
-                ans = (f"Closest verified run: “{res['trace']['question']}”" if res.get("trace") else
-                       "I only answer from verified runs. Try one of the questions above.")
+                have = [x["question"] for x in data.cached_questions(pid)]
+                ans = ("No verified run answers that yet. Runs for this patient: " + " / ".join(f"“{x}”" for x in have)
+                       if have else "No verified runs for this patient yet.")
             hist.append((q, ans))
             st.rerun()
     if hist:
