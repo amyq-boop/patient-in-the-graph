@@ -7,7 +7,8 @@ Standard library server plus static HTML/JS (d3 and fonts vendored), so it runs 
 
 ```bash
 pip install -r requirements.txt          # nothing new is needed for the tour itself
-python -m app.tour --open                # http://localhost:8600
+python -m app.tour --open                # http://localhost:8600 (full graph: about 20 to 60 s to start)
+python -m app.tour --graph executed      # instant start without loading data/processed
 ```
 
 | Flag | Use |

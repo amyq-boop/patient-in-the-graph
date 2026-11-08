@@ -13,8 +13,10 @@ from __future__ import annotations
 
 import csv
 import json
+import os
 import re
 import threading
+import time
 from collections import Counter, defaultdict
 from pathlib import Path
 
@@ -28,6 +30,7 @@ PAD7 = {"MONDO", "HPO", "GO", "UBERON"}
 PREFIX = {"NCBI": "NCBIGene", "DrugBank": "DRUGBANK", "MONDO": "MONDO", "HPO": "HP", "GO": "GO",
           "REACTOME": "REACT", "UBERON": "UBERON", "CTD": "MESH"}
 
+HUB_RELS = ("anatomy_protein_present", "anatomy_protein_absent", "drug_drug")
 _lock = threading.Lock()
 _index = None
 
@@ -55,28 +58,61 @@ class GraphIndex:
         self.mechanism_chains: list[dict] = []
         self.meta: dict = {}
         self._full = None
-        if P.nodes.exists() and P.edges.exists():
+        self._load_executed()  # always: fast, real, and it seeds the opening network
+        want = os.environ.get("TOUR_GRAPH", "auto").lower() != "executed"
+        if want and P.nodes.exists() and P.edges.exists():
             try:
                 self._load_full()
-                return
-            except Exception as exc:  # noqa: BLE001 - fall back to the executed-retrieval index, and say why
+            except Exception as exc:  # noqa: BLE001 - keep the executed-retrieval index, and say why
+                self._full = None
                 self.meta["full_graph_error"] = f"{type(exc).__name__}: {exc}"
-        self._load_executed()
 
     # ------------------------------------------------------------------ backends
     def _load_full(self):
-        import pandas as pd
+        """Nodes + edges in compact form (categorical strings, numpy index sorted by src). DisMech evidence text is
+        large, so it loads in a background thread; until then DisMech edges show without PMIDs and say so."""
+        import numpy as np
+        import pyarrow.parquet as pq
 
-        nodes = pd.read_parquet(P.nodes, columns=["gidx", "curie", "type", "name", "origin"])
-        edges = pd.read_parquet(P.edges, columns=["edge_row", "src", "dst", "rel", "origin", "dm_row"])
-        self._full = {"nodes": nodes.set_index("gidx"), "edges": edges,
-                      "by_curie": dict(zip(nodes.curie, nodes.gidx)),
-                      "ev": pd.read_parquet(P.evidence).set_index("dm_row") if P.evidence.exists() else None}
-        genes = nodes[nodes.type == "gene"]
-        self.symbol = {str(n).upper(): c for n, c in zip(genes.name, genes.curie)}
-        self.meta.update(source="full_graph", n_nodes=int(len(nodes)), n_edges=int(len(edges)),
-                         description="Merged PrimeKG + DisMech graph from data/processed (edges.parquet).")
-        self._load_mechanisms_from_traces()
+        t0 = time.time()
+        nodes = pq.read_table(P.nodes, columns=["gidx", "curie", "type", "name"], read_dictionary=["type"]).to_pandas()
+        nodes = nodes.sort_values("gidx").reset_index(drop=True)
+        if not (nodes.gidx.to_numpy() == np.arange(len(nodes))).all():
+            raise ValueError("nodes.gidx is not contiguous 0..N-1")
+        have = set(pq.read_schema(P.edges).names)
+        cols = [c for c in ("edge_row", "src", "dst", "rel", "origin", "dm_row") if c in have]
+        edges = pq.read_table(P.edges, columns=cols, read_dictionary=[c for c in ("rel", "origin") if c in cols]).to_pandas()
+        if "edge_row" not in edges:
+            edges["edge_row"] = np.arange(len(edges))
+        for c in ("edge_row", "src", "dst", "dm_row"):  # 32-bit halves memory; the live retriever holds its own copy
+            if c in edges and len(edges) and edges[c].max() < 2**31 and edges[c].min() >= -2**31:
+                edges[c] = edges[c].astype("int32")
+        src = edges["src"].to_numpy()
+        order = np.argsort(src, kind="stable")
+        self._full = {"curie": nodes.curie.to_numpy(), "name": nodes.name.astype(str).to_numpy(),
+                      "type": nodes.type.astype(str).to_numpy(), "by_curie": dict(zip(nodes.curie, nodes.gidx)),
+                      "edges": edges, "order": order, "src_sorted": src[order], "ev": None, "ev_state": "loading"}
+        genes = nodes[nodes.type.astype(str) == "gene"]
+        for n, c in zip(genes.name, genes.curie):
+            self.symbol[str(n).upper()] = c
+        stage = {k: self.meta.get(k) for k in ("n_trace_files", "n_nodes", "n_edges")}
+        self.meta.update(source="full_graph", n_nodes=int(len(nodes)), n_edges=int(len(edges)), stage_index=stage,
+                         load_s=round(time.time() - t0, 1),
+                         description=("Merged PrimeKG + DisMech graph from data/processed (edges.parquet). The opening "
+                                      "network is drawn from this project's executed retrievals of the same graph."))
+        threading.Thread(target=self._load_evidence, daemon=True).start()
+
+    def _load_evidence(self):
+        F = self._full
+        if not P.evidence.exists():
+            F["ev_state"] = "missing"
+            return
+        try:
+            import pandas as pd
+            F["ev"] = pd.read_parquet(P.evidence).set_index("dm_row")
+            F["ev_state"] = "ready"
+        except Exception as exc:  # noqa: BLE001
+            F["ev_state"] = f"failed: {type(exc).__name__}"
 
     def _load_executed(self):
         files = [f for d in TRACE_DIRS if d.exists() for f in sorted(d.rglob("*.json")) if not f.name.startswith("_")]
@@ -197,13 +233,14 @@ class GraphIndex:
 
     # ------------------------------------------------------------------ queries
     def node(self, curie: str) -> dict | None:
+        if curie in self.nodes:
+            return self.nodes[curie]
         if self._full is not None:
             g = self._full["by_curie"].get(curie)
-            if g is None:
-                return None
-            r = self._full["nodes"].loc[g]
-            return {"curie": curie, "name": str(r["name"]), "type": str(r["type"]), "origin": str(r["origin"])}
-        return self.nodes.get(curie)
+            if g is not None:
+                F = self._full
+                return {"curie": curie, "name": str(F["name"][g]), "type": str(F["type"][g])}
+        return None
 
     def resolve(self, symbol: str) -> str | None:
         return self.symbol.get(str(symbol).upper()) if symbol else None
@@ -217,33 +254,40 @@ class GraphIndex:
         return [self.edges[k] for k in keys[:limit]]
 
     def _full_neighbours(self, curie, limit):
+        import numpy as np
         from common.contracts import edge_id
         F = self._full
         g = F["by_curie"].get(curie)
         if g is None:
             return []
-        e = F["edges"]
-        rows = e[(e.src == g) & ~e.rel.isin(["anatomy_protein_present", "anatomy_protein_absent", "drug_drug"])]
-        rows = rows.sort_values(["origin", "edge_row"]).head(limit)  # 'dismech' < 'primekg'
-        out = []
+        lo, hi = np.searchsorted(F["src_sorted"], [g, g + 1])
+        rows = F["edges"].iloc[F["order"][lo:hi]]
+        rows = rows[~rows.rel.astype(str).isin(HUB_RELS)]
+        rows = rows.assign(_dm=(rows.origin.astype(str) != "dismech")).sort_values(["_dm", "edge_row"]).head(limit)
+        ev, out = F["ev"], []
         for r in rows.itertuples():
-            dst = F["nodes"].loc[r.dst]
+            d = int(r.dst)
             pmids, quote = [], None
-            if r.origin == "dismech" and F["ev"] is not None:
+            if str(r.origin) == "dismech" and ev is not None and hasattr(r, "dm_row"):
                 try:
                     from agent.tools import _evidence_for
-                    pmids, quotes = _evidence_for(int(r.dm_row), F["ev"])
+                    pmids, quotes = _evidence_for(int(r.dm_row), ev)
                     quote = quotes[0] if quotes else None
                 except Exception:  # noqa: BLE001
                     pass
-            out.append({"edge_id": edge_id(r.edge_row), "src": curie, "dst": str(dst["curie"]), "rel": r.rel,
-                        "origin": r.origin, "pmids": pmids, "quote": quote, "citable": True,
-                        "provenance": "merged graph edge (edges.parquet)",
-                        "_dst_node": {"curie": str(dst["curie"]), "name": str(dst["name"]), "type": str(dst["type"])}})
+            prov = "merged graph edge (edges.parquet)"
+            if str(r.origin) == "dismech" and ev is None:
+                prov += f"; DisMech evidence {F['ev_state']}"
+            out.append({"edge_id": edge_id(int(r.edge_row)), "src": curie, "dst": str(F["curie"][d]), "rel": str(r.rel),
+                        "origin": str(r.origin), "pmids": pmids, "quote": quote, "citable": True, "provenance": prov,
+                        "_dst_node": {"curie": str(F["curie"][d]), "name": str(F["name"][d]), "type": str(F["type"][d])}})
         return out
 
     def describe(self) -> dict:
-        return dict(self.meta)
+        d = dict(self.meta)
+        if self._full is not None:
+            d["evidence"] = self._full["ev_state"]
+        return d
 
     # ------------------------------------------------------------------ the stage graph for chapters 1-4
     def stage_graph(self, focus: list[str], cap: int = 720, per_focus: int = 10) -> dict:
@@ -259,10 +303,9 @@ class GraphIndex:
                     nodes[c] = n
             chosen_e[e.get("edge_id") or e["row_ref"]] = e
 
-        if self._full is None:
-            for k, e in self.edges.items():
-                if e["origin"] == "dismech":
-                    take(e)
+        for k, e in self.edges.items():  # every DisMech edge from executed retrievals (real E-IDs, PMIDs, quotes)
+            if e["origin"] == "dismech":
+                take(e)
         for c in focus:  # focus entities are always present, even when the index has no edge for them
             n = self.node(c)
             if n and c not in nodes:
@@ -272,7 +315,7 @@ class GraphIndex:
                 if len(nodes) >= cap:
                     break
                 take(e)
-        if self._full is None and len(nodes) < cap:  # connectors: index edges between already-chosen nodes
+        if len(nodes) < cap:  # connectors: index edges between already-chosen nodes
             for k, e in self.edges.items():
                 key = e.get("edge_id") or e["row_ref"]
                 if key not in chosen_e and e["src"] in nodes and e["dst"] in nodes:
@@ -297,5 +340,7 @@ def get_index() -> GraphIndex:
     global _index
     with _lock:
         if _index is None:
+            t0 = time.time()
             _index = GraphIndex()
+            print(f"  graph index ready in {time.time() - t0:.1f}s ({_index.meta.get('source')})", flush=True)
         return _index

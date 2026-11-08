@@ -127,3 +127,33 @@ def test_server_endpoints(case, monkeypatch):
             urllib.request.urlopen(base + "/%2e%2e/%2e%2e/CLAUDE.md", timeout=10)
     finally:
         httpd.shutdown()
+
+
+def test_full_graph_backend_on_synthetic_parquet(tmp_path, monkeypatch):
+    """Exercises the data/processed code path with a tiny synthetic graph (test fixture only, not project data)."""
+    import time
+
+    import pandas as pd
+
+    from common.contracts import P
+
+    nodes = pd.DataFrame({"gidx": [0, 1, 2], "curie": ["NCBIGene:4233", "NCBIGene:6714", "HP:0000001"],
+                          "type": ["gene", "gene", "phenotype"], "name": ["MET", "SRC", "All"], "origin": ["primekg"] * 3})
+    edges = pd.DataFrame({"edge_row": [0, 1, 2, 3], "src": [0, 1, 0, 2], "dst": [1, 0, 2, 0],
+                          "rel": ["protein_protein", "protein_protein", "dm_causes", "dm_causes_rev"],
+                          "origin": ["primekg", "primekg", "dismech", "dismech"], "dm_row": [-1, -1, 5, 5]})
+    ev = pd.DataFrame({"dm_row": [5], "publications": ["PMID:00000001"], "supporting_text": ["fixture text"]})
+    for name, df in (("nodes", nodes), ("edges", edges), ("evidence", ev)):
+        df.to_parquet(tmp_path / f"{name}.parquet")
+        monkeypatch.setattr(P, name, tmp_path / f"{name}.parquet")
+    g = GraphIndex()
+    assert g.describe()["source"] == "full_graph" and g._full["edges"].src.dtype == "int32"
+    for _ in range(50):
+        if g._full["ev_state"] != "loading":
+            break
+        time.sleep(0.05)
+    nb = g.neighbours("NCBIGene:4233", 10)
+    assert [e["edge_id"] for e in nb] == ["E2", "E0"]  # DisMech first, then by row
+    assert nb[0]["pmids"] == ["PMID:00000001"]
+    assert g.node("NCBIGene:6714")["name"] == "SRC" and g.resolve("src") == "NCBIGene:6714"
+    assert g.stage_graph(["NCBIGene:4233"])["nodes"]

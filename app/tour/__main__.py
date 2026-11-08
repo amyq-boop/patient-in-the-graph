@@ -14,8 +14,12 @@ ap.add_argument("--host", default="127.0.0.1", help="0.0.0.0 to share on the loc
 ap.add_argument("--port", type=int, default=8600)
 ap.add_argument("--no-live", action="store_true", help="skip youngcrc.com; use the hash-verified snapshot")
 ap.add_argument("--open", action="store_true", help="open the browser when ready")
+ap.add_argument("--graph", choices=["auto", "executed"], default="auto",
+                help="auto: use data/processed when present; executed: only the fast index of executed retrievals")
 a = ap.parse_args()
-print("Patient-in-the-Graph tour: loading data ...")
+import os  # noqa: E402
+os.environ["TOUR_GRAPH"] = a.graph
+print("Patient-in-the-Graph tour: loading data (with the full graph this takes about 20 to 60 s) ...", flush=True)
 if a.open:
     threading.Timer(1.5, lambda: webbrowser.open(f"http://localhost:{a.port}")).start()
 serve(a.host, a.port, prefer_live=not a.no_live)
