@@ -109,6 +109,24 @@ def qids(pid: str) -> list[str]:
     return sorted({q for p, q, _ in _trace_index() if p == pid})
 
 
+def stage_score(cancer: str, pid: str) -> dict | None:
+    """The GNN's out-of-fold stage score for a kidney patient, read from the committed E2 predictions (read-only).
+    The stage model is kidney-only, so breast cancer gets None."""
+    if cancer != "ccrcc":
+        return None
+    f = ROOT / "models" / "results" / "predictions_y_stage.csv"
+    try:
+        import pandas as pd
+        d = pd.read_csv(f)
+    except Exception:  # noqa: BLE001 - a missing file just hides the tile
+        return None
+    g = d[d.model == "gnn"].sort_values("risk").reset_index(drop=True)
+    row = g[g.patient_id == pid]
+    if row.empty:
+        return None
+    return {"risk": float(row.risk.iloc[0]), "rank": int(row.index[0]) + 1, "n": len(g), "fold": int(row.fold.iloc[0])}
+
+
 def _norm_clusters(d: dict) -> dict:
     """Anikat's clusters_<cancer>.json -> the shape the panels read. Cluster numbers shown from 1."""
     k_sel = {x["k"]: x.get("silhouette") for x in d.get("k_selection", [])}

@@ -188,8 +188,7 @@ def targets_html(v):
     body = "".join(f"<tr><td><b>{esc(r['drug'])}</b></td><td>{esc(r['target'])}</td><td class='kind'>{esc(r['id'])}</td>"
                    f"<td>{'cited' if r['cited'] else 'retrieved'}</td></tr>" for r in rows)
     return ("<table class='ttab'><tr><th>Drug</th><th>Acts on</th><th>Evidence</th><th>Status</th></tr>" + body +
-            "</table><p class='gcap'>A drug-target edge is a reason to test, not evidence that this patient will "
-            "respond.</p>")
+            "</table><p class='gcap'>A reason to test, not proof of response.</p>")
 
 
 def gaps(v, brief):
@@ -206,7 +205,10 @@ def gaps_html(v, brief):
     g = gaps(v, brief)
     if not g:
         return "<p class='gcap'>No gaps flagged for this run.</p>"
-    return "<ul class='gaps'>" + "".join(f"<li><span class='gtag'>{esc(k)}</span>{esc(t)}</li>" for k, t in g) + "</ul>"
+    def short(t):
+        return t if len(t) <= 80 else t[:78].rsplit(" ", 1)[0] + "…"
+    return "<ul class='gaps'>" + "".join(f"<li title='{esc(t)}'><span class='gtag'>{esc(k)}</span>{esc(short(t))}</li>"
+                                        for k, t in g[:5]) + "</ul>"
 
 
 def subgroup_explain(cl, pid):
@@ -214,10 +216,7 @@ def subgroup_explain(cl, pid):
     info = cluster_info(cl, c)
     if not info:
         return "This patient isn't in the subgroup file yet."
-    sig = ", ".join(f"{s['symbol']} {'up' if s.get('direction') == 'up' else 'down'}" for s in info.get("signature_proteins", [])[:4])
-    pws = ", ".join(p["name"] for p in info.get("pathways", [])[:3])
-    stab = (f" The grouping holds up at a bootstrap stability of {cl['stability_ari']:.2f}."
-            if isinstance(cl.get("stability_ari"), (int, float)) else "")
-    return (f"{pid} sits in {info.get('name', c)}, {info.get('n', '?')} of {len(cl.get('patients', []))} patients. "
-            f"What sets it apart: {sig or 'no signature listed'}. Linked pathways: {pws or 'none listed'}.{stab} "
-            "These are exploratory molecular subgroups, not clinical subtypes, and stage and grade were not used to build them.")
+    sig = ", ".join(f"{x['symbol']} {'up' if x.get('direction') == 'up' else 'down'}" for x in info.get("signature_proteins", [])[:3])
+    pw = (info.get("pathways") or [{}])[0].get("name")
+    return (f"{info.get('name', c)}: {info.get('n', '?')} tumors. Set apart by {sig or 'no listed proteins'}"
+            + (f"; top pathway {pw}." if pw else ".") + " Exploratory, not a clinical subtype.")

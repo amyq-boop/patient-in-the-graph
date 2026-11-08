@@ -359,6 +359,29 @@ CANCER_WORD = {"ccrcc": "kidney", "brca": "breast"}[cancer]
 st.markdown(CH.CSS and f"<style>{CH.CSS}</style>", unsafe_allow_html=True)
 CL, cl_origin = data.product(cancer, "clusters.json")
 mock_cl = "<span class='demo'>Demo data: placeholder subgroups</span>" if cl_origin == "mock" else ""
+
+# at a glance: the model's outputs for this tumor, before any prose
+_qs = data.qids(pid)
+_gq = st.session_state.get("qid") if st.session_state.get("qid") in _qs else (_qs[0] if _qs else None)
+_gt = data.trace(pid, _gq)[0] if _gq else None
+_gv = RV.build(_gt) if _gt else None
+tiles = []
+if CL and (c_ := PV.patient_cluster(CL, pid)) is not None:
+    co_ = next((p_ for p_ in CL["patients"] if p_["patient_id"] == pid), {}).get("co_assignment")
+    tiles.append(("Subgroup", esc(PV.cluster_info(CL, c_)["name"]),
+                  f"stable in {co_:.0%} of reruns" if isinstance(co_, float) else "", "warn" if isinstance(co_, float) and co_ < PV.UNSTABLE else ""))
+ss_ = data.stage_score(cancer, pid)
+tiles.append(("GNN stage score", f"{ss_['risk']:.2f}", f"{ss_['rank']} of {ss_['n']}, low to high. Uncalibrated.", "")
+             if ss_ else ("GNN stage score", "Not used", "the stage model is kidney-only" if cancer == "brca" else "not available", "off"))
+if _gv:
+    tg_ = [r_["drug"] for r_ in PV.targets(_gv)][:2]
+    tiles.append(("Drug targets", esc(", ".join(tg_)) or "None", "linked by graph edges" if tg_ else "none returned", "" if tg_ else "off"))
+    tiles.append(("Verifier", f"{len(_gv['claims']['supported'])} kept, {len(_gv['claims']['removed'])} cut",
+                  f"{len(_gv['claims']['hypothesis'])} kept as hypotheses", ""))
+else:
+    tiles += [("Drug targets", "Pending", "needs a cached agent run", "off"), ("Verifier", "Pending", "needs a cached agent run", "off")]
+st.markdown(CH.glance(tiles), unsafe_allow_html=True)
+
 if CL:
     st.markdown(mock_cl + CH.chapter(1, 4, "The cohort", f"Where does this tumor sit among {len(CL['patients'])} others?",
                                      CH.cohort_answer(CL, pid, CANCER_WORD)), unsafe_allow_html=True)
@@ -388,8 +411,7 @@ for q_ in data.qids(pid):
     if tq:
         qlist.append((q_, tq["question"]))
 st.markdown(CH.chapter(3, 4, "The run", "Ask the agent about this tumor.",
-                       "Each answer replays a verified run: the GNN picks the evidence, the agent drafts, and the "
-                       "verifier cuts any claim it can't back up."), unsafe_allow_html=True)
+                       "A verified run, replayed. The verifier cuts what it can't back up."), unsafe_allow_html=True)
 if qlist:
     cols = st.columns(max(len(qlist), 1))
     for i, (col, (q_, text)) in enumerate(zip(cols, qlist), 1):
@@ -543,8 +565,6 @@ if V and run_key in played:
     with left:
         graph = RV.graph_svg(v)
         st.markdown(RV.strip_html(v, -1, len(RV.STAGES)), unsafe_allow_html=True)
-        if p := v["calls"].get("predict_patient"):
-            st.markdown(RV.prediction_html(p), unsafe_allow_html=True)
         st.markdown("<div class='sub-h'>Verified answer<span>Hover a sentence to see its evidence</span></div>"
                     + RV.hover_css(v) + RV.answer_html(v), unsafe_allow_html=True)
         sup, hyp, rem = (v["claims"][k] for k in ("supported", "hypothesis", "removed"))
@@ -569,14 +589,11 @@ if V and run_key in played:
             st.markdown(RV.draft_html(v, "verify"), unsafe_allow_html=True)
 
         st.markdown(CH.chapter(4, 4, "The evidence", "What backs this answer?",
-                               f"<b>{len(sup)}</b> claims backed by evidence the tools returned, <b>{len(rem)}</b> cut by the "
-                               "verifier. Every drug below is linked by a graph edge, not by a response prediction."),
+                               f"<b>{len(sup)}</b> claims kept, <b>{len(rem)}</b> cut."),
                     unsafe_allow_html=True)
         t1, t2 = st.columns(2, gap="large")
-        t1.markdown("<div class='sub-h'>Drug targets</div><p class='gcap'>From graph edges the tools returned.</p>"
-                    + PV.targets_html(v), unsafe_allow_html=True)
-        t2.markdown("<div class='sub-h'>Evidence gaps</div><p class='gcap'>What it would take to say more.</p>"
-                    + PV.gaps_html(v, BRIEF), unsafe_allow_html=True)
+        t1.markdown("<div class='sub-h'>Drug targets</div>" + PV.targets_html(v), unsafe_allow_html=True)
+        t2.markdown("<div class='sub-h'>Evidence gaps</div>" + PV.gaps_html(v, BRIEF), unsafe_allow_html=True)
 
         sub = v["calls"].get("retrieve_subgraph")
         st.markdown("<div class='sub-h'>What the GNN retrieved<span>Hover a line to find the sentence that cites it"
@@ -588,10 +605,9 @@ if V and run_key in played:
         st.markdown(graph, unsafe_allow_html=True)
         legend = "".join(f"<span><i style='border-color:{ROLE[r][2]};{'border-top-style:dashed' if r == 'observed' else ''}'>"
                          f"</i>{LABEL[r]}</span>" for r in ROLE)
-        st.markdown(f"<div class='legend' style='margin-top:.3rem'>{legend}<span>Colored lines are cited in the answer, "
-                    "grey ones were retrieved but not used. A bar at the end of a drug line means it inhibits its target."
-                    "</span></div>", unsafe_allow_html=True)
-        st.markdown("<div class='sub-h'>Sources</div>" + RV.sources_html(v), unsafe_allow_html=True)
+        st.markdown(f"<div class='legend' style='margin-top:.3rem'>{legend}<span>Grey: retrieved, not cited.</span></div>", unsafe_allow_html=True)
+        with st.expander(f"Sources ({len(v['order'])})"):
+            st.markdown(RV.sources_html(v), unsafe_allow_html=True)
         st.button("Replay the run", key="replay", on_click=lambda: st.session_state.update(play=True))
 elif V:
     with left:

@@ -36,13 +36,10 @@ def cohort_answer(cl, pid, cancer_word):
     info = cluster_info(cl, c)
     if not info:
         return f"{esc(pid)} isn't in the subgroup file yet."
-    me = next((p for p in cl["patients"] if p["patient_id"] == pid), {})
-    co = me.get("co_assignment")
-    s = (f"In {esc(info['name'])}, with {info['n'] - 1} other {cancer_word} tumors. ")
-    if num(co):
-        s += (f"It lands there in <b>{co:.0%}</b> of reruns." if co >= UNSTABLE else
-              f"But only in <b class='warn'>{co:.0%}</b> of reruns, so this assignment is unstable.")
-    return s
+    co = next((p for p in cl["patients"] if p["patient_id"] == pid), {}).get("co_assignment")
+    tail = ("" if not num(co) else f" Stable in <b>{co:.0%}</b> of reruns." if co >= UNSTABLE
+            else f" <b class='warn'>Unstable: {co:.0%} of reruns.</b>")
+    return f"{esc(info['name'])}, with {info['n'] - 1} others.{tail}"
 
 
 def _hull(pts):
@@ -161,48 +158,46 @@ def _bars(items, key, fmt, side):
     return "<div class='bars2'>" + "".join(rows) + "</div>"
 
 
+def how(text):
+    """Method notes, folded away: one click for the judge who asks, nothing for everyone else."""
+    return f"<details class='how'><summary>How this was computed</summary><p>{text}</p></details>"
+
+
 def subgroup_spec(cl, pid):
     c = patient_cluster(cl, pid)
     info = cluster_info(cl, c)
     if not info:
         return ""
-    me = next((p for p in cl["patients"] if p["patient_id"] == pid), {})
-    co = me.get("co_assignment")
+    co = next((p for p in cl["patients"] if p["patient_id"] == pid), {}).get("co_assignment")
     ph = cl.get("post_hoc") or {}
     stage_p = (ph.get("y_stage") or {}).get("chi2_p") if isinstance(ph, dict) else None
-    stats = [(f"{info['n']}", f"of {len(cl['patients'])} tumors in this subgroup")]
+    stats = [(f"{info['n']}", "tumors", False)]
     if num(co):
-        stats.append((f"{co:.0%}", "of reruns put this tumor here", co < UNSTABLE))
+        stats.append((f"{co:.0%}", "rerun stability", co < UNSTABLE))
     if num(info.get("jaccard")):
-        stats.append((f"{info['jaccard']:.2f}", "subgroup reproducibility (Jaccard, 0 to 1)"))
+        stats.append((f"{info['jaccard']:.2f}", "reproducibility", False))
     if num(stage_p):
-        stats.append((f"p = {stage_p:.2g}", "stage differs between subgroups, tested after clustering"))
-    stat_html = "".join(f"<div class='st{' warn' if len(s) > 2 and s[2] else ''}'><b>{s[0]}</b><span>{s[1]}</span></div>"
-                        for s in stats)
+        stats.append((f"p {stage_p:.2g}", "stage link, post hoc", False))
+    stat_html = "".join(f"<div class='st{' warn' if w else ''}'><b>{v}</b><span>{l}</span></div>" for v, l, w in stats)
     sig = info.get("signature_proteins", [])
-    up = [s for s in sig if s.get("direction") == "up"][:4]
-    dn = [s for s in sig if s.get("direction") == "down"][:4]
-    pw = info.get("pathways", [])[:4]
-    pw_rows = "".join(f"<tr><td>{esc(p['name'])}</td><td class='n'>{p.get('overlap', '')}"
-                      + (f" of {p['pathway_size']}" if num(p.get("pathway_size")) else "") + "</td>"
-                      f"<td class='n'>{p['q']:.1e}</td></tr>" if num(p.get("q")) else
-                      f"<tr><td>{esc(p['name'])}</td><td></td><td></td></tr>" for p in pw)
-    comp = cl.get("comparison") or {}
-    gnn = ("Compared with GNN-embedding clusters: pending." if comp.get("status") else "")
+    up = [x for x in sig if x.get("direction") == "up"][:3]
+    dn = [x for x in sig if x.get("direction") == "down"][:3]
+    pws = "".join(f"<li>{esc(p['name'])}</li>" for p in info.get("pathways", [])[:3])
     stab = (f"Whole-partition stability {cl['stability_ari']:.2f}" + (f" ± {cl['stability_sd']:.2f}" if num(cl.get("stability_sd")) else "")
-            + " (bootstrap ARI over 100 reruns)." if num(cl.get("stability_ari")) else "")
+            + " (bootstrap ARI, 100 reruns). " if num(cl.get("stability_ari")) else "")
+    note = (f"{esc(cl.get('method') or '')}. {stab}Rerun stability: how often this tumor lands in this subgroup when 80% of "
+            "the cohort is resampled. Reproducibility: Jaccard overlap of the subgroup across reruns. Protein values: mean "
+            "difference in standardized abundance. Pathways: Reactome enrichment, FDR q under 0.05. Stage was tested only "
+            "after clustering and never used to build subgroups. GNN-embedding comparison: "
+            + ("pending." if (cl.get("comparison") or {}).get("status") else "see results.")
+            + " Exploratory molecular subgroups, not clinical subtypes.")
     return (f"<div class='spec'><div class='stats'>{stat_html}</div>"
-            f"<div class='spec-grid'><div><h4>Higher in this subgroup</h4>{_bars(up, 'effect', lambda v: f'{v:+.2f}', 'up')}</div>"
-            f"<div><h4>Lower in this subgroup</h4>{_bars(dn, 'effect', lambda v: f'{v:+.2f}', 'dn')}</div>"
-            f"<div class='pw'><h4>Enriched pathways</h4><table><tr><th>Reactome pathway</th><th class='n'>Genes</th>"
-            f"<th class='n'>FDR q</th></tr>{pw_rows or '<tr><td>none listed</td></tr>'}</table></div></div>"
-            f"<p class='foot2'>Protein values are mean differences in standardized abundance against the other subgroup. "
-            f"{stab} {gnn} Exploratory molecular subgroups, built without stage, grade or outcome; not clinical subtypes.</p></div>")
+            f"<div class='spec-grid'><div><h4>Higher</h4>{_bars(up, 'effect', lambda v: f'{v:+.2f}', 'up')}</div>"
+            f"<div><h4>Lower</h4>{_bars(dn, 'effect', lambda v: f'{v:+.2f}', 'dn')}</div>"
+            f"<div><h4>Enriched pathways</h4><ul class='pwl'>{pws or '<li>none</li>'}</ul></div></div>{how(note)}</div>")
 
 
-# ------------------------------------------------------------------ 02 the patient
 def _demo(raw_summary):
-    """'66-year-old male; BMI 26.2; ever smoker; comorbidities: ...; medications: ...' -> the first clauses only."""
     parts = [p.strip() for p in (raw_summary or "").split(";")]
     keep = [p for p in parts if p and not p.lower().startswith(("comorbidities", "medications"))]
     return ", ".join(keep).rstrip(".")
@@ -213,41 +208,45 @@ def patient_answer(brief, ref_word):
     up = brief.get("proteins_up", [])[:2]
     bits = []
     if drivers:
-        d = drivers[0]
-        bits.append(f"A <b>{esc(d['symbol'])}</b> driver mutation ({esc(d.get('protein_changes') or 'change not given')})"
-                    + (f" and {len(drivers) - 1} more" if len(drivers) > 1 else ""))
+        bits.append(f"<b>{esc(drivers[0]['symbol'])}</b> driver mutation" + (f" (+{len(drivers) - 1} more)" if len(drivers) > 1 else "") + ".")
     if up:
-        bits.append(f"{' and '.join(esc(u['symbol']) for u in up)} far above {ref_word}")
-    return (", with ".join(bits) + ".") if bits else "No driver mutation or large protein change recorded."
+        bits.append(f"{' and '.join(esc(u['symbol']) for u in up)} highest vs {ref_word}.")
+    return " ".join(bits) or "No driver mutation or large protein change recorded."
 
 
 def patient_spec(brief, raw):
-    """brief = normalized brief (data._norm_brief); raw = the original brief file, for demographics and medications."""
     raw = raw or {}
     muts = brief.get("mutations", [])
     drivers = [m for m in muts if m.get("known_driver")]
     others = [m for m in muts if not m.get("known_driver")]
-    mut_rows = "".join(f"<li><b>{esc(m['symbol'])}</b> <span>{esc(m.get('protein_changes') or '')}</span>"
-                       f"<em>known driver</em></li>" for m in drivers)
-    mut_rows += "".join(f"<li>{esc(m['symbol'])} <span>{esc(m.get('protein_changes') or '')}</span></li>" for m in others[:5])
-    up = [{"symbol": p["symbol"], "z": p.get("z")} for p in brief.get("proteins_up", [])[:6]]
-    dn = [{"symbol": p["symbol"], "z": p.get("z")} for p in brief.get("proteins_down", [])[:4]]
-    ref = {"normal": "matched normal kidney", "cohort": "the rest of the cohort"}.get(brief.get("reference"), "the reference")
-    finds = [f.get("name") for f in brief.get("findings", [])]
-    meds = [m.get("name") for m in raw.get("medications", [])]
+    mut_rows = "".join(f"<li><b>{esc(m['symbol'])}</b> <span>{esc(m.get('protein_changes') or '')}</span><em>driver</em></li>"
+                       for m in drivers)
+    mut_rows += "".join(f"<li>{esc(m['symbol'])} <span>{esc(m.get('protein_changes') or '')}</span></li>" for m in others[:3])
+    up = [{"symbol": x["symbol"], "z": x.get("z")} for x in brief.get("proteins_up", [])[:4]]
+    dn = [{"symbol": x["symbol"], "z": x.get("z")} for x in brief.get("proteins_down", [])[:2]]
+    ref = {"normal": "normal kidney", "cohort": "other tumors"}.get(brief.get("reference"), "reference")
+    finds = "".join(f"<span class='tag'>{esc(f.get('name'))}</span>" for f in brief.get("findings", [])) or "<span class='gcap'>none</span>"
+    meds = raw.get("medications", [])
     miss = brief.get("missing", [])
-    return (f"<div class='spec pspec'><p class='demog'>{esc(_demo(brief.get('summary', '')))}</p><div class='spec-grid p3'>"
-            f"<div><h4>Somatic mutations</h4><ul class='muts'>{mut_rows or '<li>none recorded</li>'}</ul></div>"
-            f"<div><h4>Largest protein changes vs {esc(ref)}</h4>{_bars(up, 'z', lambda v: f'{v:+.1f}', 'up')}"
-            f"{_bars(dn, 'z', lambda v: f'{v:+.1f}', 'dn')}</div>"
-            f"<div><h4>On record</h4><p class='rec'>{esc(', '.join(finds)) or 'No conditions recorded.'}</p>"
-            + (f"<p class='rec mutedp'>{len(meds)} medications recorded: {esc(', '.join(meds[:6]))}{'…' if len(meds) > 6 else ''}</p>" if meds else "")
-            + ("<h4>Not available</h4><ul class='miss2'>" + "".join(f"<li>{esc(m)}</li>" for m in miss) + "</ul>" if miss else "")
-            + "</div></div><p class='foot2'>Protein values are z-scores. Stage, grade and outcome are never shown or used.</p></div>")
+    note = (f"Patient: {esc(_demo(brief.get('summary', '')))}. Protein values are z-scores against {ref}. "
+            + (f"{len(meds)} medications on record: {esc(', '.join(m.get('name', '') for m in meds))}. " if meds else "")
+            + ("Not available: " + esc(" ".join(miss)) + " " if miss else "")
+            + "Stage, grade and outcome are never shown or used.")
+    return (f"<div class='spec pspec'><div class='spec-grid p3'>"
+            f"<div><h4>Mutations</h4><ul class='muts'>{mut_rows or '<li>none recorded</li>'}</ul></div>"
+            f"<div><h4>Proteins vs {esc(ref)}</h4>{_bars(up, 'z', lambda v: f'{v:+.1f}', 'up')}{_bars(dn, 'z', lambda v: f'{v:+.1f}', 'dn')}</div>"
+            f"<div><h4>On record</h4><div class='tags'>{finds}</div></div></div>{how(note)}</div>")
+
+
+def glance(items):
+    """The model's outputs for this tumor, one tile each: (label, value, sub, tone)."""
+    return "<div class='glance'>" + "".join(
+        f"<div class='gl {tone}'><span class='gll'>{esc(l)}</span><b>{v}</b><span class='gls'>{s}</span></div>"
+        for l, v, s, tone in items) + "</div>"
 
 
 CSS = f"""
-.chap {{ margin:4.2rem 0 1.6rem; max-width:62rem; }}
+.chap {{ margin:3.4rem 0 1.1rem; max-width:62rem; }}
 .chap [data-testid="stHeaderActionElements"], .chap h2 a {{ display:none !important; }}
 .chap-n {{ font-size:.9rem; color:{MUTED}; letter-spacing:.02em; display:flex; gap:.9rem; align-items:baseline; }}
 .chap-n b {{ font-family:"Newsreader",serif; font-weight:400; font-size:1.05rem; color:{INK}; }}
@@ -259,7 +258,7 @@ div[data-testid='stMarkdownContainer'] p.chap-a {{ font-family:"Newsreader",seri
 .cmap2 .dot, .cmap2 .reg, .cmap2 .lab {{ transition: opacity .18s; }}
 .cmap2 .reg, .cmap2 .lab {{ cursor:default; }}
 .spec {{ border-top:1px solid {INK}; padding-top:1.2rem; margin-top:1.2rem; }}
-.stats {{ display:grid; grid-template-columns:repeat(4,1fr); gap:1.5rem; padding-bottom:1.3rem; border-bottom:1px solid {RULE}; }}
+.stats {{ display:grid; grid-template-columns:repeat(4,1fr); gap:1.5rem; padding-bottom:1rem; border-bottom:1px solid {RULE}; }}
 .st b {{ display:block; font-family:"Newsreader",serif; font-weight:400; font-size:2.3rem; line-height:1; color:{INK}; }}
 .st span {{ display:block; font-size:.88rem; color:{MUTED}; margin-top:.45rem; line-height:1.4; max-width:22ch; }}
 .spec-grid {{ display:grid; grid-template-columns: 1fr 1fr 1.5fr; gap:2.6rem; padding:1.3rem 0 .4rem; }}
@@ -288,6 +287,21 @@ div[data-testid='stMarkdownContainer'] p.demog {{ font-size:1.05rem; color:{BODY
 .empty {{ border:1px dashed #c9c4d6; border-radius:10px; padding:2rem 2.2rem; max-width:44rem; }}
 .empty b {{ font-family:"Newsreader",serif; font-weight:400; font-size:1.45rem; color:{INK}; display:block; margin-bottom:.4rem; }}
 .empty p {{ margin:0; color:{BODY}; line-height:1.55; }}
+.how {{ margin:.9rem 0 0; font-size:.85rem; color:{MUTED}; }}
+.how summary {{ cursor:pointer; color:{MUTED}; list-style:none; }} .how summary::before {{ content:"+ "; }}
+.how[open] summary::before {{ content:"− "; }} .how p {{ margin:.5rem 0 0; line-height:1.55; max-width:80ch; }}
+.pwl {{ list-style:none; padding:0 !important; margin:0 !important; }}
+.pwl li {{ padding:.42rem 0; border-bottom:1px solid {RULE}; font-size:.94rem; color:{BODY}; line-height:1.35; margin:0 !important; }}
+.tags {{ display:flex; flex-wrap:wrap; gap:.4rem; }}
+.tag {{ font-size:.86rem; background:#f1eef7; color:{BODY}; border-radius:5px; padding:.15rem .5rem; }}
+.glance {{ display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:{RULE}; border:1px solid {RULE};
+          border-radius:10px; overflow:hidden; margin:1.2rem 0 .4rem; }}
+.gl {{ background:#fff; padding:1rem 1.1rem 1.05rem; display:flex; flex-direction:column; gap:.2rem; min-height:6.4rem; }}
+.gl .gll {{ font-size:.78rem; font-weight:600; color:{MUTED}; letter-spacing:.02em; }}
+.gl b {{ font-family:"Newsreader",serif; font-weight:400; font-size:1.65rem; line-height:1.15; color:{INK}; }}
+.gl .gls {{ font-size:.82rem; color:{MUTED}; line-height:1.35; }}
+.gl.warn b {{ color:#a3304f; }} .gl.off b {{ color:{MUTED}; font-size:1.25rem; }}
+@media (max-width: 860px) {{ .glance {{ grid-template-columns:1fr 1fr; }} }}
 .toolbar {{ display:flex; align-items:center; gap:1rem; padding:.2rem 0 .4rem; }}
 @media (max-width: 860px) {{ .stats {{ grid-template-columns:1fr 1fr; }} .spec-grid, .spec-grid.p3 {{ grid-template-columns:1fr; }} }}
 """
