@@ -151,7 +151,7 @@ def _norm_clusters(d: dict) -> dict:
                           "co_assignment": a.get("co_assignment_rate")}
                          for a in d.get("assignments", [])],
             "clusters": cl, "comparison": comp if "status" not in comp else {"status": comp["status"]},
-            "post_hoc": d.get("descriptive_tests_after_clustering"), "coordinates": meth.get("coordinates", "")
+            "post_hoc": d.get("descriptive_tests_after_clustering"), "k_selection": d.get("k_selection", []), "coordinates": meth.get("coordinates", "")
             if isinstance(meth, dict) else ""}
 
 
@@ -199,14 +199,37 @@ def patient(pid: str) -> dict:
     return out
 
 
+MOCK_ID = re.compile(r"\bE9000\d\d\b|PMID:0{6,}\d")
+
+
+def _is_mock(t: dict) -> bool:
+    """Mock by content, not by folder: declared mock, a mock or fake model, mock tool results, or mock-range IDs."""
+    if t.get("data_origin") == "mock" or str(t.get("model", "")).lower() in ("mock", "fake-llm"):
+        return True
+    if any(isinstance(tc.get("result"), dict) and (tc["result"].get("meta") or {}).get("mock") for tc in t.get("tool_calls", [])):
+        return True
+    return bool(MOCK_ID.search(json.dumps(t.get("evidence", {}))))
+
+
+def _belongs_to(t: dict, pid: str) -> bool:
+    """Every patient-level tool result in the trace must be about this patient."""
+    for tc in t.get("tool_calls", []):
+        r = tc.get("result")
+        if tc.get("name") in ("get_patient", "predict_patient", "rank_for_patient") and isinstance(r, dict) \
+                and r.get("patient_id") not in (None, pid):
+            return False
+    return t.get("patient_id") in (None, pid)
+
+
 def trace(pid: str, qid: str) -> tuple[dict | None, str]:
-    """Returns (trace, source): source is 'cached', 'mock' or 'missing'."""
-    for folder, source in ((P.demo_cache, "cached"), (MOCK_DIR, "mock")):
+    """Returns (trace, source): source is 'cached', 'mock' or 'missing'. A trace whose tool results are about a
+    different patient is never shown."""
+    for folder in (P.demo_cache, MOCK_DIR):
         f = folder / f"{pid}__{qid}.json"
         if f.exists():
             t = json.loads(f.read_text())
-            if _usable(t):
-                return t, source
+            if _usable(t) and _belongs_to(t, pid):
+                return t, "mock" if _is_mock(t) or folder == MOCK_DIR else "cached"
     return None, "missing"
 
 

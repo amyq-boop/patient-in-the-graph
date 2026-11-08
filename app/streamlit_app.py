@@ -370,9 +370,11 @@ if CL and (c_ := PV.patient_cluster(CL, pid)) is not None:
     co_ = next((p_ for p_ in CL["patients"] if p_["patient_id"] == pid), {}).get("co_assignment")
     tiles.append(("Subgroup", esc(PV.cluster_info(CL, c_)["name"]),
                   f"stable in {co_:.0%} of reruns" if isinstance(co_, float) else "", "warn" if isinstance(co_, float) and co_ < PV.UNSTABLE else ""))
-ss_ = data.stage_score(cancer, pid)
-tiles.append(("GNN stage score", f"{ss_['risk']:.2f}", f"{ss_['rank']} of {ss_['n']}, low to high. Uncalibrated.", "")
-             if ss_ else ("GNN stage score", "Not used", "the stage model is kidney-only" if cancer == "brca" else "not available", "off"))
+if CL and c_ is not None:
+    sg_ = PV.cluster_info(CL, c_).get("signature_proteins", [])
+    top_ = [x for x in sg_ if x.get("direction") == "up"][:1] + [x for x in sg_ if x.get("direction") == "down"][:1]
+    tiles.append(("Subgroup signature", " ".join(f"{esc(x['symbol'])} {'↑' if x['direction'] == 'up' else '↓'}" for x in top_)
+                  or "None", "largest differences vs the other subgroup", ""))
 if _gv:
     tg_ = [r_["drug"] for r_ in PV.targets(_gv)][:2]
     tiles.append(("Drug targets", esc(", ".join(tg_)) or "None", "linked by graph edges" if tg_ else "none returned", "" if tg_ else "off"))
@@ -383,7 +385,7 @@ else:
 st.markdown(CH.glance(tiles), unsafe_allow_html=True)
 
 if CL:
-    st.markdown(mock_cl + CH.chapter(1, 4, "The cohort", f"Where does this tumor sit among {len(CL['patients'])} others?",
+    st.markdown(mock_cl + CH.chapter(1, 4, "The cohort", f"Where does this tumor sit among {len(CL['patients']) - 1} others?",
                                      CH.cohort_answer(CL, pid, CANCER_WORD)), unsafe_allow_html=True)
     st.markdown(CH.cohort_css(CL) + CH.cohort_map(CL, pid) + CH.subgroup_spec(CL, pid), unsafe_allow_html=True)
 
@@ -576,7 +578,8 @@ if V and run_key in played:
             why = (c.get("reason") or "Plausible but untested, so it is kept and labeled.") if as_hyp else RV.why_removed(c)
             txt = esc(RV.strip_ids(c["text"])) if as_hyp else f"<span class='what'>{esc(RV.strip_ids(c['text']))}</span>"
             return (f"<div class='catch{' hyp' if as_hyp else ''}'><span class='tag'>"
-                    f"{'Kept as hypothesis' if as_hyp else 'Removed'}</span>{txt}<div class='why'>{esc(why)}</div></div>")
+                    f"{'Kept as hypothesis' if as_hyp else 'Not supported by retrieved evidence'}</span>{txt}"
+                    f"<div class='why'>{esc(why)}</div></div>")
 
         if rem:
             st.markdown(catch(rem[0]), unsafe_allow_html=True)

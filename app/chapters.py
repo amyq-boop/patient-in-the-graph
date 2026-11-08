@@ -173,9 +173,9 @@ def subgroup_spec(cl, pid):
     stage_p = (ph.get("y_stage") or {}).get("chi2_p") if isinstance(ph, dict) else None
     stats = [(f"{info['n']}", "tumors", False)]
     if num(co):
-        stats.append((f"{co:.0%}", "rerun stability", co < UNSTABLE))
+        stats.append((f"{co:.0%}", "co-clustered in reruns", co < UNSTABLE))
     if num(info.get("jaccard")):
-        stats.append((f"{info['jaccard']:.2f}", "reproducibility", False))
+        stats.append((f"{info['jaccard']:.2f}", "Jaccard reproducibility", False))
     if num(stage_p):
         stats.append((f"p {stage_p:.2g}", "stage link, post hoc", False))
     stat_html = "".join(f"<div class='st{' warn' if w else ''}'><b>{v}</b><span>{l}</span></div>" for v, l, w in stats)
@@ -185,11 +185,20 @@ def subgroup_spec(cl, pid):
     pws = "".join(f"<li>{esc(p['name'])}</li>" for p in info.get("pathways", [])[:3])
     stab = (f"Whole-partition stability {cl['stability_ari']:.2f}" + (f" ± {cl['stability_sd']:.2f}" if num(cl.get("stability_sd")) else "")
             + " (bootstrap ARI, 100 reruns). " if num(cl.get("stability_ari")) else "")
-    note = (f"{esc(cl.get('method') or '')}. {stab}Rerun stability: how often this tumor lands in this subgroup when 80% of "
-            "the cohort is resampled. Reproducibility: Jaccard overlap of the subgroup across reruns. Protein values: mean "
-            "difference in standardized abundance. Pathways: Reactome enrichment, FDR q under 0.05. Stage was tested only "
-            "after clustering and never used to build subgroups. GNN-embedding comparison: "
-            + ("pending." if (cl.get("comparison") or {}).get("status") else "see results.")
+    ks = cl.get("k_selection") or []
+    ksel = ", ".join(f"k={x['k']}: {x['silhouette']:.3f}" for x in ks[:3]) if ks else ""
+    tests = [k for k, v in (ph.items() if isinstance(ph, dict) else []) if isinstance(v, dict) and num(v.get("chi2_p"))]
+    adj = (f" Stage p = {stage_p:.2g} unadjusted; {len(tests)} outcomes tested ({', '.join(t.replace('y_', '') for t in tests)}), "
+           f"so Bonferroni-adjusted p = {min(1, stage_p * len(tests)):.2g}." if num(stage_p) and tests else "")
+    note = (f"Clustering: {esc(cl.get('method') or '')}, on proteomics only. k chosen by silhouette across k = 2 to 6"
+            + (f" ({ksel}; k = 2 and 3 are close)" if ksel and len(ks) > 1 and abs(ks[0]['silhouette'] - ks[1]['silhouette']) < .01
+               else (f" ({ksel})" if ksel else "")) + f". {stab}"
+            "Co-clustered in reruns: across 100 refits on 80% subsamples, how often this tumor clusters with its subgroup "
+            "mates. Jaccard reproducibility: overlap of this subgroup with its best match in each refit (above 0.75 stable). "
+            "Signatures and pathways come from the same proteins used to cluster, so they describe the subgroups rather "
+            "than validate them. Protein values: mean difference in standardized abundance. Pathways: Reactome enrichment, "
+            f"FDR q under 0.05.{adj} Stage was tested only after clustering and never used to build subgroups. "
+            "GNN-embedding clustering comparison: " + ("pending." if (cl.get("comparison") or {}).get("status") else "see results.")
             + " Exploratory molecular subgroups, not clinical subtypes.")
     return (f"<div class='spec'><div class='stats'>{stat_html}</div>"
             f"<div class='spec-grid'><div><h4>Higher</h4>{_bars(up, 'effect', lambda v: f'{v:+.2f}', 'up')}</div>"
