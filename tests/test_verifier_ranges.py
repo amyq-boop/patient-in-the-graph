@@ -32,24 +32,37 @@ def test_range_expands_in_either_order_and_dash():
     assert cited_ids("mutation p.E545K [pt:P1:somatic_mutation:NCBIGene:5290]") == ["pt:P1:somatic_mutation:NCBIGene:5290"]
 
 
-def test_range_counts_only_if_every_id_is_in_evidence(monkeypatch):
+def test_range_is_read_as_a_list(monkeypatch):
+    """[E20–E23] counts like [E20, E21, E22, E23]: retrieved members support, the rest are unmatched. Demo trace
+    C3N-01649 P03 cited five drug edges as [E8158958–E8158963]; the sixth row (a generic node) wasn't retrieved."""
     draft = ("- VHL loss stabilises HIF2A, which drives VEGFA [E10–E12].\n"
              "- TP53 loss drives EMT and immune evasion [E20–E23].\n"
-             "- Ten approved drugs treat it [E1–E99].")
-    claims, answer, stats, _ = _run(draft, ["E10", "E11", "E12", "E20", "E23"], strict=False, monkeypatch=monkeypatch)
-    c1, c2, c3 = claims
-    assert c1["status"] == "supported" and c1["support"]["edge_ids"] == ["E10", "E12"]
-    assert c1["range_citations"] == [{"range": "E10–E12", "ids": ["E10", "E11", "E12"], "ok": True}]
-    # E21, E22 were never retrieved: the whole range is void, endpoints included
-    assert c2["status"] == "removed" and c2["support"]["edge_ids"] == [] and c2["unmatched_ids"] == ["E20–E23"]
-    assert c3["status"] == "removed" and c3["unmatched_ids"] == ["E1–E99"]
-    assert stats["n_range_citations_rejected"] == 2 and "range_citations" in c3
-    assert "TP53" not in answer and "VHL" in answer
+             "- Ten approved drugs treat it [E1–E99].\n"
+             "- Nothing here was retrieved [E50–E52].")
+    claims, answer, stats, _ = _run(draft, ["E10", "E11", "E12", "E21", "E23"], strict=False, monkeypatch=monkeypatch)
+    c1, c2, c3, c4 = claims
+    assert c1["status"] == "supported" and c1["support"]["edge_ids"] == ["E10", "E12"] and c1["unmatched_ids"] == []
+    assert c1["range_citations"] == [{"range": "E10–E12", "ids": ["E10", "E11", "E12"],
+                                      "in_evidence": ["E10", "E11", "E12"], "ok": True}]
+    # E20 and E22 weren't retrieved: like a list, the claim stands on E21 and E23; the misses are unmatched
+    assert c2["status"] == "supported" and c2["unmatched_ids"] == ["E20", "E22"]
+    assert c2["range_citations"][0]["in_evidence"] == ["E21", "E23"]
+    assert c3["status"] == "removed" and c3["unmatched_ids"] == ["E1–E99"] and c3["support"]["edge_ids"] == []
+    assert c4["status"] == "removed" and "E50–E52" in c4["unmatched_ids"]
+    assert stats["n_range_citations_rejected"] == 2
+    assert "TP53" in answer and "Ten approved" not in answer
 
 
-def test_id_cited_on_its_own_survives_a_failed_range(monkeypatch):
-    claims, _, _, _ = _run("- TP53 loss drives EMT [E20–E23, E20].", ["E20", "E23"], strict=False, monkeypatch=monkeypatch)
-    assert claims[0]["status"] == "supported" and claims[0]["support"]["edge_ids"] == ["E20"]
+def test_strict_naming_check_covers_range_members(monkeypatch):
+    names = {"E10": ["VHL", "HIF2A"], "E11": ["Sunitinib", "KDR"]}  # E11 names nothing in the sentence
+    claims, _, _, _ = _run("- VHL loss stabilises HIF2A [E10–E11].", ["E10", "E11"], names, monkeypatch=monkeypatch)
+    assert claims[0]["mismatched_ids"] == ["E11"] and claims[0]["status"] == "removed"
+
+
+def test_id_cited_on_its_own_survives_a_rejected_range(monkeypatch):
+    claims, _, _, _ = _run("- TP53 loss drives EMT [E1–E99, E20].", ["E20", "E1"], strict=False, monkeypatch=monkeypatch)
+    c = claims[0]  # the too-long range counts for nothing (E1 isn't support), but E20 on its own does
+    assert c["status"] == "supported" and c["support"]["edge_ids"] == ["E20"] and "E1–E99" in c["unmatched_ids"]
 
 
 def test_support_ids_appear_in_the_quote(monkeypatch):
@@ -59,7 +72,8 @@ def test_support_ids_appear_in_the_quote(monkeypatch):
                            [f"E{i}" for i in range(336698, 336703)] + ["E9", "E1"], strict=False, monkeypatch=monkeypatch)
     c = claims[0]
     assert c["status"] == "supported" and set(c["support"]["edge_ids"]) <= cited_in_quote(c["quote"])
-    assert c["support"]["edge_ids"] == ["E9", "E336698", "E336702"]  # failed ATIC range: E1 dropped too
+    assert c["support"]["edge_ids"] == ["E9", "E336698", "E336702", "E1", "E7"]  # as written; E7 is unmatched
+    assert {"E7", "E2", "E6"} <= set(c["unmatched_ids"]) and c["range_citations"][1]["in_evidence"] == ["E1"]
 
 
 def test_claims_without_ranges_are_unchanged(monkeypatch):

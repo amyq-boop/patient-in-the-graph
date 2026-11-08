@@ -35,6 +35,9 @@ Auto-scoring rules (written before any run):
 - Added after the full-graph ceiling run (Nov 8, ~00:00), a parser fix, not a rule change: citations written in
   parentheses, e.g. "(PMID:37085424)", count like [brackets], as they do in the verifier (bracket_paren_citations).
   It made 11 of 20 ceiling traces invalid and changes no masked-run result.
+- Added Nov 8 (~01:20), a matching fix, not a rule change: a hyphen between two letters reads as a space when a
+  claim is matched to a step or drug (mentions), so "Growth-factor pathway activation" mentions "growth factor".
+  e4_case_study's matcher missed these. Pre-registered masked result unchanged; ceiling growth factor 25% -> 80%.
 """
 import argparse
 import csv
@@ -42,6 +45,7 @@ import hashlib
 import json
 import os
 import random
+import re
 import subprocess
 import sys
 import threading
@@ -309,6 +313,18 @@ def bracket_paren_citations(trace):
     return t
 
 
+_WORD_HYPHEN = re.compile(r"(?<=[A-Za-z])[-\u2010\u2011](?=[A-Za-z])")
+
+
+def mentions(text, terms):
+    """e4_case_study.mentions, also reading a hyphen between two letters as a space on both sides, so
+    "Growth-factor pathway activation" mentions "growth factor". Hyphens next to a digit (HIF-2alpha, C3N-00852)
+    are left as they are."""
+    if E4.mentions(text, terms):
+        return True
+    return E4.mentions(_WORD_HYPHEN.sub(" ", text or ""), [_WORD_HYPHEN.sub(" ", t) for t in terms])
+
+
 def score_trace(trace, key, audit=E4.audit_graph, ceiling=False):
     """One patient's row. Invalid traces come back with valid=False and the reason; nothing raises."""
     trace = bracket_paren_citations(trace)
@@ -335,14 +351,14 @@ def score_trace(trace, key, audit=E4.audit_graph, ceiling=False):
     matches = []
     for s in key["core_chain"] + key["downstream_of_hif2"]:
         terms = list(s["accept_terms"]) + [s["label"]]
-        hit = [cid for cid, c in claims.items() if E4.mentions(c["text"], terms) or E4.mentions(quotes.get(cid, ""), terms)]
+        hit = [cid for cid, c in claims.items() if mentions(c["text"], terms) or mentions(quotes.get(cid, ""), terms)]
         kg = [cid for cid in hit if claims[cid]["mechanism_ids"]]
         row[f"step:{s['label']}"] = bool(hit)
         row[f"step_kg:{s['label']}"] = bool(kg)
         matches.append({"step": s["label"], "claim_ids": hit, "kg_claim_ids": kg})
 
     def named(names):
-        return [n for n in names if any(E4.mentions(c["text"], [n]) or E4.mentions(quotes.get(cid, ""), [n])
+        return [n for n in names if any(mentions(c["text"], [n]) or mentions(quotes.get(cid, ""), [n])
                                         for cid, c in claims.items())]
     row["n_steps_recovered"] = sum(bool(m["claim_ids"]) for m in matches)
     row["n_steps_recovered_kg"] = sum(bool(m["kg_claim_ids"]) for m in matches)
@@ -439,7 +455,7 @@ def make_handcheck(plan, trace_dir, n=5, key=None, seed=SEED, path=None, audit=E
                 c = claims[m["claim_ids"][0]]
                 verdict = "recovered"
             else:
-                near = [c for c in t["claims"] if E4.mentions(c.get("quote") or c["text"], terms)]
+                near = [c for c in t["claims"] if mentions(c.get("quote") or c["text"], terms)]
                 c = near[0] if near else None
                 verdict = "not_recovered"
             out_rows.append({"patient_id": pid, "group": group, "step": s["label"], "auto_verdict": verdict,

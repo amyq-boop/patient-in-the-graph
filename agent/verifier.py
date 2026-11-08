@@ -6,9 +6,10 @@
    or a PMID it cites is in evidence.pmids (what get_mechanism returned). Only IDs written in
    the claim's own sentence count, so the splitter can't add any.
    Citations count in [brackets] or (parentheses); a group naming a PMID makes its bare numbers PMIDs too.
-   A range like [E12–E15] stands for every ID in it (at most RANGE_MAX), and it supports a claim only if all of
-   them are in evidence; otherwise none of it counts. Support lists the range as written (E12, E15); the members
-   are in the claim's range_citations (edge rows are not ordered by mechanism chain, so a range
+   A range like [E12–E15] is read as the list E12, E13, E14, E15 (at most RANGE_MAX IDs): the members that are in
+   evidence count, the rest are unmatched, exactly as if they had been listed one by one. A longer range counts
+   for nothing (edge rows are not ordered by mechanism chain, so [E1–E99999] is never a real list). Support lists
+   the range as written (E12, E15); the members and which of them were in evidence are in range_citations (edge rows are not ordered by mechanism chain, so a range
    over a chain's first and last edge usually spans edges the agent never saw).
 3. Unsupported claims become "hypothesis" if the draft framed them that way, else "removed".
 4. The answer is the draft with removed claims cut out and unverified hypotheses labelled.
@@ -133,16 +134,19 @@ def cited_ids(text):
 
 
 def _check_ranges(text, ev_edges):
-    """Ranges cited in `text`, each marked ok iff every ID in it is in evidence, and the IDs to drop: members of
-    failed ranges that the text doesn't also cite on their own."""
+    """Ranges cited in `text`, read as lists. Returns (ranges, drop, members): each range with the members found in
+    evidence and ok = at least one was (it contributes support); `drop` = the written ends of ranges longer than
+    RANGE_MAX, which count for nothing unless also cited on their own; `members` = in-evidence members of the
+    other ranges, which count as cited."""
     singles, ranges = _parse_citations(text)
-    out, drop = [], set()
+    out, drop, members = [], set(), []
     for r in ranges:
-        ok = bool(r["ids"]) and all(x in ev_edges for x in r["ids"])
-        out.append({"range": r["range"], "ids": r["ids"], "ok": ok})
-        if not ok:
-            drop |= (set(r["ids"]) | set(r["ends"])) - set(singles)
-    return out, drop
+        found = [x for x in r["ids"] if x in ev_edges]
+        out.append({"range": r["range"], "ids": r["ids"], "in_evidence": found, "ok": bool(found)})
+        if not r["ids"]:
+            drop |= set(r["ends"]) - set(singles)
+        members += found
+    return out, drop, list(dict.fromkeys(members))
 
 
 def _drop_ids(text, bad):
@@ -262,15 +266,16 @@ def verify(draft, evidence, llm, edge_names=None, strict=None):
         quote = str(c.get("quote") or text).strip()
         if not text or is_header(quote) or is_header(text):
             continue
-        ranges, drop = [], set()
+        ranges, drop, members = [], set(), []
         if quote and quote in answer or (quote and quote in (draft or "")):
             ids = cited_ids(quote)
-            ranges, drop = _check_ranges(quote, ev_edges)
+            ranges, drop, members = _check_ranges(quote, ev_edges)
         else:  # quote not verbatim: keep listed IDs only if they really occur in the draft
             listed = [norm_id(x) for x in list(c.get("edge_ids", [])) + list(c.get("pmids", []))]
             ids = [x for x in listed if x in in_draft]
         e_ids, p_ids = split_ids([x for x in ids if x not in drop])
         ok_e = [x for x in e_ids if x in ev_edges]
+        ok_e += [x for x in members if x not in ok_e]  # a range's in-evidence members count like listed IDs
         ok_p = [x for x in p_ids if x in ev_pmids]
         hyp = bool(c.get("is_hypothesis")) or bool(HYP.match(text))
         said = f"{text} {quote}"  # the quote carries every name the cited IDs belong to
@@ -285,13 +290,15 @@ def verify(draft, evidence, llm, edge_names=None, strict=None):
                                        and "experiment" in section_of(draft, quote).lower()
                                        or EXPERIMENT.search(quote.split(":", 1)[0] + ":")):
             status = "removed"  # a proposed experiment is not a hypothesis claim: keep it unlabelled, as a non-claim
-        bad_ranges = [r["range"] for r in ranges if not r["ok"]]
+        bad_ranges = [r["range"] for r in ranges if not r["ok"]]  # too long, or no member was retrieved
+        missing = [x for r in ranges if r["ok"] for x in r["ids"] if x not in ev_edges and x not in e_ids]
         if status == "removed":
             why = non_claim_reason(quote, section_of(draft, quote)) or non_claim_reason(text)
             if why:  # kept in the answer, not scored; listed so the hand-check can audit it
                 nc = {"text": text, "reason": why, "quote": quote}
                 # its citations still have to hold: an ID not in evidence, or (strict) naming nothing it mentions
-                bad = [x for x in e_ids + p_ids if x not in ev_edges and x not in ev_pmids]
+                ok_ends = {e for r in ranges if r["ok"] for e in (r["ids"][0], r["ids"][-1])}  # shown as part of a range
+                bad = [x for x in e_ids + p_ids if x not in ev_edges and x not in ev_pmids and x not in ok_ends]
                 bad += [x for x in mism if strict and not x.startswith(MODEL_PREFIXES)] + bad_ranges
                 if bad:
                     nc["bad_ids"] = bad
@@ -305,7 +312,8 @@ def verify(draft, evidence, llm, edge_names=None, strict=None):
             "support": {"edge_ids": e_ids, "pmids": p_ids},
             "status": status,
             "quote": quote,
-            "unmatched_ids": [x for x in e_ids + p_ids if x not in ev_edges and x not in ev_pmids] + bad_ranges,
+            "unmatched_ids": ([x for x in e_ids + p_ids if x not in ev_edges and x not in ev_pmids]
+                              + list(dict.fromkeys(missing)) + bad_ranges),
             "entity_match": ent,
             "mismatched_ids": mism,
             "model_output_only": model_only,

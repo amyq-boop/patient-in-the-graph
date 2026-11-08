@@ -238,3 +238,10 @@ def test_hub_arm_settings_and_tag(monkeypatch):
     assert EC.apply_settings("e4", hub=0.0)["AGENT_HUB"] == "0"
     with pytest.raises(SystemExit):           # an exploratory arm must name its own folder
         EC.main(["--run", "--hub", "0"])
+
+
+def test_hyphenated_words_match_step_terms():
+    from eval.e4_cohort import mentions
+    assert mentions("Growth-factor pathway activation [E5]", ["growth factor"])
+    assert mentions("TGF-alpha signalling", ["TGF-alpha"]) and mentions("TGF alpha signalling", ["TGF-alpha"])
+    assert not mentions("HIF-1alpha is up", ["HIF-2alpha"]) and not mentions("growth of the tumour", ["growth factor"])
