@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Patient-in-the-Graph</title>
+<meta name="description" content="From biological knowledge, through a graph neural network, to one real patient's molecular data, with every claim checked against its evidence.">
+<link rel="stylesheet" href="tour.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%2215%22 fill=%22%2315122b%22/%3E%3Ccircle cx=%2211%22 cy=%2212%22 r=%223.5%22 fill=%22%238b7cf6%22/%3E%3Ccircle cx=%2221%22 cy=%2211%22 r=%223%22 fill=%22%23e0558a%22/%3E%3Ccircle cx=%2216%22 cy=%2221%22 r=%224.5%22 fill=%22%23f4efe6%22/%3E%3C/svg%3E">
+</head>
+<body class="is-intro">
+<canvas id="stage" aria-label="Interactive knowledge-graph network. Use the panel controls to explore it by keyboard."></canvas>
+
+<header class="top">
+  <button class="brand" id="brand" title="Back to the start">Patient-in-the-Graph</button>
+  <nav aria-label="Chapters"><ol class="rail" id="rail"></ol></nav>
+  <div class="top-actions">
+    <button class="ghost" id="to-tour" hidden>Return to tour</button>
+    <button class="ghost" id="skip">Open workspace</button>
+  </div>
+</header>
+
+<section class="intro" id="intro" aria-labelledby="intro-title">
+  <p class="kicker">Nucleate Pittsburgh BioHack 2026, NVIDIA bioinformatics track</p>
+  <h1 id="intro-title">One patient,<br>read through everything biology already knows.</h1>
+  <p class="lede">A knowledge graph of genes, diseases, drugs and curated disease mechanisms. A graph neural network that learns its structure. And a real person's cancer data, connected to it claim by claim, with every claim checked against its evidence.</p>
+  <div class="intro-actions">
+    <button class="primary" id="begin">Begin the walkthrough</button>
+    <button class="ghost" id="skip2">Go straight to the patient workspace</button>
+  </div>
+  <p class="intro-foot" id="intro-foot"></p>
+</section>
+
+<main class="narr" id="narr" aria-live="polite"></main>
+<aside class="detail" id="detail" aria-label="Selection details" hidden></aside>
+<section class="band" id="band" hidden></section>
+
+<footer class="controls" id="controls">
+  <button class="ghost" id="prev">Back</button>
+  <div class="prog" aria-hidden="true"><i id="progbar"></i></div>
+  <button class="primary" id="next">Next</button>
+  <span class="keys">Arrow keys move between chapters. Press N for presenter notes.</span>
+</footer>
+
+<section class="notes" id="notes" hidden aria-label="Presenter notes"></section>
+<section class="workspace" id="ws" hidden aria-label="Patient workspace"></section>
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal-card">
+    <div class="modal-head"><h2 id="modal-title">Case review</h2>
+      <div><button class="ghost" id="modal-dl">Download as Markdown</button> <button class="ghost" id="modal-x">Close</button></div></div>
+    <article class="review" id="modal-body"></article>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script src="vendor/d3.v7.9.0.min.js"></script>
+<script src="graph.js"></script>
+<script src="charts.js"></script>
+<script src="tour.js"></script>
+</body>
+</html>
