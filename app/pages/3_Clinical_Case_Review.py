@@ -320,4 +320,9 @@ with audit_tab:
             st.markdown(f"<div class='audit'>{txt(digest)} &nbsp; {txt(path)}</div>", unsafe_allow_html=True)
 
 st.divider()
-st.caption("Patient-led public research case · https://youngcrc.com/ · This proof of concept has no EHR integration, clinical validation, or therapeutic approval logic. Historical sample measurements are not transferred to present-day lesions. The existing kidney-cancer risk model is not used for this case.")
+st.caption("Source: Alexander Young, *Young CRC: open case data for research agents*, [youngcrc.com](https://youngcrc.com/), website release "
+           + str(case.get("release")) + ". Curated data used under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). "
+           "This page shows a selected subset of the curated tables. The layout, graph retrieval and commentary are the "
+           "Patient-in-the-Graph team's own work and do not imply his endorsement. "
+           "Third-party report rights remain with their respective owners.")
+st.caption("Patient-led public research case · This proof of concept has no EHR integration, clinical validation, or therapeutic approval logic. Historical sample measurements are not transferred to present-day lesions. The existing kidney-cancer risk model is not used for this case.")

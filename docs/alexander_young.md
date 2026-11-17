@@ -46,4 +46,4 @@ Do **not** connect the existing CPTAC **ccRCC** stage-risk model to this unrelat
 
 ## Source citation
 
-Alexander Young, *Open Cancer Data*, <https://youngcrc.com/>. Cite the live release version, exact dataset paths, SHA-256 hashes shown in the page, and specimen/source IDs when reporting a finding. See <https://github.com/AlexTISYoung/youngcrc> for detailed limitations and companion tools.
+Alexander Young, *Young CRC: open case data for research agents*, <https://youngcrc.com/>, used under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The app shows a selected subset of the curated tables; the layout, graph retrieval and commentary are this team's own work and do not imply his endorsement. Cite the live release version, exact dataset paths, SHA-256 hashes shown in the page, and specimen/source IDs when reporting a finding. See <https://github.com/AlexTISYoung/youngcrc> for detailed limitations and companion tools.

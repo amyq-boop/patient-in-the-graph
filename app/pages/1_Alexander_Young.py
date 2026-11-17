@@ -208,8 +208,12 @@ with tab5:
 
 st.divider()
 st.caption(
-    "Source: Alexander Young, Open Cancer Data, website release " + case["release"]
-    + ". Selected source files were verified against SHA-256 hashes in the public manifest. "
+    "Source: Alexander Young, *Young CRC: open case data for research agents*, "
+    "[youngcrc.com](https://youngcrc.com/), website release " + case["release"]
+    + ". Curated data used under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). "
+    "This page shows a selected subset of the curated tables. The layout, graph retrieval and commentary "
+    "are the Patient-in-the-Graph team's own work and do not imply his endorsement. "
+    "Selected source files were verified against SHA-256 hashes in the public manifest. "
     "Third-party report rights remain with their respective owners."
 )
 with st.expander("File-level SHA-256 provenance"):

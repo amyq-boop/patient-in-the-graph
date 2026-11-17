@@ -271,7 +271,7 @@
       <h3>Findings by specimen</h3>
       <div class="list" id="spec-list">${p.specimens.filter((s) => s.n_findings || s.proteomics).map((s) => `<button class="item" data-sp="${esc(s.sample_id)}"><span class="t">${esc(s.label)}</span><span class="v">${esc(s.date || "undated")}</span><span class="s">${s.proteomics ? "Proteomics block B7_43. " : ""}${(bySpec[s.sample_id] || []).map((f) => `${esc(f.feature)}: ${esc(hv(f.value))}${f.unit ? " " + esc(f.unit) : ""}`).join("; ")}</span></button>`).join("")}</div>
       <div class="scope"><b>Specimen dates matter.</b> Most molecular results come from tissue collected in 2024. His disease has progressed since then. Each finding carries its specimen and date, and the release marks current-node status as not assessed.</div>
-      <p class="src">Alexander Young, Open Cancer Data, <a href="${esc(p.base_url)}" target="_blank" rel="noopener">youngcrc.com</a>, release ${esc(p.release)} (${p.data_source === "live" ? "live" : "verified offline copy"}). Curated data CC BY 4.0. ${Object.keys(p.sha256).length} files hash-checked.</p>`);
+      <p class="src">Alexander Young, <i>Young CRC: open case data for research agents</i>, <a href="${esc(p.base_url)}" target="_blank" rel="noopener">youngcrc.com</a>, release ${esc(p.release)} (${p.data_source === "live" ? "live" : "verified offline copy"}). Curated data <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>. ${Object.keys(p.sha256).length} files hash-checked.</p>`);
     $("#spec-list").onclick = (e) => { const b = e.target.closest("[data-sp]"); if (b) selectSpecimen(b.dataset.sp); };
     showTimeline();
     Graph.setScene({ nodes: stageIds(), dim: stageIds(), anchor: { x: 0.72, y: 0.36 }, reheat: 0.2 });
@@ -749,7 +749,7 @@
       W.onclick = (e) => { const c = e.target.closest("[data-edge]"); if (c) citeEdge(c.dataset.edge); };
     } else if (T === "sources") {
       const gi = state.boot.graph_index;
-      W.innerHTML = `<h3>Patient data</h3><p>Alexander Young, Open Cancer Data, <a href="${esc(p.base_url)}" target="_blank" rel="noopener">youngcrc.com</a>, release ${esc(p.release)}, loaded ${p.data_source === "live" ? "live" : "from the hash-verified offline copy in app/tour/snapshot"}. Curated data CC BY 4.0; third-party reports keep their own rights.</p>
+      W.innerHTML = `<h3>Patient data</h3><p>Alexander Young, <i>Young CRC: open case data for research agents</i>, <a href="${esc(p.base_url)}" target="_blank" rel="noopener">youngcrc.com</a>, release ${esc(p.release)}, loaded ${p.data_source === "live" ? "live" : "from the hash-verified offline copy in app/tour/snapshot"}. Curated data <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>; third-party reports keep their own rights.</p>
         ${p.load_errors.length ? `<p class="note">Live load: ${esc(p.load_errors.join("; "))}</p>` : ""}
         <table class="t"><thead><tr><th>File</th><th>SHA-256 (checked)</th></tr></thead><tbody>${Object.entries(p.sha256).map(([f, h]) => `<tr><td>${esc(f)}</td><td><span class="id">${esc(h.slice(0, 20))}...</span></td></tr>`).join("")}</tbody></table>
         <h3>Knowledge graph</h3><p>${esc(gi.description)} Backend: ${esc(gi.source)}, ${fmt(gi.n_nodes)} nodes, ${fmt(gi.n_edges)} edges.</p>

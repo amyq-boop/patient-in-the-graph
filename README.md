@@ -60,7 +60,7 @@ packages. Run every command from the repo root.
   patient record, GNN retrieval, evidence graph, the agent's draft, then the verifier striking unsupported claims.
 - Add `?view=demo` to the URL for the compact view used in the pitch, or `?q=P01` … `?q=P05` to open one question.
 - The sidebar has three more pages built on Alexander Young's public colorectal cancer case (self-published records,
-  youngcrc.com, CC BY 4.0), including a clinician-facing case review ([`docs/CLINICIAN_WORKBENCH.md`](docs/CLINICIAN_WORKBENCH.md)).
+  [youngcrc.com](https://youngcrc.com/), [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)), including a clinician-facing case review ([`docs/CLINICIAN_WORKBENCH.md`](docs/CLINICIAN_WORKBENCH.md)).
   They fetch his records live, so they need internet access.
 - To run the agent live instead of replaying, do the full setup under *For contributors*, then set `BIOHACK_LIVE=1`.
 
